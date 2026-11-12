@@ -16,8 +16,10 @@ et Gamma) à du gradient boosting interprété par SHAP.
 ├── requirements.txt           dépendances Python (versions figées)
 ├── download_nfip.py           test de téléchargement OpenFEMA (Delaware uniquement)
 └── Data_cleaning/
-    ├── README.md              fichiers bruts : origine, emplacement, sommes de contrôle
-    ├── (fichiers bruts *_SE.parquet et CPI : non versionnés, à placer ici)
+    ├── README.md              fichiers d'entrée : origine, emplacement, sommes de contrôle
+    ├── CPI_1978_2026.xlsx     indice des prix BLS (revalorisation)
+    ├── dictionary/            dictionnaire des champs OpenFEMA (tables de codes)
+    ├── (fichiers bruts *_SE.parquet : non versionnés, à placer ici)
     └── clean/
         ├── README.md          guide des données nettoyées : à lire avant de modéliser
         ├── clean_data.py      script de nettoyage (audit, sentinelles, nettoyage)
@@ -33,13 +35,18 @@ et Gamma) à du gradient boosting interprété par SHAP.
 
 - **OpenFEMA**, jeux *FIMA NFIP Redacted Claims v3* et *FIMA NFIP Redacted Policies v3* (API v3), filtrés
   sur les États de la Région IV (AL, FL, GA, KY, MS, NC, SC, TN). Date d'extraction (`asOfDate`) :
-  08/09/2026. Date d'accès à l'API : **à compléter**.
+  08/09/2026. Date d'accès à l'API, procédure d'extraction et lien de téléchargement des fichiers bruts :
+  **à compléter par Lucas Lhmnn**, qui a préparé ces fichiers.
 
   > *This product uses the Federal Emergency Management Agency's OpenFEMA API, but is not endorsed by
   > FEMA.*
 
   **Les données de ce dépôt sont modifiées par le groupe et non approuvées par FEMA.**
-- **BLS**, indice des prix CPI-U, série CUUR0000SA0, pour la revalorisation des montants.
+- **BLS**, indice des prix CPI-U, série CUUR0000SA0, pour la revalorisation des montants
+  (`Data_cleaning/CPI_1978_2026.xlsx`, versionné).
+- **Dictionnaire des champs OpenFEMA** (tables de codes) :
+  [https://www.fema.gov/api/open/v1/OpenFemaDataSetFields.csv](https://www.fema.gov/api/open/v1/OpenFemaDataSetFields.csv),
+  copie versionnée dans `Data_cleaning/dictionary/`.
 
 Origine précise et sommes de contrôle des fichiers bruts : [`Data_cleaning/README.md`](Data_cleaning/README.md).
 
@@ -67,7 +74,7 @@ rôles (cibles, ensembles A et B), transformations et limites.
 
 ## Ordre d'exécution (pour régénérer)
 
-1. Placer les fichiers bruts dans `Data_cleaning/` (voir [`Data_cleaning/README.md`](Data_cleaning/README.md)).
+1. Placer les deux fichiers bruts `*_SE.parquet` dans `Data_cleaning/` (voir [`Data_cleaning/README.md`](Data_cleaning/README.md)).
 2. Lancer, depuis la racine du dépôt :
 
    ```bash

@@ -177,10 +177,11 @@ depuis un paiement NA), NA pour 0.
 ## 6. Origine du dictionnaire v3
 
 Les tables de codes (fondations, étages, zones, occupations, signification des montants négatifs, unités)
-proviennent du fichier des champs OpenFEMA `OpenFemaDataSetFields.csv`. Il a été téléchargé le 12/11/2026
-depuis `https://www.fema.gov/api/open/v1/OpenFemaDataSetFields.csv` et il **n'est pas versionné**
-(`Data_cleaning/dictionary/`). **Le groupe n'a pas confirmé l'origine officielle de ce fichier**, et
-toutes les tables de codes en dépendent.
+proviennent du fichier des champs OpenFEMA, versionné dans `Data_cleaning/dictionary/OpenFemaDataSetFields.csv`.
+Il a été téléchargé le 12/11/2026 depuis
+[https://www.fema.gov/api/open/v1/OpenFemaDataSetFields.csv](https://www.fema.gov/api/open/v1/OpenFemaDataSetFields.csv).
+**Le groupe n'a pas confirmé l'origine officielle de ce fichier**, et toutes les tables de codes en
+dépendent.
 
 ## 7. Charger les données
 
@@ -197,8 +198,8 @@ Les types sont conservés (catégories, booléens et entiers nullables). `loss_m
 
 ## 8. Régénérer
 
-1. Placer les fichiers bruts et l'Excel du CPI dans `Data_cleaning/` (voir `Data_cleaning/README.md`) :
-   `NfipClaimsV3_SE.parquet`, `NfipPoliciesV3_SE.parquet`, `CPI_1978_2026.xlsx`.
+1. Placer les deux fichiers bruts dans `Data_cleaning/` (voir `Data_cleaning/README.md`) :
+   `NfipClaimsV3_SE.parquet` et `NfipPoliciesV3_SE.parquet`. L'Excel du CPI est déjà dans le dépôt.
 2. Depuis la racine du dépôt :
 
    ```bash
