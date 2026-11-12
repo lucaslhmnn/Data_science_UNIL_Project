@@ -1,0 +1,21 @@
+# Sommes de contrôle SHA-256 des données (chemins relatifs à la racine du dépôt)
+# Générées le 12/11/2026 par clean_data.py au commit 95976f9165e36073738b2243aff0b21e3183578d
+# Vérification, depuis la racine du dépôt :
+#   grep -v '^#' Data_cleaning/clean/CHECKSUMS.txt | shasum -a 256 -c -
+# Les fichiers bruts et le CPI ne sont pas dans le dépôt : leurs lignes échouent tant qu'ils
+# n'ont pas été placés dans Data_cleaning/ (voir Data_cleaning/README.md).
+#
+# fichier                                        octets         lignes
+# Data_cleaning/clean/claims_clean.parquet       16 345 922     621 693
+# Data_cleaning/clean/zone_year.parquet             908 534      30 253
+# Data_cleaning/clean/claims_anomalies.parquet      232 850       2 575
+# Data_cleaning/NfipClaimsV3_SE.parquet (brut)   43 178 832     787 274
+# Data_cleaning/NfipPoliciesV3_SE.parquet (brut) 1 326 275 914  31 463 858
+# Data_cleaning/CPI_1978_2026.xlsx (BLS)             17 141           -
+#
+cd616cef359ba51618113e7bbcfc6acb48c867e5c819b8ff9b27cf430f472cd9  Data_cleaning/clean/claims_clean.parquet
+d885398ae1ef8b5bb0de348b95a89be31d27714b72262fa6f97d36e2a96ab1c4  Data_cleaning/clean/zone_year.parquet
+735ebc4d66c151e625715960f2516e37f9e29abdd6a1a4b2ea4a2e3117abb96f  Data_cleaning/clean/claims_anomalies.parquet
+219b72b53b050dd59cb82df91651e3f6463b44714f9393789dd5b74eb20c3f80  Data_cleaning/NfipClaimsV3_SE.parquet
+d06011eec27d0e2663301c7a678fe9276e6d376a22afb56ca862d54b0e830374  Data_cleaning/NfipPoliciesV3_SE.parquet
+3898ce146e2a94e33dbb146552d1a7d7567eb35a57c13e3a6ba3fbb94379f2d3  Data_cleaning/CPI_1978_2026.xlsx

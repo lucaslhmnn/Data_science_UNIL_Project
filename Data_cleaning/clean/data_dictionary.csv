@@ -1,0 +1,33 @@
+fichier,nom,type,colonne_brute,transformation,famille,role
+claims_clean.parquet,paid_flag,boolean,"amountPaidOnBuildingClaim, netBuildingPaymentAmount",> 0 → vrai ; = 0 → faux ; NA avec paiement net = 0 → faux (dossier clos sans paiement) ; sinon NA,paiements,cible
+claims_clean.parquet,paid_building_real,Float64,"amountPaidOnBuildingClaim, dateOfLoss","montant × CPI_base / CPI(mois du sinistre) si paid_flag vrai, sinon NA",paiements,cible
+claims_clean.parquet,building_coverage,Int64,totalBuildingInsuranceCoverage,aucune (dollars nominaux),couverture et franchise,ensemble A
+claims_clean.parquet,deductible_amount,Int64,buildingDeductibleCode,code → dollars (CONFIG deductible_map),couverture et franchise,ensemble A
+claims_clean.parquet,flood_zone_group,category,ratedFloodZone,"regroupement A*, V*, X (X, B, C), D, autre (CONFIG flood_zone_groups)",zone d'inondation,ensemble A
+claims_clean.parquet,foundation_type,category,foundationType,code catégoriel ; 0 → « non renseigné »,bâtiment,ensemble A
+claims_clean.parquet,elevated_building,boolean,elevatedBuildingIndicator,booléen nullable,bâtiment,ensemble A
+claims_clean.parquet,building_age,Int64,"yearOfLoss, originalConstructionDate","yearOfLoss − année de construction ; NA si date manquante, sentinelle 1492-10-12 ou année < 1700",bâtiment,ensemble A
+claims_clean.parquet,n_floors,category,numberOfFloorsInTheInsuredBuilding,code catégoriel (pas un nombre),bâtiment,ensemble A
+claims_clean.parquet,primary_residence,boolean,primaryResidenceIndicator,booléen nullable,bâtiment,ensemble A
+claims_clean.parquet,county_fips,category,countyCode,"texte de 5 caractères, zéros initiaux conservés",géographie,ensemble A
+claims_clean.parquet,loss_year,Int64,yearOfLoss,aucune,événement,ensemble A
+claims_clean.parquet,rating_system,category,occupancyType,1 → ancien (1) ; 11 → Risk Rating 2.0 (11),tarification,ensemble A
+claims_clean.parquet,water_depth,Int64,waterDepth,"-999 → NA (valeur sentinelle supposée, non documentée) ; autres valeurs négatives conservées ; unité mixte possible (pouces ou pieds selon le dossier, d'après le dictionnaire v3), non convertie",événement,ensemble B
+claims_clean.parquet,flood_duration,Int64,floodWaterDuration,"999 → NA (valeur sentinelle supposée, non documentée) ; zéros conservés",événement,ensemble B
+claims_clean.parquet,floodEvent,category,floodEvent,aucune,événement,groupe
+claims_clean.parquet,building_coverage_real,Float64,"totalBuildingInsuranceCoverage, dateOfLoss",× CPI_base / CPI(mois du sinistre),couverture et franchise,ensemble A
+claims_clean.parquet,deductible_amount_real,Float64,"buildingDeductibleCode, dateOfLoss",deductible_amount × CPI_base / CPI(mois du sinistre),couverture et franchise,ensemble A
+claims_clean.parquet,buildingPropertyValue,Int64,buildingPropertyValue,"règle 2147483647 → NA (valeur sentinelle supposée, non documentée) non appliquée : valeur présente 0 fois ; valeurs > 10000000 → NA (seuil supposé, non documenté : erreur d'unité probable) ; candidat ensemble A en attente d'un test",expertise,contrôle
+claims_clean.parquet,state,category,state,aucune,géographie,contrôle
+claims_clean.parquet,loss_month_period,period[M],dateOfLoss,"mois de dateOfLoss (période mensuelle, clé du CPI)",événement,contrôle
+claims_clean.parquet,id,Int64,id,aucune,administratif,contrôle
+claims_clean.parquet,paid_na_to_zero,boolean,"amountPaidOnBuildingClaim, netBuildingPaymentAmount",vrai si paid_flag a été mis à faux à partir d'un paiement NA,paiements,contrôle
+zone_year.parquet,flood_zone_group,category,ratedFloodZone,même regroupement que les sinistres,zone d'inondation,clé
+zone_year.parquet,county_fips,category,censusGeoid,5 premiers caractères,géographie,clé
+zone_year.parquet,year,Int64,"policyEffectiveDate, policyTerminationDate",année civile couverte,période,clé
+zone_year.parquet,policy_years,Float64,"policyCount, policyEffectiveDate, policyTerminationDate","Σ policyCount × jours couverts dans l'année / 365,25",exposition,exposition
+zone_year.parquet,building_coverage_years,Float64,totalBuildingInsuranceCoverage,"Σ couverture × jours couverts dans l'année / 365,25 (dollars-années)",exposition,exposition
+zone_year.parquet,premium_earned,Float64,totalInsurancePremiumOfThePolicy,Σ prime × jours couverts dans l'année / durée du contrat (prime acquise),prime,exposition
+zone_year.parquet,n_policy_rows,Int64,id,nombre de lignes de police touchant l'année,exposition,contrôle
+zone_year.parquet,partial_year,boolean,"policyEffectiveDate, asOfDate",année à exposition incomplète,période,contrôle
+zone_year.parquet,partial_reason,category,"policyEffectiveDate, asOfDate",motif de l'incomplétude,période,contrôle
