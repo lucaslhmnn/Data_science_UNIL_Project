@@ -4,6 +4,9 @@
 #   grep -v '^#' Data_cleaning/clean/CHECKSUMS.txt | shasum -a 256 -c -
 # Les fichiers bruts et le CPI ne sont pas dans le dépôt : leurs lignes échouent tant qu'ils
 # n'ont pas été placés dans Data_cleaning/ (voir Data_cleaning/README.md).
+# Ces sommes vérifient l'intégrité des fichiers versionnés. Une régénération donne le même contenu,
+# mais pas les mêmes octets pour claims_clean et zone_year (ordre des lignes, arrondis flottants
+# ~1e-15) : voir Data_cleaning/clean/README.md, § 8.
 #
 # fichier                                        octets         lignes
 # Data_cleaning/clean/claims_clean.parquet       16 345 922     621 693

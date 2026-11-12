@@ -210,8 +210,13 @@ Les types sont conservés (catégories, booléens et entiers nullables). `loss_m
    Si un fichier d'entrée manque, le script s'arrête en indiquant lequel et où le placer.
 3. Mesures du 12/11/2026 sur un Apple M3 (8 cœurs, 16 Go), fichiers en cache : `audit` 6,3 s (pic
    mémoire ≈ 2,8 Gio), `sentinels` 1,6 s (≈ 1,2 Gio), `clean` 5,8 s (≈ 3,7 Gio).
-4. Vérifier : `grep -v '^#' Data_cleaning/clean/CHECKSUMS.txt | shasum -a 256 -c -`. Les sommes ne
-   sont garanties identiques qu'avec les mêmes fichiers bruts et les versions de `requirements.txt`.
+4. Vérifier : `grep -v '^#' Data_cleaning/clean/CHECKSUMS.txt | shasum -a 256 -c -`. Les sommes
+   SHA-256 vérifient que les fichiers clonés ou téléchargés sont intacts. **Après une régénération,
+   celles de `claims_clean.parquet` et `zone_year.parquet` ne correspondent plus**, même avec les mêmes
+   fichiers bruts (constaté le 12/11/2026) : le contenu est identique, mais l'ordre des lignes de
+   `claims_clean` varie (lecture parallèle de DuckDB), et les sommes de `zone_year` diffèrent d'environ
+   1e-15 en relatif. Pour comparer deux versions, trier par `id` (ou par zone × comté × année) et comparer
+   les valeurs, pas les octets.
 
 ## 9. Version
 
