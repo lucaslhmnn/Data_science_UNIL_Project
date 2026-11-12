@@ -1,0 +1,44 @@
+{
+  "targets": [
+    "paid_flag",
+    "paid_building_real"
+  ],
+  "features_A": [
+    "building_coverage_real",
+    "deductible_amount_real",
+    "flood_zone_group",
+    "elevated_building",
+    "building_age",
+    "n_floors",
+    "primary_residence",
+    "county_fips",
+    "state",
+    "loss_year",
+    "building_age_missing",
+    "deductible_missing",
+    "primary_residence_missing"
+  ],
+  "features_B": [
+    "water_depth",
+    "flood_duration"
+  ],
+  "controls": [
+    "building_value_real",
+    "foundation_rr2",
+    "rating_system",
+    "era",
+    "recent_claim",
+    "paid_gt_cov",
+    "paid_na_to_zero"
+  ],
+  "validation": {
+    "principale": "fold (5 plis groupés par event_group)",
+    "robustesse": "split (train <= 2016, valid 2017-2020, test >= 2021)"
+  },
+  "grouping": [
+    "event_group",
+    "fold",
+    "split",
+    "major_event"
+  ]
+}

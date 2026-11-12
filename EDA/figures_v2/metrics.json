@@ -1,0 +1,209 @@
+{
+ "dataset": "claims_model.parquet",
+ "n_rows": 621693,
+ "n_cols": 35,
+ "paid_rate": 0.7237446778393838,
+ "sev_median": 20308.63190629379,
+ "sev_mean": 50583.394908115544,
+ "at_cap": 0.054945568066599074,
+ "top8_events_share": 0.32844828556860056,
+ "spearman_depth": 0.2625040471498389,
+ "missing_pct": {
+  "deductible_amount_real": 4.79,
+  "building_age": 6.09,
+  "water_depth": 9.81,
+  "flood_duration": 20.7,
+  "floodEvent": 22.87,
+  "building_value_real": 24.06,
+  "paid_building_real": 27.66,
+  "primary_residence": 35.69
+ },
+ "paid_rate_by": {
+  "flood_zone_group": {
+   "A*": 0.7353,
+   "D": 0.6918,
+   "V*": 0.7287,
+   "X": 0.6783,
+   "inconnu": 0.6837
+  },
+  "n_floors": {
+   "1": 0.7237,
+   "2": 0.7247,
+   "3": 0.7095,
+   "4": 0.7414,
+   "5": 0.7885,
+   "6": 0.87,
+   "inconnu": 0.5846
+  },
+  "rating_system": {
+   "Risk Rating 2.0 (11)": 0.8079,
+   "ancien (1)": 0.689
+  },
+  "elevated_building": {
+   "false": 0.7096,
+   "true": 0.7595
+  },
+  "primary_residence": {
+   "false": 0.7511,
+   "true": 0.7565,
+   "NA": 0.6671
+  },
+  "era": {
+   "1978-1993": 0.6638,
+   "1994-2004": 0.675,
+   "2005-2012": 0.7333,
+   "2013-2020": 0.7293,
+   "2021+": 0.8401
+  },
+  "split": {
+   "test": 0.8401,
+   "train": 0.6895,
+   "valid": 0.7373
+  }
+ },
+ "spearman": {
+  "Montant payé": {
+   "Montant payé": 1.0,
+   "Payé (0/1)": NaN,
+   "Couverture": 0.077,
+   "Franchise": 0.217,
+   "Âge du bâtiment": 0.274,
+   "Profondeur d'eau": 0.294,
+   "Durée de submersion": 0.013,
+   "Valeur du bâtiment": 0.22,
+   "Surélevé": -0.154,
+   "Résidence principale": 0.072,
+   "Année": 0.311
+  },
+  "Payé (0/1)": {
+   "Montant payé": NaN,
+   "Payé (0/1)": 1.0,
+   "Couverture": -0.047,
+   "Franchise": 0.086,
+   "Âge du bâtiment": 0.165,
+   "Profondeur d'eau": 0.381,
+   "Durée de submersion": 0.027,
+   "Valeur du bâtiment": 0.018,
+   "Surélevé": 0.05,
+   "Résidence principale": 0.005,
+   "Année": 0.128
+  },
+  "Couverture": {
+   "Montant payé": 0.077,
+   "Payé (0/1)": -0.047,
+   "Couverture": 1.0,
+   "Franchise": 0.084,
+   "Âge du bâtiment": -0.176,
+   "Profondeur d'eau": -0.065,
+   "Durée de submersion": -0.041,
+   "Valeur du bâtiment": 0.572,
+   "Surélevé": 0.146,
+   "Résidence principale": 0.009,
+   "Année": 0.154
+  },
+  "Franchise": {
+   "Montant payé": 0.217,
+   "Payé (0/1)": 0.086,
+   "Couverture": 0.084,
+   "Franchise": 1.0,
+   "Âge du bâtiment": 0.372,
+   "Profondeur d'eau": 0.112,
+   "Durée de submersion": 0.044,
+   "Valeur du bâtiment": 0.052,
+   "Surélevé": -0.001,
+   "Résidence principale": -0.004,
+   "Année": 0.304
+  },
+  "Âge du bâtiment": {
+   "Montant payé": 0.274,
+   "Payé (0/1)": 0.165,
+   "Couverture": -0.176,
+   "Franchise": 0.372,
+   "Âge du bâtiment": 1.0,
+   "Profondeur d'eau": 0.146,
+   "Durée de submersion": 0.046,
+   "Valeur du bâtiment": -0.098,
+   "Surélevé": -0.139,
+   "Résidence principale": 0.052,
+   "Année": 0.472
+  },
+  "Profondeur d'eau": {
+   "Montant payé": 0.294,
+   "Payé (0/1)": 0.381,
+   "Couverture": -0.065,
+   "Franchise": 0.112,
+   "Âge du bâtiment": 0.146,
+   "Profondeur d'eau": 1.0,
+   "Durée de submersion": 0.057,
+   "Valeur du bâtiment": 0.037,
+   "Surélevé": 0.018,
+   "Résidence principale": -0.04,
+   "Année": 0.137
+  },
+  "Durée de submersion": {
+   "Montant payé": 0.013,
+   "Payé (0/1)": 0.027,
+   "Couverture": -0.041,
+   "Franchise": 0.044,
+   "Âge du bâtiment": 0.046,
+   "Profondeur d'eau": 0.057,
+   "Durée de submersion": 1.0,
+   "Valeur du bâtiment": -0.029,
+   "Surélevé": -0.017,
+   "Résidence principale": -0.034,
+   "Année": -0.0
+  },
+  "Valeur du bâtiment": {
+   "Montant payé": 0.22,
+   "Payé (0/1)": 0.018,
+   "Couverture": 0.572,
+   "Franchise": 0.052,
+   "Âge du bâtiment": -0.098,
+   "Profondeur d'eau": 0.037,
+   "Durée de submersion": -0.029,
+   "Valeur du bâtiment": 1.0,
+   "Surélevé": 0.049,
+   "Résidence principale": 0.069,
+   "Année": 0.269
+  },
+  "Surélevé": {
+   "Montant payé": -0.154,
+   "Payé (0/1)": 0.05,
+   "Couverture": 0.146,
+   "Franchise": -0.001,
+   "Âge du bâtiment": -0.139,
+   "Profondeur d'eau": 0.018,
+   "Durée de submersion": -0.017,
+   "Valeur du bâtiment": 0.049,
+   "Surélevé": 1.0,
+   "Résidence principale": -0.17,
+   "Année": 0.112
+  },
+  "Résidence principale": {
+   "Montant payé": 0.072,
+   "Payé (0/1)": 0.005,
+   "Couverture": 0.009,
+   "Franchise": -0.004,
+   "Âge du bâtiment": 0.052,
+   "Profondeur d'eau": -0.04,
+   "Durée de submersion": -0.034,
+   "Valeur du bâtiment": 0.069,
+   "Surélevé": -0.17,
+   "Résidence principale": 1.0,
+   "Année": 0.061
+  },
+  "Année": {
+   "Montant payé": 0.311,
+   "Payé (0/1)": 0.128,
+   "Couverture": 0.154,
+   "Franchise": 0.304,
+   "Âge du bâtiment": 0.472,
+   "Profondeur d'eau": 0.137,
+   "Durée de submersion": -0.0,
+   "Valeur du bâtiment": 0.269,
+   "Surélevé": 0.112,
+   "Résidence principale": 0.061,
+   "Année": 1.0
+  }
+ }
+}
