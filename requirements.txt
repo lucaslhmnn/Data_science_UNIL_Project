@@ -1,0 +1,7 @@
+# Python 3.12 ou plus (testé avec Python 3.13.0).
+# Versions relevées dans l'environnement réel (pip freeze) le 12/11/2026.
+duckdb==2.0.0
+pandas==3.1.1
+pyarrow==26.0.1
+openpyxl==3.1.5
+numpy==2.5.4

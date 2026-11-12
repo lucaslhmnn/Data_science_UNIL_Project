@@ -1,1 +1,11 @@
 *.parquet
+# Exceptions : données nettoyées partagées dans le dépôt (16,7 Mio au total).
+# Les fichiers bruts (*_SE.parquet, 1,3 Gio) restent ignorés : voir Data_cleaning/README.md.
+!Data_cleaning/clean/claims_clean.parquet
+!Data_cleaning/clean/zone_year.parquet
+!Data_cleaning/clean/claims_anomalies.parquet
+# Environnement virtuel
+.venv/
+# Fichiers générés automatiquement
+__pycache__/
+.DS_Store
