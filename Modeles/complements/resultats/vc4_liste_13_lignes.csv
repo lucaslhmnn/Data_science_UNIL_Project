@@ -1,0 +1,14 @@
+county_id,zone,year,state,n_claims,exposure_years,mean_coverage,hist_claims_1990_2008,hist_per_1000,county_hist_per_1000,period,n_all,n_major,major_event_share,freq_per_1000,low_exposure,partial_year,n_policy_rows
+13197,A*,2021,GA,0,0.947296,250000.0,0,,,test,0,0,0.0,0.0,True,False,1
+13197,A*,2022,GA,0,0.999316,250000.0,0,,,test,0,0,0.0,0.0,True,False,2
+13197,A*,2023,GA,0,0.999316,250000.0,0,,,test,0,0,0.0,0.0,True,False,2
+13197,A*,2024,GA,0,1.00205,250000.0,0,,,test,0,0,0.0,0.0,True,False,2
+13197,X,2020,GA,0,0.380561,250000.0,0,,,test,0,0,0.0,0.0,True,False,2
+13197,X,2021,GA,0,1.61807,250000.0,0,,,test,0,0,0.0,0.0,True,False,2
+13239,A*,2022,GA,0,0.435318,250000.0,0,,0.0,test,0,0,0.0,0.0,True,False,1
+13239,A*,2023,GA,0,0.999316,250000.0,0,,0.0,test,0,0,0.0,0.0,True,False,2
+13239,A*,2024,GA,0,1.00205,250000.0,0,,0.0,test,0,0,0.0,0.0,True,False,2
+13307,A*,2023,GA,0,0.544832,240000.0,0,,,test,0,0,0.0,0.0,True,False,1
+13307,A*,2024,GA,0,1.00205,240000.0,0,,,test,0,0,0.0,0.0,True,False,2
+37081,V*,2021,NC,0,0.596851,36400.0,2,,176.578,test,0,0,0.0,0.0,True,False,1
+37081,V*,2022,NC,0,0.402464,36400.0,2,,176.578,test,0,0,0.0,0.0,True,False,1

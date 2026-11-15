@@ -1,0 +1,20 @@
+<!-- tab_ap_coefficients | M2 and M3 coefficients, paid claims (standard errors indicative only) | sources : Modeles/resultats/coefficients_payes.csv | statut : [Provisoire, exploratoire] | v0.1, 15/11/2026 ; résultats provisoires et exploratoires, voir STATUT_RESULTATS.md -->
+**M2 and M3 coefficients, paid claims (standard errors indicative only)** [Provisoire, exploratoire]
+
+Sources : `Modeles/resultats/coefficients_payes.csv`
+
+| Model | Term | Coefficient | SE (model) | SE (HC0) | SE (clustered by year) |
+|---|---|---|---|---|---|
+| M2 | const | -6.4606 | 0.0329 | 1.0026 | 1.5135 |
+| M2 | zone_V* | 0.7534 | 0.0237 | 0.2998 | 0.2832 |
+| M2 | zone_A* | 0.4246 | 0.0111 | 0.2215 | 0.2527 |
+| M2 | couverture_k$ | -0.0055 | 0.0001 | 0.0029 | 0.0047 |
+| M2 | log1p_hist_per_1000 | 0.1784 | 0.0082 | 0.1272 | 0.0893 |
+| M2 | log1p_county_hist_per_1000 | 0.2859 | 0.0085 | 0.179 | 0.2639 |
+| M3 | const | -4.7323 | 0.136 | 0.1929 | 0.7466 |
+| M3 | zone_V* | 0.4707 | 0.1195 | 0.177 | 0.2939 |
+| M3 | zone_A* | 0.2187 | 0.0557 | 0.0747 | 0.1036 |
+| M3 | couverture_k$ | -0.0043 | 0.0006 | 0.0008 | 0.0033 |
+| M3 | log1p_hist_per_1000 | 0.0626 | 0.0211 | 0.029 | 0.0254 |
+| M3 | log1p_county_hist_per_1000 | 0.1567 | 0.0256 | 0.0353 | 0.0699 |
+| M3 | alpha | 6.1269 | 0.1263 | 0.1414 | 0.503 |

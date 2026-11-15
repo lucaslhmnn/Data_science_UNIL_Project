@@ -1,0 +1,19 @@
+---
+title: "Rendering test of the preliminary analysis section (not part of the report)"
+date: today
+format:
+  html:
+    toc: true
+    number-sections: true
+    embed-resources: true
+    code-fold: true
+jupyter: python3
+execute:
+  warning: false
+---
+
+<!-- Analyse_preliminaire/rendu_test.qmd · v0.1 · 15/11/2026 · branche modeles-premier-jet · aucun commit à ce
+stade. Enveloppe de test : rend section_modelisation.qmd seule, dans Analyse_preliminaire/ (jamais dans
+quarto_report/). Résultats provisoires et exploratoires, voir STATUT_RESULTATS.md. -->
+
+{{< include section_modelisation.qmd >}}

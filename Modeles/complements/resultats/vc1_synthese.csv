@@ -1,0 +1,3 @@
+cible,iteration_retenue,argmin_deviance_main_fenetre,argmin_deviance_main_400,ecart_max_metrique_lgb_vs_main,deviance_validation_iteration_retenue
+payes,122,122,122,5.861977570020827e-14,100796.35015536267
+tous,113,113,113,7.460698725481052e-14,116946.89125393268

@@ -1,0 +1,170 @@
+
+=== deviance_par_modele ===
+cible               ensemble   modele  lignes  deviance_totale  deviance_moyenne_par_ligne  gain_relatif_vs_M0                         remarque
+payes entraînement 2010-2019       M0   14999      420255.5321                     28.0189              0.0000                              NaN
+payes entraînement 2010-2019       M1   14999      409972.0141                     27.3333              0.0245                              NaN
+payes entraînement 2010-2019 M_oracle   14999      364697.8712                     24.3148              0.1322 oracle : ajusté sur cet ensemble
+payes entraînement 2010-2019       M2   14999      375649.2549                     25.0450              0.1061                              NaN
+payes entraînement 2010-2019       M3   14999      435928.0680                     29.0638             -0.0373                              NaN
+payes entraînement 2010-2019       M4   14999      319944.6452                     21.3311              0.2387                              NaN
+payes         test 2020-2024       M0    7473      547574.7528                     73.2738              0.0000                              NaN
+payes         test 2020-2024       M1    7473      508724.6917                     68.0750              0.0709                              NaN
+payes         test 2020-2024 M_oracle    7473      311450.3427                     41.6767              0.4312 oracle : ajusté sur cet ensemble
+payes         test 2020-2024       M2    7473      566179.5798                     75.7634             -0.0340                              NaN
+payes         test 2020-2024       M3    7473      472302.6377                     63.2012              0.1375                              NaN
+payes         test 2020-2024       M4    7473      460683.0447                     61.6463              0.1587                              NaN
+payes         test sans 2024       M0    5983      246985.8487                     41.2813              0.0000                              NaN
+payes         test sans 2024       M1    5983      228982.1933                     38.2721              0.0729                              NaN
+payes         test sans 2024 M_oracle    5983      175096.0534                     29.2656              0.2911 oracle : ajusté sur cet ensemble
+payes         test sans 2024       M2    5983      253522.3219                     42.3738             -0.0265                              NaN
+payes         test sans 2024       M3    5983      228395.2636                     38.1740              0.0753                              NaN
+payes         test sans 2024       M4    5983      212451.9498                     35.5093              0.1398                              NaN
+ tous entraînement 2010-2019       M0   14999      492871.1497                     32.8603              0.0000                              NaN
+ tous entraînement 2010-2019       M1   14999      480113.9186                     32.0097              0.0259                              NaN
+ tous entraînement 2010-2019 M_oracle   14999      418535.1386                     27.9042              0.1508 oracle : ajusté sur cet ensemble
+ tous entraînement 2010-2019       M2   14999      445216.5778                     29.6831              0.0967                              NaN
+ tous entraînement 2010-2019       M3   14999      515380.9474                     34.3610             -0.0457                              NaN
+ tous entraînement 2010-2019       M4   14999      386208.8299                     25.7490              0.2164                              NaN
+ tous         test 2020-2024       M0    7473      592663.5163                     79.3073              0.0000                              NaN
+ tous         test 2020-2024       M1    7473      551746.9183                     73.8321              0.0690                              NaN
+ tous         test 2020-2024 M_oracle    7473      349439.3401                     46.7602              0.4104 oracle : ajusté sur cet ensemble
+ tous         test 2020-2024       M2    7473      603948.5201                     80.8174             -0.0190                              NaN
+ tous         test 2020-2024       M3    7473      515428.9001                     68.9722              0.1303                              NaN
+ tous         test 2020-2024       M4    7473      488597.3183                     65.3817              0.1756                              NaN
+ tous         test sans 2024       M0    5983      277811.5711                     46.4335              0.0000                              NaN
+ tous         test sans 2024       M1    5983      258345.0562                     43.1799              0.0701                              NaN
+ tous         test sans 2024 M_oracle    5983      199154.1699                     33.2867              0.2831 oracle : ajusté sur cet ensemble
+ tous         test sans 2024       M2    5983      281482.8502                     47.0471             -0.0132                              NaN
+ tous         test sans 2024       M3    5983      259980.7620                     43.4532              0.0642                              NaN
+ tous         test sans 2024       M4    5983      237094.2210                     39.6280              0.1466                              NaN
+
+=== bootstrap_annees_test ===
+cible difference  valeur_test    boot_p2_5  boot_p97_5  boot_part_negative           annees_ou_negative  sans_une_annee_min  sans_une_annee_max  nb_tirages_distincts
+payes    M4 - M2 -105496.5352 -221927.6291  10782.9333               0.926             2022, 2023, 2024        -108603.7678         -41070.3722                   118
+payes    M2 - M0   18604.8270  -33400.1052  72325.6884               0.273             2020, 2021, 2023          -5245.6829          31265.4690                   118
+payes    M3 - M2  -93876.9422 -218479.4831  30725.5988               0.920                   2022, 2024        -104359.0315         -25127.0584                   118
+payes    M4 - M0  -86891.7082 -169038.1504 -17212.6166               1.000 2020, 2021, 2022, 2023, 2024         -86418.0010         -34533.8990                   118
+ tous    M4 - M2 -115351.2018 -245971.8902  15269.4866               0.921                   2022, 2024        -119689.5532         -44388.6292                   118
+ tous    M2 - M0   11285.0038  -40142.6781  67632.8436               0.366             2020, 2021, 2023         -12402.1998          26061.2477                   118
+ tous    M3 - M2  -88519.6200 -218511.5330  41472.2930               0.915                   2022, 2024        -101572.2035         -21502.0882                   118
+ tous    M4 - M0 -104066.1980 -202969.4106 -14110.6090               0.992       2020, 2022, 2023, 2024        -104976.8783         -40717.3501                   118
+
+=== importance_permutation_test_m4 ===
+cible             variable  hausse_deviance_test_moyenne  hausse_deviance_test_ecart_type  hausse_relative
+payes                 zone                    78522.8140                       23646.9454           0.1704
+payes        mean_coverage                    65557.9964                       27114.1976           0.1423
+payes        hist_per_1000                    15627.3822                       13286.5541           0.0339
+payes county_hist_per_1000                   -13783.5189                       12548.7494          -0.0299
+ tous                 zone                    86205.4048                       24705.7050           0.1764
+ tous        mean_coverage                    77743.3620                       25182.8813           0.1591
+ tous        hist_per_1000                    16973.6788                       14507.3857           0.0347
+ tous county_hist_per_1000                    -6516.3974                        8800.5846          -0.0133
+
+=== calibration_par_zone_test ===
+cible zone   modele  observe      predit  ratio_predit_observe
+payes   A*       M0  95755.0  21019.5310                0.2195
+payes   A*       M1  95755.0  25716.9600                0.2686
+payes   A* M_oracle  95755.0  95755.0000                1.0000
+payes   A*       M2  95755.0  24541.7158                0.2563
+payes   A*       M3  95755.0  43295.5815                0.4521
+payes   A*       M4  95755.0  33981.6107                0.3549
+payes   V*       M0   3872.0    525.7826                0.1358
+payes   V*       M1   3872.0   1325.3201                0.3423
+payes   V* M_oracle   3872.0   3872.0000                1.0000
+payes   V*       M2   3872.0   1263.9429                0.3264
+payes   V*       M3   3872.0   1622.1875                0.4190
+payes   V*       M4   3872.0   1326.0685                0.3425
+payes    X       M0   8957.0  16610.9574                1.8545
+payes    X       M1   8957.0  10312.5532                1.1513
+payes    X M_oracle   8957.0   8957.0000                1.0000
+payes    X       M2   8957.0   8831.6292                0.9860
+payes    X       M3   8957.0  23380.9558                2.6104
+payes    X       M4   8957.0  12602.2534                1.4070
+ tous   A*       M0 112397.0  29102.1836                0.2589
+ tous   A*       M1 112397.0  34899.6600                0.3105
+ tous   A* M_oracle 112397.0 112397.0000                1.0000
+ tous   A*       M2 112397.0  33869.8687                0.3013
+ tous   A*       M3 112397.0  56631.8511                0.5039
+ tous   A*       M4 112397.0  47943.1166                0.4266
+ tous   V*       M0   4747.0    727.9621                0.1534
+ tous   V*       M1   4747.0   1956.3412                0.4121
+ tous   V* M_oracle   4747.0   4747.0000                1.0000
+ tous   V*       M2   4747.0   1909.9795                0.4024
+ tous   V*       M3   4747.0   2307.4116                0.4861
+ tous   V*       M4   4747.0   1872.3655                0.3944
+ tous    X       M0  13172.0  22998.3786                1.7460
+ tous    X       M1  13172.0  14968.0412                1.1364
+ tous    X M_oracle  13172.0  13172.0000                1.0000
+ tous    X       M2  13172.0  13246.7464                1.0057
+ tous    X       M3  13172.0  31967.6460                2.4269
+ tous    X       M4  13172.0  18448.7809                1.4006
+
+=== diagnostic_deviance_recalee_par_annee ===
+cible   modele  deviance_test_recalee  deviance_test_recalee_sans_2024  gain_vs_M0_recalee  gain_vs_M0_recalee_sans_2024                                                                           statut
+payes       M0            374664.2821                      202838.4325              0.0000                        0.0000 diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+payes       M1            334928.9168                      183829.6918              0.1061                        0.0937 diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+payes M_oracle            311450.3427                      175096.0534              0.1687                        0.1368 diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+payes       M2            376391.4433                      205121.7583             -0.0046                       -0.0113 diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+payes       M3            362916.7989                      197419.6859              0.0314                        0.0267 diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+payes       M4            330845.7752                      175097.0266              0.1170                        0.1368 diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+ tous       M0            416278.7862                      228542.9081              0.0000                        0.0000 diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+ tous       M1            374562.0064                      208096.8307              0.1002                        0.0895 diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+ tous M_oracle            349439.3401                      199154.1699              0.1606                        0.1286 diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+ tous       M2            413693.3405                      228729.2858              0.0062                       -0.0008 diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+ tous       M3            401907.7069                      221621.1043              0.0345                        0.0303 diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+ tous       M4            364339.5381                      195136.0717              0.1248                        0.1462 diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+
+=== calibration_totale_par_periode ===
+cible period   modele  ratio_predit_observe
+payes   test       M0                0.3514
+payes  train       M0                1.0000
+payes   test       M1                0.3440
+payes  train       M1                1.0000
+payes   test M_oracle                1.0000
+payes  train M_oracle                1.0000
+payes   test       M2                0.3190
+payes  train       M2                1.0000
+payes   test       M3                0.6290
+payes  train       M3                1.9436
+payes   test       M4                0.4412
+payes  train       M4                1.0013
+ tous   test       M0                0.4054
+ tous  train       M0                1.0000
+ tous   test       M1                0.3977
+ tous  train       M1                1.0000
+ tous   test M_oracle                1.0000
+ tous  train M_oracle                1.0000
+ tous   test       M2                0.3762
+ tous  train       M2                1.0000
+ tous   test       M3                0.6976
+ tous  train       M3                1.8516
+ tous   test       M4                0.5238
+ tous  train       M4                1.0009
+
+=== ratio prédit / observé par année (test) ===
+modele          M0     M1     M2     M3     M4  M_oracle
+cible annee                                             
+payes 2020   0.684  0.658  0.637  1.254  0.720       1.0
+      2021   2.418  2.336  2.223  4.386  2.710       1.0
+      2022   0.249  0.243  0.227  0.447  0.301       1.0
+      2023   0.935  0.927  0.834  1.645  1.368       1.0
+      2024   0.130  0.131  0.114  0.227  0.193       1.0
+tous  2020   0.724  0.698  0.683  1.271  0.776       1.0
+      2021   2.561  2.481  2.394  4.456  2.935       1.0
+      2022   0.278  0.272  0.259  0.479  0.344       1.0
+      2023   1.070  1.063  0.982  1.814  1.603       1.0
+      2024   0.158  0.158  0.143  0.264  0.245       1.0
+
+=== gain relatif vs M0 par année (test) ===
+modele        M0     M1     M2     M3     M4  M_oracle
+cible annee                                           
+payes 2020   0.0  0.087  0.309  0.212  0.233     0.119
+      2021   0.0  0.017  0.162 -0.333  0.022     0.097
+      2022   0.0  0.070 -0.151  0.111  0.140     0.378
+      2023   0.0  0.110  0.045 -0.021  0.089     0.194
+      2024   0.0  0.069 -0.040  0.189  0.174     0.546
+tous  2020   0.0  0.089  0.305  0.188  0.244     0.111
+      2021   0.0  0.017  0.144 -0.404 -0.038     0.153
+      2022   0.0  0.066 -0.134  0.116  0.162     0.362
+      2023   0.0  0.109  0.063 -0.077  0.038     0.192
+      2024   0.0  0.068 -0.024  0.189  0.201     0.523

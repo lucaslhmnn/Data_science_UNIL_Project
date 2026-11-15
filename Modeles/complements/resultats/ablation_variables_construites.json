@@ -1,0 +1,26 @@
+{
+ "bornes_quintiles_entrainement": [
+  103704.8,
+  138062.6,
+  165802.2,
+  193119.00000000003
+ ],
+ "repartition_tranches": {
+  "train": {
+   "T1": 0.2,
+   "T2": 0.2,
+   "T3": 0.1999,
+   "T4": 0.2,
+   "T5": 0.2
+  },
+  "test": {
+   "T1": 0.0785,
+   "T2": 0.1356,
+   "T3": 0.1572,
+   "T4": 0.1916,
+   "T5": 0.437
+  }
+ },
+ "test_hors_bornes_bas": 0,
+ "test_hors_bornes_haut": 0
+}

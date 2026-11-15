@@ -1,0 +1,13 @@
+cible,modele,deviance_test_recalee,deviance_test_recalee_sans_2024,gain_vs_M0_recalee,gain_vs_M0_recalee_sans_2024,statut
+payes,M0,374664.2820806722,202838.43245533685,0.0,0.0,diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+payes,M1,334928.91681018664,183829.69181074377,0.1060559203824234,0.09371370314044714,diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+payes,M_oracle,311450.3426799421,175096.0534409362,0.1687215526648974,0.1367708213802592,diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+payes,M2,376391.44329363084,205121.75833397824,-0.0046098902285720555,-0.011256870066495672,diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+payes,M3,362916.7988639106,197419.68594239437,0.03135469213003916,0.02671459470155213,diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+payes,M4,330845.77521742106,175097.0265773876,0.11695405449355378,0.13676602378623526,diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+tous,M0,416278.786190334,228542.90806978365,0.0,0.0,diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+tous,M1,374562.0064464384,208096.83068636752,0.10021356150688299,0.08946275146360305,diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+tous,M_oracle,349439.34010197734,199154.16994108044,0.16056414188206036,0.12859177463397642,diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+tous,M2,413693.340465195,228729.28583946475,0.006210851503628767,-0.0008155044987183668,diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+tous,M3,401907.7069485453,221621.1043184689,0.03452272784137955,0.03028667049778344,diagnostic non pré-enregistré (utilise le total observé de chaque année de test)
+tous,M4,364339.5381225492,195136.07170141942,0.12477034571739332,0.14617314818696425,diagnostic non pré-enregistré (utilise le total observé de chaque année de test)

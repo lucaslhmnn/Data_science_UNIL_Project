@@ -1,0 +1,973 @@
+{
+ "raw_claims": {
+  "valeur": 787274.0,
+  "affichage": "787,274",
+  "format": "int",
+  "source": "`Data_cleaning/clean/cleaning_report.md`",
+  "cellule": "ligne de tableau « Fichier brut »",
+  "resultat": [
+   "R1"
+  ]
+ },
+ "single_family": {
+  "valeur": 624268.0,
+  "affichage": "624,268",
+  "format": "int",
+  "source": "`Data_cleaning/clean/cleaning_report.md`",
+  "cellule": "ligne de tableau « occupancyType ∈ [1, 11] »",
+  "resultat": [
+   "R1"
+  ]
+ },
+ "anomalies": {
+  "valeur": 2575.0,
+  "affichage": "2,575",
+  "format": "int",
+  "source": "`Data_cleaning/clean/cleaning_report.md`",
+  "cellule": "ligne de tableau « Lignes écartées (anomalies) »",
+  "resultat": [
+   "R1"
+  ]
+ },
+ "clean_claims": {
+  "valeur": 621693.0,
+  "affichage": "621,693",
+  "format": "int",
+  "source": "`Data_cleaning/clean/cleaning_report.md`",
+  "cellule": "ligne de tableau « **claims_clean.parquet** »",
+  "resultat": [
+   "R1"
+  ]
+ },
+ "anom_neg_age": {
+  "valeur": 1378.0,
+  "affichage": "1,378",
+  "format": "int",
+  "source": "`Data_cleaning/clean/cleaning_report.md`",
+  "cellule": "ligne de tableau « âge négatif » (après « | motif | lignes | »)",
+  "resultat": [
+   "R2"
+  ]
+ },
+ "anom_duplicate": {
+  "valeur": 888.0,
+  "affichage": "888",
+  "format": "int",
+  "source": "`Data_cleaning/clean/cleaning_report.md`",
+  "cellule": "ligne de tableau « doublon exact » (après « | motif | lignes | »)",
+  "resultat": [
+   "R2"
+  ]
+ },
+ "anom_paid_nocov": {
+  "valeur": 277.0,
+  "affichage": "277",
+  "format": "int",
+  "source": "`Data_cleaning/clean/cleaning_report.md`",
+  "cellule": "ligne de tableau « paiement sans couverture » (après « | motif | lignes | »)",
+  "resultat": [
+   "R2"
+  ]
+ },
+ "anom_neg_paid": {
+  "valeur": 34.0,
+  "affichage": "34",
+  "format": "int",
+  "source": "`Data_cleaning/clean/cleaning_report.md`",
+  "cellule": "ligne de tableau « paiement négatif » (après « | motif | lignes | »)",
+  "resultat": [
+   "R2"
+  ]
+ },
+ "anom_two_reasons": {
+  "valeur": 2.0,
+  "affichage": "2",
+  "format": "int",
+  "source": "`Data_cleaning/clean/cleaning_report.md`",
+  "cellule": "ligne de tableau « âge négatif; paiement sans couverture » (après « Combinaisons de motifs »)",
+  "resultat": [
+   "R2"
+  ]
+ },
+ "ds_rows": {
+  "valeur": 22485.0,
+  "affichage": "22,485",
+  "format": "int",
+  "source": "`EDA/ds_clean_roles.json`",
+  "cellule": "clé `rows`",
+  "resultat": [
+   "R3"
+  ]
+ },
+ "ds_counties": {
+  "valeur": 734.0,
+  "affichage": "734",
+  "format": "int",
+  "source": "`EDA/ds_clean_roles.json`",
+  "cellule": "clé `counties`",
+  "resultat": [
+   "R3"
+  ]
+ },
+ "policy_years": {
+  "valeur": 22701122.3671961,
+  "affichage": "22.7 million",
+  "format": "mio1",
+  "source": "`EDA/figures/eda_key_numbers.json`",
+  "cellule": "clé `policy_years`",
+  "resultat": [
+   "R3"
+  ]
+ },
+ "rows_used": {
+  "valeur": 22472.0,
+  "affichage": "22,472",
+  "format": "int",
+  "source": "`Modeles/resultats/preparation.json`",
+  "cellule": "clé `lignes_gardees`",
+  "resultat": [
+   "R3"
+  ]
+ },
+ "rows_excluded": {
+  "valeur": 13.0,
+  "affichage": "13",
+  "format": "int",
+  "source": "`Modeles/resultats/preparation.json`",
+  "cellule": "clé `variable_manquante`",
+  "resultat": [
+   "R3"
+  ]
+ },
+ "rows_train": {
+  "valeur": 14999.0,
+  "affichage": "14,999",
+  "format": "int",
+  "source": "`Modeles/resultats/ajustement_payes.json`",
+  "cellule": "clé `lignes_train`",
+  "resultat": [
+   "R4"
+  ]
+ },
+ "rows_test": {
+  "valeur": 7473.0,
+  "affichage": "7,473",
+  "format": "int",
+  "source": "`Modeles/resultats/ajustement_payes.json`",
+  "cellule": "clé `lignes_test`",
+  "resultat": [
+   "R4"
+  ]
+ },
+ "claims_train_paid": {
+  "valeur": 88898.0,
+  "affichage": "88,898",
+  "format": "int",
+  "source": "`Modeles/resultats/ajustement_payes.json`",
+  "cellule": "clé `sinistres_train`",
+  "resultat": [
+   "R4"
+  ]
+ },
+ "claims_test_paid": {
+  "valeur": 108584.0,
+  "affichage": "108,584",
+  "format": "int",
+  "source": "`Modeles/resultats/ajustement_payes.json`",
+  "cellule": "clé `sinistres_test`",
+  "resultat": [
+   "R4"
+  ]
+ },
+ "claims_train_all": {
+  "valeur": 123082.0,
+  "affichage": "123,082",
+  "format": "int",
+  "source": "`Modeles/resultats/ajustement_tous.json`",
+  "cellule": "clé `sinistres_train`",
+  "resultat": [
+   "R4"
+  ]
+ },
+ "claims_test_all": {
+  "valeur": 130316.0,
+  "affichage": "130,316",
+  "format": "int",
+  "source": "`Modeles/resultats/ajustement_tous.json`",
+  "cellule": "clé `sinistres_test`",
+  "resultat": [
+   "R4"
+  ]
+ },
+ "freq_train": {
+  "valeur": 5.596830419780299,
+  "affichage": "5.60",
+  "format": "f2",
+  "source": "`EDA/figures/eda_key_numbers.json`",
+  "cellule": "clé `freq_train`",
+  "resultat": [
+   "R5"
+  ]
+ },
+ "freq_test": {
+  "valeur": 15.927270752124397,
+  "affichage": "15.93",
+  "format": "f2",
+  "source": "`EDA/figures/eda_key_numbers.json`",
+  "cellule": "clé `freq_test`",
+  "resultat": [
+   "R5"
+  ]
+ },
+ "share_2024_test": {
+  "valeur": 0.5077727842039342,
+  "affichage": "50.8%",
+  "format": "pct1",
+  "source": "agrégation",
+  "cellule": "observé 2024 / somme des observés 2020-2024 (payés, modèle M0) dans par_annee_calibration_deviance.csv",
+  "resultat": [
+   "R5"
+  ]
+ },
+ "excl13_dev_effect": {
+  "valeur": 3.7914248805367655e-07,
+  "affichage": "3.8e-07",
+  "format": "sci1",
+  "source": "agrégation",
+  "cellule": "maximum de |ecart_relatif| dans vc4_lignes_exclues.csv",
+  "resultat": [
+   "R3"
+  ]
+ },
+ "m2_pearson_disp": {
+  "valeur": 109.23626258194716,
+  "affichage": "109.2",
+  "format": "f1",
+  "source": "`Modeles/resultats/ajustement_payes.json`",
+  "cellule": "clé `M2_dispersion_pearson`",
+  "resultat": [
+   "R8"
+  ]
+ },
+ "m2_aic": {
+  "valeur": 388487.4439004868,
+  "affichage": "388,487",
+  "format": "int",
+  "source": "`Modeles/resultats/ajustement_payes.json`",
+  "cellule": "clé `M2_AIC_train`",
+  "resultat": [
+   "R8"
+  ]
+ },
+ "m3_aic": {
+  "valeur": 36689.84682245205,
+  "affichage": "36,690",
+  "format": "int",
+  "source": "`Modeles/resultats/ajustement_payes.json`",
+  "cellule": "clé `M3_AIC_train`",
+  "resultat": [
+   "R8"
+  ]
+ },
+ "m3_alpha": {
+  "valeur": 6.126863402233512,
+  "affichage": "6.13",
+  "format": "f2",
+  "source": "`Modeles/resultats/ajustement_payes.json`",
+  "cellule": "clé `M3_alpha`",
+  "resultat": [
+   "R8"
+  ]
+ },
+ "m3_train_ratio": {
+  "valeur": 1.943603776753353,
+  "affichage": "1.94",
+  "format": "f2",
+  "source": "`Modeles/resultats/calibration_totale_par_periode.csv`",
+  "cellule": "ligne (cible = payes, period = train, modele = M3), colonne `ratio_predit_observe`",
+  "resultat": [
+   "R9"
+  ]
+ },
+ "nb_const_ratio": {
+  "valeur": 2.636632386530981,
+  "affichage": "2.64",
+  "format": "f2",
+  "source": "`Modeles/complements/resultats/vc2_binomial_negatif.csv`",
+  "cellule": "ligne (cible = payes), colonne `ratio_somme_mu_somme_y_constante_seule`",
+  "resultat": [
+   "R9"
+  ]
+ },
+ "vc2_coef_diff": {
+  "valeur": 1.4464985982343137e-06,
+  "affichage": "1.4e-06",
+  "format": "sci1",
+  "source": "`Modeles/complements/resultats/vc2_binomial_negatif.csv`",
+  "cellule": "ligne (cible = payes), colonne `ecart_max_coef_GLM_vs_M3`",
+  "resultat": [
+   "R6"
+  ]
+ },
+ "vc1_metric_diff": {
+  "valeur": 5.861977570020827e-14,
+  "affichage": "5.9e-14",
+  "format": "sci1",
+  "source": "`Modeles/complements/resultats/vc1_synthese.csv`",
+  "cellule": "ligne (cible = payes), colonne `ecart_max_metrique_lgb_vs_main`",
+  "resultat": [
+   "R6"
+  ]
+ },
+ "m4_iters": {
+  "valeur": 122.0,
+  "affichage": "122",
+  "format": "int",
+  "source": "`Modeles/resultats/ajustement_payes.json`",
+  "cellule": "clé `M4_iterations`",
+  "resultat": [
+   "R7"
+  ]
+ },
+ "m4_nonreg": {
+  "valeur": 1.0013007990586735,
+  "affichage": "1.0013",
+  "format": "f4",
+  "source": "`Modeles/resultats/ajustement_payes.json`",
+  "cellule": "clé `M4_nonregression_ratio_train`",
+  "resultat": [
+   "R6",
+   "R7"
+  ]
+ },
+ "se_ratio_vzone": {
+  "valeur": 12.623921705723316,
+  "affichage": "13",
+  "format": "r0",
+  "source": "agrégation",
+  "cellule": "es_robuste_HC0 / es_modele de zone_V* (M2, payés) dans coefficients_payes.csv",
+  "resultat": [
+   "R8"
+  ]
+ },
+ "boot_distinct": {
+  "valeur": 118.0,
+  "affichage": "118",
+  "format": "int",
+  "source": "`Modeles/resultats/bootstrap_annees_test.csv`",
+  "cellule": "ligne (cible = payes, difference = M4 - M2), colonne `nb_tirages_distincts`",
+  "resultat": [
+   "R23"
+  ]
+ },
+ "gain_test_M1_payes": {
+  "valeur": 0.0709493287265236,
+  "affichage": "+7.1%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/deviance_par_modele.csv`",
+  "cellule": "ligne (cible = payes, modele = M1, ensemble = test 2020-2024), colonne `gain_relatif_vs_M0`",
+  "resultat": [
+   "R10"
+  ]
+ },
+ "gain_test_M1_tous": {
+  "valeur": 0.06903849625249758,
+  "affichage": "+6.9%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/deviance_par_modele.csv`",
+  "cellule": "ligne (cible = tous, modele = M1, ensemble = test 2020-2024), colonne `gain_relatif_vs_M0`",
+  "resultat": [
+   "R10"
+  ]
+ },
+ "gain_test_M2_payes": {
+  "valeur": -0.03397678016763117,
+  "affichage": "-3.4%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/deviance_par_modele.csv`",
+  "cellule": "ligne (cible = payes, modele = M2, ensemble = test 2020-2024), colonne `gain_relatif_vs_M0`",
+  "resultat": [
+   "R10"
+  ]
+ },
+ "gain_test_M2_tous": {
+  "valeur": -0.019041164984359593,
+  "affichage": "-1.9%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/deviance_par_modele.csv`",
+  "cellule": "ligne (cible = tous, modele = M2, ensemble = test 2020-2024), colonne `gain_relatif_vs_M0`",
+  "resultat": [
+   "R10"
+  ]
+ },
+ "gain_test_M3_payes": {
+  "valeur": 0.1374645466429193,
+  "affichage": "+13.7%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/deviance_par_modele.csv`",
+  "cellule": "ligne (cible = payes, modele = M3, ensemble = test 2020-2024), colonne `gain_relatif_vs_M0`",
+  "resultat": [
+   "R10"
+  ]
+ },
+ "gain_test_M3_tous": {
+  "valeur": 0.13031781794572406,
+  "affichage": "+13.0%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/deviance_par_modele.csv`",
+  "cellule": "ligne (cible = tous, modele = M3, ensemble = test 2020-2024), colonne `gain_relatif_vs_M0`",
+  "resultat": [
+   "R10"
+  ]
+ },
+ "gain_test_M4_payes": {
+  "valeur": 0.15868465031593848,
+  "affichage": "+15.9%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/deviance_par_modele.csv`",
+  "cellule": "ligne (cible = payes, modele = M4, ensemble = test 2020-2024), colonne `gain_relatif_vs_M0`",
+  "resultat": [
+   "R10"
+  ]
+ },
+ "gain_test_M4_tous": {
+  "valeur": 0.1755906938088424,
+  "affichage": "+17.6%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/deviance_par_modele.csv`",
+  "cellule": "ligne (cible = tous, modele = M4, ensemble = test 2020-2024), colonne `gain_relatif_vs_M0`",
+  "resultat": [
+   "R10"
+  ]
+ },
+ "gain_test_M_oracle_payes": {
+  "valeur": 0.4312185851124909,
+  "affichage": "+43.1%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/deviance_par_modele.csv`",
+  "cellule": "ligne (cible = payes, modele = M_oracle, ensemble = test 2020-2024), colonne `gain_relatif_vs_M0`",
+  "resultat": [
+   "R10"
+  ]
+ },
+ "gain_test_M_oracle_tous": {
+  "valeur": 0.4103916800846521,
+  "affichage": "+41.0%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/deviance_par_modele.csv`",
+  "cellule": "ligne (cible = tous, modele = M_oracle, ensemble = test 2020-2024), colonne `gain_relatif_vs_M0`",
+  "resultat": [
+   "R10"
+  ]
+ },
+ "gain_recal_M1_payes": {
+  "valeur": 0.1060559203824234,
+  "affichage": "+10.6%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/diagnostic_deviance_recalee_par_annee.csv`",
+  "cellule": "ligne (cible = payes, modele = M1), colonne `gain_vs_M0_recalee`",
+  "resultat": [
+   "R11"
+  ]
+ },
+ "gain_recal_M1_tous": {
+  "valeur": 0.10021356150688299,
+  "affichage": "+10.0%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/diagnostic_deviance_recalee_par_annee.csv`",
+  "cellule": "ligne (cible = tous, modele = M1), colonne `gain_vs_M0_recalee`",
+  "resultat": [
+   "R11"
+  ]
+ },
+ "gain_recal_M2_payes": {
+  "valeur": -0.0046098902285720555,
+  "affichage": "-0.5%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/diagnostic_deviance_recalee_par_annee.csv`",
+  "cellule": "ligne (cible = payes, modele = M2), colonne `gain_vs_M0_recalee`",
+  "resultat": [
+   "R11"
+  ]
+ },
+ "gain_recal_M2_tous": {
+  "valeur": 0.006210851503628767,
+  "affichage": "+0.6%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/diagnostic_deviance_recalee_par_annee.csv`",
+  "cellule": "ligne (cible = tous, modele = M2), colonne `gain_vs_M0_recalee`",
+  "resultat": [
+   "R11"
+  ]
+ },
+ "gain_recal_M3_payes": {
+  "valeur": 0.03135469213003916,
+  "affichage": "+3.1%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/diagnostic_deviance_recalee_par_annee.csv`",
+  "cellule": "ligne (cible = payes, modele = M3), colonne `gain_vs_M0_recalee`",
+  "resultat": [
+   "R11"
+  ]
+ },
+ "gain_recal_M3_tous": {
+  "valeur": 0.03452272784137955,
+  "affichage": "+3.5%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/diagnostic_deviance_recalee_par_annee.csv`",
+  "cellule": "ligne (cible = tous, modele = M3), colonne `gain_vs_M0_recalee`",
+  "resultat": [
+   "R11"
+  ]
+ },
+ "gain_recal_M4_payes": {
+  "valeur": 0.11695405449355378,
+  "affichage": "+11.7%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/diagnostic_deviance_recalee_par_annee.csv`",
+  "cellule": "ligne (cible = payes, modele = M4), colonne `gain_vs_M0_recalee`",
+  "resultat": [
+   "R11"
+  ]
+ },
+ "gain_recal_M4_tous": {
+  "valeur": 0.12477034571739332,
+  "affichage": "+12.5%",
+  "format": "spct1",
+  "source": "`Modeles/resultats/diagnostic_deviance_recalee_par_annee.csv`",
+  "cellule": "ligne (cible = tous, modele = M4), colonne `gain_vs_M0_recalee`",
+  "resultat": [
+   "R11"
+  ]
+ },
+ "zone_share_m4": {
+  "valeur": 0.9068169619401175,
+  "affichage": "91%",
+  "format": "pct0",
+  "source": "agrégation",
+  "cellule": "gain recalé de M1 / gain recalé de M4 (payés), diagnostic_deviance_recalee_par_annee.csv",
+  "resultat": [
+   "R11"
+  ]
+ },
+ "zone_share_l2": {
+  "valeur": 0.644941469449572,
+  "affichage": "64%",
+  "format": "pct0",
+  "source": "agrégation",
+  "cellule": "gain recalé de M1 / gain recalé de L2 (payés), ablation_deviance.csv (test_recale)",
+  "resultat": [
+   "R11"
+  ]
+ },
+ "ratio_test_M0": {
+  "valeur": 0.3513986504215721,
+  "affichage": "0.35",
+  "format": "f2",
+  "source": "`Modeles/resultats/calibration_totale_par_periode.csv`",
+  "cellule": "ligne (cible = payes, period = test, modele = M0), colonne `ratio_predit_observe`",
+  "resultat": [
+   "R12"
+  ]
+ },
+ "ratio_test_M2": {
+  "valeur": 0.31899071563479037,
+  "affichage": "0.32",
+  "format": "f2",
+  "source": "`Modeles/resultats/calibration_totale_par_periode.csv`",
+  "cellule": "ligne (cible = payes, period = test, modele = M2), colonne `ratio_predit_observe`",
+  "resultat": [
+   "R12"
+  ]
+ },
+ "ratio_test_M3": {
+  "valeur": 0.6289943707248391,
+  "affichage": "0.63",
+  "format": "f2",
+  "source": "`Modeles/resultats/calibration_totale_par_periode.csv`",
+  "cellule": "ligne (cible = payes, period = test, modele = M3), colonne `ratio_predit_observe`",
+  "resultat": [
+   "R12"
+  ]
+ },
+ "ratio_test_M4": {
+  "valeur": 0.44122460558036286,
+  "affichage": "0.44",
+  "format": "f2",
+  "source": "`Modeles/resultats/calibration_totale_par_periode.csv`",
+  "cellule": "ligne (cible = payes, period = test, modele = M4), colonne `ratio_predit_observe`",
+  "resultat": [
+   "R12"
+  ]
+ },
+ "ratio_2021_M4": {
+  "valeur": 2.7104021657332806,
+  "affichage": "2.71",
+  "format": "f2",
+  "source": "`Modeles/resultats/par_annee_calibration_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = M4, annee = 2021), colonne `ratio_predit_observe`",
+  "resultat": [
+   "R12"
+  ]
+ },
+ "ratio_2022_M4": {
+  "valeur": 0.3009352589611541,
+  "affichage": "0.30",
+  "format": "f2",
+  "source": "`Modeles/resultats/par_annee_calibration_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = M4, annee = 2022), colonne `ratio_predit_observe`",
+  "resultat": [
+   "R12"
+  ]
+ },
+ "ratio_2024_M4": {
+  "valeur": 0.19285425440851311,
+  "affichage": "0.19",
+  "format": "f2",
+  "source": "`Modeles/resultats/par_annee_calibration_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = M4, annee = 2024), colonne `ratio_predit_observe`",
+  "resultat": [
+   "R12"
+  ]
+ },
+ "abl_G1_raw": {
+  "valeur": 0.0015391134773667936,
+  "affichage": "+0.2%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = G1, ensemble = test), colonne `gain_vs_M0`",
+  "resultat": [
+   "R14"
+  ]
+ },
+ "abl_G1_rec": {
+  "valeur": -0.009817028891756951,
+  "affichage": "-1.0%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = G1, ensemble = test_recale), colonne `gain_vs_M0`",
+  "resultat": [
+   "R14"
+  ]
+ },
+ "abl_G3_raw": {
+  "valeur": -0.03191357503004655,
+  "affichage": "-3.2%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = G3, ensemble = test), colonne `gain_vs_M0`",
+  "resultat": [
+   "R14"
+  ]
+ },
+ "abl_G3_rec": {
+  "valeur": 0.07894252884585773,
+  "affichage": "+7.9%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = G3, ensemble = test_recale), colonne `gain_vs_M0`",
+  "resultat": [
+   "R14"
+  ]
+ },
+ "abl_G5_hp_raw": {
+  "valeur": 0.0007615243613395828,
+  "affichage": "+0.1%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = G5_hp, ensemble = test), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "abl_G5_hp_rec": {
+  "valeur": 0.06890274798046792,
+  "affichage": "+6.9%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = G5_hp, ensemble = test_recale), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "abl_L1_raw": {
+  "valeur": -0.05399942544990588,
+  "affichage": "-5.4%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = L1, ensemble = test), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "abl_L1_rec": {
+  "valeur": -0.08953993170090224,
+  "affichage": "-9.0%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = L1, ensemble = test_recale), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "abl_L2_raw": {
+  "valeur": 0.2179875379047389,
+  "affichage": "+21.8%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = L2, ensemble = test), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "abl_L2_rec": {
+  "valeur": 0.16444270589847054,
+  "affichage": "+16.4%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = L2, ensemble = test_recale), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "abl_L3_raw": {
+  "valeur": 0.15631849692888966,
+  "affichage": "+15.6%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = L3, ensemble = test), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "abl_L3_rec": {
+  "valeur": 0.13725602482111277,
+  "affichage": "+13.7%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = L3, ensemble = test_recale), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "abl_L5_raw": {
+  "valeur": 0.05331907052914031,
+  "affichage": "+5.3%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = L5, ensemble = test), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "abl_L5_rec": {
+  "valeur": 0.0795224331439417,
+  "affichage": "+8.0%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = L5, ensemble = test_recale), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "abl_L6_raw": {
+  "valeur": -0.0869665560230306,
+  "affichage": "-8.7%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = L6, ensemble = test), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "abl_L6_rec": {
+  "valeur": -0.12837340812450715,
+  "affichage": "-12.8%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = L6, ensemble = test_recale), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "abl_L5_train": {
+  "valeur": 0.02221449954187027,
+  "affichage": "+2.2%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = L5, ensemble = train), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "abl_M1_train": {
+  "valeur": 0.024469679070134975,
+  "affichage": "+2.4%",
+  "format": "spct1",
+  "source": "`Modeles/complements/resultats/ablation_deviance.csv`",
+  "cellule": "ligne (cible = payes, modele = M1, ensemble = train), colonne `gain_vs_M0`",
+  "resultat": [
+   "R13"
+  ]
+ },
+ "mult_A": {
+  "valeur": 3.7234104570865814,
+  "affichage": "x3.72",
+  "format": "x2",
+  "source": "`Modeles/complements/resultats/vc3_multiplicateur_zone.csv`",
+  "cellule": "ligne (zone = A*), colonne `multiplicateur_payes`",
+  "resultat": [
+   "R16"
+  ]
+ },
+ "mult_V": {
+  "valeur": 2.921527354794746,
+  "affichage": "x2.92",
+  "format": "x2",
+  "source": "`Modeles/complements/resultats/vc3_multiplicateur_zone.csv`",
+  "cellule": "ligne (zone = V*), colonne `multiplicateur_payes`",
+  "resultat": [
+   "R16"
+  ]
+ },
+ "mult_X": {
+  "valeur": 0.8685525105000151,
+  "affichage": "x0.87",
+  "format": "x2",
+  "source": "`Modeles/complements/resultats/vc3_multiplicateur_zone.csv`",
+  "cellule": "ligne (zone = X), colonne `multiplicateur_payes`",
+  "resultat": [
+   "R16"
+  ]
+ },
+ "x_claims_share_2021": {
+  "valeur": 0.3488862131246237,
+  "affichage": "34.9%",
+  "format": "pct1",
+  "source": "`Modeles/complements/resultats/vc3_zone_annee.csv`",
+  "cellule": "ligne (year = 2021, zone = X), colonne `part_payes`",
+  "resultat": [
+   "R16"
+  ]
+ },
+ "x_claims_share_2022": {
+  "valeur": 0.06854164617956535,
+  "affichage": "6.9%",
+  "format": "pct1",
+  "source": "`Modeles/complements/resultats/vc3_zone_annee.csv`",
+  "cellule": "ligne (year = 2022, zone = X), colonne `part_payes`",
+  "resultat": [
+   "R16"
+  ]
+ },
+ "x_expo_share_min": {
+  "valeur": 0.4015611264943871,
+  "affichage": "40.2%",
+  "format": "pct1",
+  "source": "agrégation",
+  "cellule": "minimum de part_exposition de la zone X sur 2018-2024 dans vc3_zone_annee.csv",
+  "resultat": [
+   "R16"
+  ]
+ },
+ "x_expo_share_max": {
+  "valeur": 0.46446640889426866,
+  "affichage": "46.4%",
+  "format": "pct1",
+  "source": "agrégation",
+  "cellule": "maximum de part_exposition de la zone X sur 2018-2024 dans vc3_zone_annee.csv",
+  "resultat": [
+   "R16"
+  ]
+ },
+ "t5_expo_train": {
+  "valeur": 0.8101731357629043,
+  "affichage": "81.0%",
+  "format": "pct1",
+  "source": "`Modeles/complements/resultats/hp_taux_par_tranche_couverture.csv`",
+  "cellule": "ligne (cible = payes, period = train, tranche = T5), colonne `part_exposition_periode`",
+  "resultat": [
+   "R17"
+  ]
+ },
+ "t5_expo_test": {
+  "valeur": 0.9294110483226224,
+  "affichage": "92.9%",
+  "format": "pct1",
+  "source": "`Modeles/complements/resultats/hp_taux_par_tranche_couverture.csv`",
+  "cellule": "ligne (cible = payes, period = test, tranche = T5), colonne `part_exposition_periode`",
+  "resultat": [
+   "R17"
+  ]
+ },
+ "t5_rate_train": {
+  "valeur": 4.334617991601323,
+  "affichage": "4.33",
+  "format": "f2",
+  "source": "`Modeles/complements/resultats/hp_taux_par_tranche_couverture.csv`",
+  "cellule": "ligne (cible = payes, period = train, tranche = T5), colonne `taux_observe_1000`",
+  "resultat": [
+   "R17"
+  ]
+ },
+ "t5_rate_test": {
+  "valeur": 16.28836701359021,
+  "affichage": "16.29",
+  "format": "f2",
+  "source": "`Modeles/complements/resultats/hp_taux_par_tranche_couverture.csv`",
+  "cellule": "ligne (cible = payes, period = test, tranche = T5), colonne `taux_observe_1000`",
+  "resultat": [
+   "R17"
+  ]
+ },
+ "t5_rows_test": {
+  "valeur": 0.437,
+  "affichage": "43.7%",
+  "format": "pct1",
+  "source": "`Modeles/complements/resultats/ablation_variables_construites.json`",
+  "cellule": "clé `repartition_tranches` → `test` → `T5`",
+  "resultat": [
+   "R17"
+  ]
+ },
+ "perm_zone": {
+  "valeur": 78522.81402266733,
+  "affichage": "+78,523",
+  "format": "sint",
+  "source": "`Modeles/resultats/importance_permutation_test_m4.csv`",
+  "cellule": "ligne (cible = payes, variable = zone), colonne `hausse_deviance_test_moyenne`",
+  "resultat": [
+   "R15"
+  ]
+ },
+ "perm_cov": {
+  "valeur": 65557.99642171676,
+  "affichage": "+65,558",
+  "format": "sint",
+  "source": "`Modeles/resultats/importance_permutation_test_m4.csv`",
+  "cellule": "ligne (cible = payes, variable = mean_coverage), colonne `hausse_deviance_test_moyenne`",
+  "resultat": [
+   "R15"
+  ]
+ },
+ "perm_chist": {
+  "valeur": -13783.51886853911,
+  "affichage": "-13,784",
+  "format": "sint",
+  "source": "`Modeles/resultats/importance_permutation_test_m4.csv`",
+  "cellule": "ligne (cible = payes, variable = county_hist_per_1000), colonne `hausse_deviance_test_moyenne`",
+  "resultat": [
+   "R14"
+  ]
+ },
+ "gain_share_chist": {
+  "valeur": 0.4882611051014718,
+  "affichage": "49%",
+  "format": "pct0",
+  "source": "`Modeles/resultats/importance_gain_payes.csv`",
+  "cellule": "ligne (variable = county_hist_per_1000), colonne `part_gain`",
+  "resultat": [
+   "R14"
+  ]
+ }
+}
