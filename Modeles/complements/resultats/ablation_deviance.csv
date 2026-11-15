@@ -1,0 +1,151 @@
+cible,modele,description,ensemble,deviance_totale,deviance_par_ligne,gain_vs_M0,mise_en_garde
+payes,M0,nul,train,420255.5320892728,28.018903399511487,0.0,
+payes,M0,nul,test,547574.7528451493,73.27375255521869,0.0,
+payes,M0,nul,test_sans_2024,246985.84873154812,41.281271725145935,0.0,
+payes,M0,nul,test_recale,374664.2820806722,50.1357262251669,0.0,recalage : utilise les totaux observés du test
+payes,M0,nul,test_sans_2024_recale,202838.43245533685,33.90246238598309,0.0,recalage : utilise les totaux observés du test
+payes,M1,GLM zone,train,409972.0140915995,27.333289825428327,0.024469679070134975,
+payes,M1,GLM zone,test,508724.6917031938,68.07502899815252,0.0709493287265236,
+payes,M1,GLM zone,test_sans_2024,228982.19326647313,38.272136598106826,0.07289346963616272,
+payes,M1,GLM zone,test_recale,334928.91681018664,44.81853563631562,0.1060559203824234,recalage : utilise les totaux observés du test
+payes,M1,GLM zone,test_sans_2024_recale,183829.69181074377,30.725337090212896,0.09371370314044714,recalage : utilise les totaux observés du test
+payes,M2,GLM zone + couverture + historiques,train,375649.2549249453,25.044953325218035,0.10614084469648821,
+payes,M2,GLM zone + couverture + historiques,test,566179.5798479138,75.76335873784475,-0.03397678016763117,
+payes,M2,GLM zone + couverture + historiques,test_sans_2024,253522.32193769742,42.37377936448227,-0.02646497052247665,
+payes,M2,GLM zone + couverture + historiques,test_recale,376391.44329363084,50.36684641959465,-0.0046098902285720555,recalage : utilise les totaux observés du test
+payes,M2,GLM zone + couverture + historiques,test_sans_2024_recale,205121.75833397824,34.28409799999636,-0.011256870066495672,recalage : utilise les totaux observés du test
+payes,G1,GLM sans couverture,train,377824.5618589646,25.189983456161386,0.10096469169451594,
+payes,G1,GLM sans couverture,test,546731.9731631795,73.1609759351237,0.0015391134773667936,
+payes,G1,GLM sans couverture,test_sans_2024,249421.57677307012,41.688379871815165,-0.009861812140376625,
+payes,G1,GLM sans couverture,test_recale,378342.37216256757,50.62791009802858,-0.009817028891756951,recalage : utilise les totaux observés du test
+payes,G1,GLM sans couverture,test_sans_2024_recale,206241.24058836576,34.47120852220721,-0.01677595360917694,recalage : utilise les totaux observés du test
+payes,G2,GLM couverture en tranches,train,372714.6061984623,24.84929703303302,0.11312385503758604,
+payes,G2,GLM couverture en tranches,test,559262.4956131332,74.83774864353448,-0.021344561098289194,
+payes,G2,GLM couverture en tranches,test_sans_2024,251457.47441463577,42.0286602732134,-0.01810478497473711,
+payes,G2,GLM couverture en tranches,test_recale,375063.9002548881,50.18920115815444,-0.0010666033388522234,recalage : utilise les totaux observés du test
+payes,G2,GLM couverture en tranches,test_sans_2024_recale,203948.64900022827,34.0880242353716,-0.005473403296665014,recalage : utilise les totaux observés du test
+payes,G3,GLM zone + couverture,train,396501.8074740653,26.43521617934964,0.056522098583967284,
+payes,G3,GLM zone + couverture,test,565049.8208046322,75.61217995512273,-0.03191357503004655,
+payes,G3,GLM zone + couverture,test_sans_2024,245336.3610651555,41.00557597612494,0.006678470345017451,
+payes,G3,GLM zone + couverture,test_recale,345087.3361850062,46.17788521142864,0.07894252884585773,recalage : utilise les totaux observés du test
+payes,G3,GLM zone + couverture,test_sans_2024_recale,188472.38236167445,31.50131745974836,0.0708250893075979,recalage : utilise les totaux observés du test
+payes,G4,GLM rang de couverture dans l'année,train,372471.9752636921,24.833120558950068,0.11370119647926558,
+payes,G4,GLM rang de couverture dans l'année,test,543821.5555177429,72.77151820122346,0.006854219095940972,
+payes,G4,GLM rang de couverture dans l'année,test_sans_2024,249025.97325074748,41.62225860784681,-0.00826008667977085,
+payes,G4,GLM rang de couverture dans l'année,test_recale,379995.5122515483,50.84912515074914,-0.014229352585385158,recalage : utilise les totaux observés du test
+payes,G4,GLM rang de couverture dans l'année,test_sans_2024_recale,207007.25994076455,34.59924117345221,-0.020552453669477222,recalage : utilise les totaux observés du test
+payes,G5_hp,GLM zone + couverture en tranches (HORS PROTOCOLE),train,391201.3604560825,26.081829485704546,0.06913453700121308,
+payes,G5_hp,GLM zone + couverture en tranches (HORS PROTOCOLE),test,547157.7613312032,73.21795280760112,0.0007615243613395828,
+payes,G5_hp,GLM zone + couverture en tranches (HORS PROTOCOLE),test_sans_2024,241485.36035380236,40.36191882898251,0.022270459647768304,
+payes,G5_hp,GLM zone + couverture en tranches (HORS PROTOCOLE),test_recale,348848.88347518473,46.68123691625649,0.06890274798046792,recalage : utilise les totaux observés du test
+payes,G5_hp,GLM zone + couverture en tranches (HORS PROTOCOLE),test_sans_2024_recale,189460.1417863302,31.66641179781551,0.06595540355475993,recalage : utilise les totaux observés du test
+payes,M4,LightGBM 4 variables,train,319944.64522993413,21.331065086334696,0.2386902234472671,
+payes,M4,LightGBM 4 variables,test,460683.0446680803,61.646332753657205,0.15868465031593848,
+payes,M4,LightGBM 4 variables,test_sans_2024,212451.94977630232,35.509267888400856,0.1398213668216316,
+payes,M4,LightGBM 4 variables,test_recale,330845.77521742106,44.27214976815483,0.11695405449355378,recalage : utilise les totaux observés du test
+payes,M4,LightGBM 4 variables,test_sans_2024_recale,175097.0265773876,29.265757408889787,0.13676602378623526,recalage : utilise les totaux observés du test
+payes,L1,LightGBM sans couverture,train,332955.5476564823,22.198516411526256,0.20773072039952534,
+payes,L1,LightGBM sans couverture,test,577143.4748896615,77.23049309375907,-0.05399942544990588,
+payes,L1,LightGBM sans couverture,test_sans_2024,259497.97416819324,43.37255125659255,-0.050659280687148645,
+payes,L1,LightGBM sans couverture,test_recale,408211.69630894315,54.62487572714347,-0.08953993170090224,recalage : utilise les totaux observés du test
+payes,L1,LightGBM sans couverture,test_sans_2024_recale,216725.31233170116,36.223518691576324,-0.06846276471507484,recalage : utilise les totaux observés du test
+payes,L2,LightGBM sans historique du comté,train,329058.05845752,21.938666474932994,0.21700481413860417,
+payes,L2,LightGBM sans historique du comté,test,428210.28065363923,57.30098764266549,0.2179875379047389,
+payes,L2,LightGBM sans historique du comté,test_sans_2024,200178.33346284286,33.457852826816456,0.18951496820200786,
+payes,L2,LightGBM sans historique du comté,test_recale,313053.4737318186,41.891271742515535,0.16444270589847054,recalage : utilise les totaux observés du test
+payes,L2,LightGBM sans historique du comté,test_sans_2024_recale,165603.5212124563,27.67901073248476,0.1835693107669787,recalage : utilise les totaux observés du test
+payes,L3,LightGBM sans historiques,train,368129.3165443654,24.543590675669407,0.124034573169722,
+payes,L3,LightGBM sans historiques,test,461978.6905241873,61.819709691447514,0.15631849692888966,
+payes,L3,LightGBM sans historiques,test_sans_2024,215800.49361300212,36.068944277620275,0.12626373243125244,
+payes,L3,LightGBM sans historiques,test_recale,323239.3520798231,43.254295741980876,0.13725602482111277,recalage : utilise les totaux observés du test
+payes,L3,LightGBM sans historiques,test_sans_2024_recale,175988.3728441242,29.414737229504297,0.13237165800482498,recalage : utilise les totaux observés du test
+payes,L4,LightGBM zone + historique de la cellule,train,341585.5884258201,22.773890821109415,0.18719549811123304,
+payes,L4,LightGBM zone + historique de la cellule,test,562574.7030256088,75.28097190226265,-0.027393429120903035,
+payes,L4,LightGBM zone + historique de la cellule,test_sans_2024,253380.09249555576,42.350007102716994,-0.02588910982895065,
+payes,L4,LightGBM zone + historique de la cellule,test_recale,393100.2207753918,52.602732607439016,-0.04920655524550366,recalage : utilise les totaux observés du test
+payes,L4,LightGBM zone + historique de la cellule,test_sans_2024_recale,210346.41325785348,35.15734802905791,-0.03701458698745275,recalage : utilise les totaux observés du test
+payes,L5,LightGBM zone seule,train,410919.76576420723,27.396477482779336,0.02221449954187027,
+payes,L5,LightGBM zone seule,test,518378.5759782222,69.36686417479221,0.05331907052914031,
+payes,L5,LightGBM zone seule,test_sans_2024,233324.8958215722,38.997976904825705,0.055310670551105834,
+payes,L5,LightGBM zone seule,test_recale,344870.06675748905,46.1488112883031,0.0795224331439417,recalage : utilise les totaux observés du test
+payes,L5,LightGBM zone seule,test_sans_2024_recale,188483.4200223919,31.50316229690655,0.07077067328503339,recalage : utilise les totaux observés du test
+payes,L6,LightGBM rang de couverture dans l'année,train,317169.69843107095,21.14605629915801,0.24529322230624162,
+payes,L6,LightGBM rang de couverture dans l'année,test,595195.443265254,79.64611846182979,-0.0869665560230306,
+payes,L6,LightGBM rang de couverture dans l'année,test_sans_2024,261369.36761264422,43.68533638854157,-0.05823620646675076,
+payes,L6,LightGBM rang de couverture dans l'année,test_recale,422761.21287388983,56.5718202694888,-0.12837340812450715,recalage : utilise les totaux observés du test
+payes,L6,LightGBM rang de couverture dans l'année,test_sans_2024_recale,217957.0138115029,36.42938556100667,-0.07453509265062497,recalage : utilise les totaux observés du test
+tous,M0,nul,train,492871.1496768388,32.860267329611226,0.0,
+tous,M0,nul,test,592663.5162681347,79.30730847961122,0.0,
+tous,M0,nul,test_sans_2024,277811.57108074456,46.43349006865194,0.0,
+tous,M0,nul,test_recale,416278.786190334,55.70437390476837,0.0,recalage : utilise les totaux observés du test
+tous,M0,nul,test_sans_2024_recale,228542.90806978365,38.198714369009465,0.0,recalage : utilise les totaux observés du test
+tous,M1,GLM zone,train,480113.9185717304,32.00972855335225,0.025883501425216227,
+tous,M1,GLM zone,test,551746.918321265,73.83205116034591,0.06903849625249758,
+tous,M1,GLM zone,test_sans_2024,258345.0562098913,43.179852283117384,0.07007092899379419,
+tous,M1,GLM zone,test_recale,374562.0064464384,50.12204020426046,0.10021356150688299,recalage : utilise les totaux observés du test
+tous,M1,GLM zone,test_sans_2024_recale,208096.83068636752,34.78135227918561,0.08946275146360305,recalage : utilise les totaux observés du test
+tous,M2,GLM zone + couverture + historiques,train,445216.577792234,29.683084058419496,0.09668768787917581,
+tous,M2,GLM zone + couverture + historiques,test,603948.5200616069,80.817412024837,-0.019041164984359593,
+tous,M2,GLM zone + couverture + historiques,test_sans_2024,281482.8502251094,47.04710851163453,-0.013214997237454007,
+tous,M2,GLM zone + couverture + historiques,test_recale,413693.340465195,55.35840231034324,0.006210851503628767,recalage : utilise les totaux observés du test
+tous,M2,GLM zone + couverture + historiques,test_sans_2024_recale,228729.28583946475,38.229865592422655,-0.0008155044987183668,recalage : utilise les totaux observés du test
+tous,G1,GLM sans couverture,train,446898.9154722191,29.795247381306694,0.09327434611411589,
+tous,G1,GLM sans couverture,test,587647.8806942555,78.63614086635293,0.008462872163047086,
+tous,G1,GLM sans couverture,test_sans_2024,278186.91454517015,46.49622506187033,-0.0013510721060516762,
+tous,G1,GLM sans couverture,test_recale,415425.0206933281,55.59012721709195,0.002050946445816604,recalage : utilise les totaux observés du test
+tous,G1,GLM sans couverture,test_sans_2024_recale,229726.05356749182,38.396465580393084,-0.005176907512469908,recalage : utilise les totaux observés du test
+tous,G2,GLM couverture en tranches,train,442037.11995695205,29.471106070868196,0.10313857841591478,
+tous,G2,GLM couverture en tranches,test,598384.4087653968,80.07285009573087,-0.009652850800206503,
+tous,G2,GLM couverture en tranches,test_sans_2024,279675.6836543154,46.745058274162695,-0.006709988955172275,
+tous,G2,GLM couverture en tranches,test_recale,412641.31520403957,55.21762547892942,0.008738064746425245,recalage : utilise les totaux observés du test
+tous,G2,GLM couverture en tranches,test_sans_2024_recale,227558.52425853847,38.03418423174636,0.004307216616604048,recalage : utilise les totaux observés du test
+tous,G3,GLM zone + couverture,train,467470.0482350193,31.16674766551232,0.051537002030803025,
+tous,G3,GLM zone + couverture,test,603770.2881337715,80.7935619073694,-0.018740434598663258,
+tous,G3,GLM zone + couverture,test_sans_2024,273329.7513828605,45.684397690600115,0.016132588287985583,
+tous,G3,GLM zone + couverture,test_recale,383235.149411469,51.28263741622762,0.07937862287259712,recalage : utilise les totaux observés du test
+tous,G3,GLM zone + couverture,test_sans_2024_recale,212213.36466751213,35.469390718287165,0.07145066779882503,recalage : utilise les totaux observés du test
+tous,G4,GLM rang de couverture dans l'année,train,441776.857521341,29.453754085028404,0.10366663211875726,
+tous,G4,GLM rang de couverture dans l'année,test,584399.7580432345,78.20149311430944,0.013943423204004879,
+tous,G4,GLM rang de couverture dans l'année,test_sans_2024,277788.4516345626,46.429625879084504,8.321988206627662e-05,
+tous,G4,GLM rang de couverture dans l'année,test_recale,416607.7113140059,55.748389042420165,-0.0007901558632907868,recalage : utilise les totaux observés du test
+tous,G4,GLM rang de couverture dans l'année,test_sans_2024_recale,230423.41633465237,38.51302295414548,-0.008228250356797417,recalage : utilise les totaux observés du test
+tous,G5_hp,GLM zone + couverture en tranches (HORS PROTOCOLE),train,461875.50634044583,30.793753339585695,0.06288792386552933,
+tous,G5_hp,GLM zone + couverture en tranches (HORS PROTOCOLE),test,585989.3151363004,78.41419980413494,0.011261366607919765,
+tous,G5_hp,GLM zone + couverture en tranches (HORS PROTOCOLE),test_sans_2024,269406.56890247075,45.02867606593193,0.03025432722466026,
+tous,G5_hp,GLM zone + couverture en tranches (HORS PROTOCOLE),test_recale,386830.6395344105,51.76376817000007,0.07074140607890367,recalage : utilise les totaux observés du test
+tous,G5_hp,GLM zone + couverture en tranches (HORS PROTOCOLE),test_sans_2024_recale,213045.4454853647,35.60846489810542,0.06780985993092781,recalage : utilise les totaux observés du test
+tous,M4,LightGBM 4 variables,train,386208.8299042664,25.74897192507943,0.2164101506905156,
+tous,M4,LightGBM 4 variables,test,488597.31825142476,65.3816831595644,0.1755906938088424,
+tous,M4,LightGBM 4 variables,test_sans_2024,237094.22102998043,39.62798278956718,0.14656462973217854,
+tous,M4,LightGBM 4 variables,test_recale,364339.5381225492,48.75411991469948,0.12477034571739332,recalage : utilise les totaux observés du test
+tous,M4,LightGBM 4 variables,test_sans_2024_recale,195136.07170141942,32.61508803299673,0.14617314818696425,recalage : utilise les totaux observés du test
+tous,L1,LightGBM sans couverture,train,401570.57661500777,26.773156651443948,0.1852422750280558,
+tous,L1,LightGBM sans couverture,test,616542.870661379,82.502725901429,-0.040291588292134195,
+tous,L1,LightGBM sans couverture,test_sans_2024,288658.3056557169,48.246415787350315,-0.03904349459878986,
+tous,L1,LightGBM sans couverture,test_recale,443924.74130492756,59.40381925664761,-0.0664121161868505,recalage : utilise les totaux observés du test
+tous,L1,LightGBM sans couverture,test_sans_2024_recale,240612.65926421992,40.21605536757813,-0.05281175117781767,recalage : utilise les totaux observés du test
+tous,L2,LightGBM sans historique du comté,train,396062.75590593694,26.405944123337353,0.19641724583468978,
+tous,L2,LightGBM sans historique du comté,test,475840.9623222485,63.6746905288704,0.1971144683942937,
+tous,L2,LightGBM sans historique du comté,test_sans_2024,234080.78680705742,39.12431669848862,0.15741167332795147,
+tous,L2,LightGBM sans historique du comté,test_recale,355014.080406073,47.506233160186405,0.1471722985092233,recalage : utilise les totaux observés du test
+tous,L2,LightGBM sans historique du comté,test_sans_2024_recale,193228.97400513332,32.296335284160676,0.15451774182320077,recalage : utilise les totaux observés du test
+tous,L3,LightGBM sans historiques,train,436130.31791752327,29.07729301403582,0.11512305355369012,
+tous,L3,LightGBM sans historiques,test,506071.8082931197,67.7200332253606,0.14610602069832634,
+tous,L3,LightGBM sans historiques,test_sans_2024,246193.96049942466,41.14891534337701,0.11380955249027547,
+tous,L3,LightGBM sans historiques,test_recale,361845.0833823618,48.42032428507451,0.1307626153764262,recalage : utilise les totaux observés du test
+tous,L3,LightGBM sans historiques,test_sans_2024_recale,200766.52577580808,33.55616342567409,0.12153683756178635,recalage : utilise les totaux observés du test
+tous,L4,LightGBM zone + historique de la cellule,train,411479.2169481359,27.433776714990056,0.16513835874156813,
+tous,L4,LightGBM zone + historique de la cellule,test,603378.1719967067,80.7410908599902,-0.01807881780211429,
+tous,L4,LightGBM zone + historique de la cellule,test_sans_2024,281986.5507890812,47.13129714007709,-0.015028098693280256,
+tous,L4,LightGBM zone + historique de la cellule,test_recale,430170.70632418053,57.5633221362479,-0.03337167445158906,recalage : utilise les totaux observés du test
+tous,L4,LightGBM zone + historique de la cellule,test_sans_2024_recale,233691.35510327254,39.059226993694224,-0.022527266660651968,recalage : utilise les totaux observés du test
+tous,L5,LightGBM zone seule,train,481455.40153070213,32.09916671316102,0.0231617292950127,
+tous,L5,LightGBM zone seule,test,562755.4097715807,75.30515318768643,0.05046389000773732,
+tous,L5,LightGBM zone seule,test_sans_2024,263392.68251106027,44.023513707347526,0.05190168470518286,
+tous,L5,LightGBM zone seule,test_recale,385854.52286087675,51.63314905136849,0.07308626895905879,recalage : utilise les totaux observés du test
+tous,L5,LightGBM zone seule,test_sans_2024_recale,213475.59832236418,35.680360742497776,0.06592770641921997,recalage : utilise les totaux observés du test
+tous,L6,LightGBM rang de couverture dans l'année,train,384191.9803075164,25.614506320922487,0.22050219299827167,
+tous,L6,LightGBM rang de couverture dans l'année,test,633954.1137615105,84.83261257346587,-0.06966954496098077,
+tous,L6,LightGBM rang de couverture dans l'année,test_sans_2024,289594.7297697279,48.40292992975563,-0.042414211341681884,
+tous,L6,LightGBM rang de couverture dans l'année,test_recale,458033.3108661076,61.2917584458862,-0.1003042337513742,recalage : utilise les totaux observés du test
+tous,L6,LightGBM rang de couverture dans l'année,test_sans_2024_recale,240984.74040339817,40.2782450950022,-0.05443980930624859,recalage : utilise les totaux observés du test

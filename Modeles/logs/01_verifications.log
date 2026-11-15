@@ -1,0 +1,8 @@
+V1 Intégrité de la table : RÉUSSI
+V2 Exposition : RÉUSSI
+V3 Fuite temporelle des historiques : RÉUSSI
+V4 Cible : RÉUSSI
+V5 Dépendances : RÉUSSI
+V6 Variables : RÉUSSI
+V7 Dérive entre entraînement et test : RÉUSSI
+V8 Cohérence avec le rapport : RÉUSSI

@@ -1,0 +1,6 @@
+# SHA-256 des fichiers d'entrée lus par Modeles/ (2026-11-15 18:57:53 CET, commit 69d0d21)
+5858679c3e8d7e7a690438ed22b501f971bd3d612e68555bb6d050265867a6b4  EDA/ds_clean.csv
+f4f3c5b7e68e0f04f4d7ff4c56e55c484588a6e1dc4cfd88126472ab8e34eb0a  EDA/ds_clean_roles.json
+7f5d4fe046a94d3e94df03a3d814f2502bf1e28d2410fea6c50fbc9bb1793183  EDA/build_ds_clean.py
+9c7da0b026d834ea3b4a0e49534b950bf0809acfa9a17d2c7d22c0fae929f546  EDA/figures/eda_key_numbers.json
+cd616cef359ba51618113e7bbcfc6acb48c867e5c819b8ff9b27cf430f472cd9  Data_cleaning/clean/claims_clean.parquet
