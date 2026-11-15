@@ -9,3 +9,7 @@
 # Fichiers générés automatiquement
 __pycache__/
 .DS_Store
+quarto_report/.quarto/
+quarto_report/*_files/
+quarto_report/data/
+quarto_report/*.html

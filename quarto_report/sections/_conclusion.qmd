@@ -1,0 +1,22 @@
+# Conclusion
+
+## Summary
+
+**[TO FILL BY TEAM: what has been achieved so far, in our own words: research question, data, methods and main findings from the EDA and the preliminary results]**
+
+## Limitations
+
+The following limitations are known at this stage (to confirm by the team):
+
+- **Risk Rating 2.0.** The NFIP rating system changed in 2021, inside the test window, so the insured portfolio may differ between training and test years.
+- **Mandatory purchase.** Flood insurance is mandatory only in high-risk zones, so the insured portfolio is not representative of all properties, and the models describe claim frequency among insured policies only.
+- **Rounded location.** Locations in the redacted data are rounded, so the assignment of records to tracts can be imprecise.
+- **Missing tract.** The tract is missing for some records, which are lost for the tract-year analysis.
+- **Event concentration.** Claims are concentrated in event years, and the test window contains Hurricane Ian (2022) and Hurricane Helene (2024). Test metrics may therefore depend on a few events.
+- **Tract vintage.** Tract stability was checked nationally and still has to be reconfirmed on Region 4.
+
+**[TO FILL BY TEAM: confirm, complete or remove these limitations]**
+
+## Future Work
+
+**[TO FILL BY TEAM: concrete next steps until the final report (what, why and how)]**

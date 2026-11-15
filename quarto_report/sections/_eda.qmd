@@ -1,0 +1,55 @@
+# EDA
+
+The figures below come from the exploratory analysis of the cleaned claim-level data (script `EDA/EDA.py`, output in `EDA/figures_v2/`). Each observation is an individual claim in FEMA Region 4, not a tract-year count, and the figures were produced for an earlier severity framing of the project. Their titles and labels are in French.
+
+**[TO FILL BY TEAM: tract x year frequency EDA (exposure per year, claim counts, share of zero tract-years, frequency by state and year), and English versions of the figure titles and labels]**
+
+## Univariate Analysis
+
+![Share of missing values (a) by column and (b) by decade.](../EDA/figures_v2/fig1_missing.png){#fig-eda-missing}
+
+**[TO FILL BY TEAM: interpretation of @fig-eda-missing]**
+
+![(a) Claims per year, (b) payment rate per year, (c) median paid amount per year in real USD.](../EDA/figures_v2/fig2_annual.png){#fig-eda-annual}
+
+**[TO FILL BY TEAM: interpretation of @fig-eda-annual]**
+
+![Monthly claims, with the largest named events shaded.](../EDA/figures_v2/fig3_monthly.png){#fig-eda-monthly}
+
+**[TO FILL BY TEAM: interpretation of @fig-eda-monthly]**
+
+![(a) Distribution of the paid amount on a log scale, (b) ratio of paid amount to coverage, (c) share of paid claims at the coverage cap by era.](../EDA/figures_v2/fig4_severity.png){#fig-eda-severity}
+
+**[TO FILL BY TEAM: interpretation of @fig-eda-severity]**
+
+## Bivariate Analysis
+
+![Paid amount (a) by flood zone group and (b) by elevation status.](../EDA/figures_v2/fig5_boxes.png){#fig-eda-boxes}
+
+**[TO FILL BY TEAM: interpretation of @fig-eda-boxes]**
+
+![Payment rate by categorical variable. The dotted line is the overall payment rate.](../EDA/figures_v2/fig6_frequency.png){#fig-eda-payrate}
+
+**[TO FILL BY TEAM: interpretation of @fig-eda-payrate]**
+
+![(a) Water depth against paid amount (hexbin density), (b) median paid amount by depth class. Water depth is known only after the loss and is not a model feature.](../EDA/figures_v2/fig7_depth.png){#fig-eda-depth}
+
+**[TO FILL BY TEAM: interpretation of @fig-eda-depth]**
+
+![(a) Claims and paid amounts by state, (b) the 15 counties with the most claims.](../EDA/figures_v2/fig8_geography.png){#fig-eda-geography}
+
+**[TO FILL BY TEAM: interpretation of @fig-eda-geography]**
+
+![Payment rate and median paid amount by (a) event-grouped fold, (b) earlier time split and (c) major hurricane (Helene, Ian, Katrina) versus other claims.](../EDA/figures_v2/fig10_model_vars.png){#fig-eda-modelvars}
+
+**[TO FILL BY TEAM: interpretation of @fig-eda-modelvars; note that the folds and time split shown here belong to the earlier severity design, not to the 2010-2019 / 2020-2024 split used in this report]**
+
+## Correlation Analysis
+
+![Spearman rank correlations between claim-level variables.](../EDA/figures_v2/fig9_correlation.png){#fig-eda-correlation}
+
+**[TO FILL BY TEAM: interpretation of @fig-eda-correlation]**
+
+## Key Findings
+
+**[TO FILL BY TEAM: main EDA findings, each referencing a figure, and how they inform the frequency models]**

@@ -1,0 +1,167 @@
+---
+title: "**[TO FILL BY TEAM: final project title]**"
+author:
+ - Jondeau, Lucas
+ - Lehmann, Lucas
+ - Rohner, Nicolas
+ - Villadoniga, Pablo
+institute: "[TO FILL BY TEAM: institute]"
+date: today
+title-block-banner: "#0095C8" # chosen for the university of lausanne
+toc-location: right
+bibliography: references.bib
+csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
+format: 
+  ##############################################################################
+  # Use the code below if you want to render html, otherwise just comment it out#
+  html:
+    # if you want to remove the table of contents, set this to false
+    toc: true
+    number-sections: true
+    html-math-method: katex
+    self-contained: true
+    code-overflow: wrap
+    code-fold: true      # Show code but FOLDED (collapsible) in HTML
+    code-tools: true     # Add code tools dropdown menu
+    echo: true           # Show code in HTML (but folded)
+    include-in-header: # add custom css to make the text in the `</> Code` dropdown black
+      text: |
+        <style type="text/css">
+          .quarto-title-banner a {
+            color: #000000;
+          }
+        </style>
+  ##############################################################################
+  # Use the code below if you want to render pdf, otherwise just comment it out#
+  # pdf:
+  #      # wrapping the code also in the pdf (otherwise, it overflows)
+  #   toc: false
+  #   echo: false          # HIDE code completely in PDF
+  #   include-in-header:
+  #     text: |
+  #       \usepackage{fvextra}
+  #       \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+  #         commandchars=\\\{\},
+  #         breaklines, breaknonspaceingroup, breakanywhere
+  #       }
+  ##############################################################################
+  # Use the code below if you want to render docx, otherwise just comment it out#
+  # docx:
+  #   echo: false          # HIDE code completely in DOCX
+  ##############################################################################
+
+jupyter: python3
+abstract: |
+  **[TO FILL BY TEAM: abstract, written last, at most 250 words, summarizing the question, data, methods and results]**
+execute: 
+  warning: false
+  # Note: echo setting is controlled per-format above (HTML, PDF, DOCX)
+---
+
+```{python}
+#| label: setup
+#| echo: false
+#| message: false
+#| output: false
+# Setup code chunk to load the packages, the project root and the source directory
+
+import importlib.util
+import os
+import sys
+import types
+from pathlib import Path
+
+
+def resolve_report_dir() -> Path:
+    if "__file__" in globals():
+        return Path(__file__).resolve().parent
+    doc_path = os.environ.get("QUARTO_DOCUMENT_PATH")
+    if doc_path:
+        return Path(doc_path).resolve()
+    return Path.cwd().resolve()
+
+
+def resolve_project_root(start: Path) -> Path:
+    env_root = os.environ.get("QUARTO_PROJECT_ROOT")
+    if env_root:
+        root = Path(env_root).resolve()
+        if (root / "src").is_dir():
+            return root
+
+    search_start = start
+
+    doc_path = os.environ.get("QUARTO_DOCUMENT_PATH")
+    if doc_path:
+        candidate = Path(doc_path).resolve()
+        if candidate.is_file():
+            candidate = candidate.parent
+        search_start = candidate
+
+    for candidate in [search_start, *search_start.parents]:
+        print(f"Checking candidate for project root: {candidate}")
+        if (candidate / "src").is_dir():
+            print(f"Resolved project root: {candidate}")
+            return candidate
+
+    raise FileNotFoundError(
+        "Could not locate a project root containing a 'src' directory. "
+        "Update the Quarto setup chunk to point to your project root."
+    )
+
+
+report_dir = resolve_report_dir()
+project_root = resolve_project_root(report_dir)
+src_dir = project_root / "src"
+
+print(f"Report directory resolved to: {report_dir}")
+print(f"Project root resolved to: {project_root}")
+print(f"Source directory resolved to: {src_dir}")
+
+if str(src_dir) not in sys.path:
+    sys.path.insert(0, str(src_dir))
+
+runtime_module = types.ModuleType("quarto_runtime")
+runtime_module.project_root = project_root
+runtime_module.report_dir = report_dir
+sys.modules["quarto_runtime"] = runtime_module
+
+module_path = src_dir / "project_setup.py"
+spec = importlib.util.spec_from_file_location("project_setup", module_path)
+if spec is None or spec.loader is None:
+    raise ImportError(f"Unable to load project_setup from {module_path}")
+
+project_setup = importlib.util.module_from_spec(spec)
+sys.modules["project_setup"] = project_setup
+spec.loader.exec_module(project_setup)
+
+project_setup.configure_environment(project_root=project_root)
+```
+
+{{< include sections/_introduction.qmd >}}
+{{< include sections/_data.qmd >}}
+{{< include sections/_eda.qmd >}}
+{{< include sections/_analysis.qmd >}}
+{{< include sections/_conclusion.qmd >}}
+
+# Use of AI Tools {.unnumbered}
+
+**[TO FILL BY TEAM: statement on the use of AI tools, written according to the course policy]**
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
+
+# Appendices {.unnumbered}
+
+### Appendix A: Additional Exploratory Plots {#sec-appendix-plots}
+
+**[TO FILL BY TEAM: additional exploratory plots, or remove this appendix]**
+
+### Appendix B: Complete Code Listings {#sec-appendix-code}
+
+**[TO FILL BY TEAM: code listings, or remove this appendix]**
+
+### Appendix C: Supplementary Tables {#sec-appendix-tables}
+
+**[TO FILL BY TEAM: supplementary tables, or remove this appendix]**
