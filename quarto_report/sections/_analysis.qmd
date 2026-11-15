@@ -1,13 +1,28 @@
 # Methods
 
-All three models answer the same question: given what we know about a place before the year starts, how many paid claims should we expect there, per insured home? The notation follows the table of @sec-ds-clean:
+All models answer the same question: given what we know about a place before the year starts, how many paid claims should we expect there? The notation follows the table of @sec-ds-clean:
 
 - $N_{it}$: the number of paid claims in cell $i$ (a county and flood zone) and year $t$;
 - $e_{it}$: the policy-years of that cell and year;
 - $\mathbf{x}_{it}$: the facts known in advance (flood zone, coverage, past claims);
 - $\mu_{it}$: the expected number of claims, which each model predicts.
 
-Every model takes the number of insured homes into account in the same way, through an offset $\log e_{it}$: twice as many homes means twice as many expected claims, all else equal. The three models receive the same information, so differences in performance come from the models themselves.
+Every model takes the number of insured homes into account in the same way, through an offset $\log e_{it}$: twice as many homes means twice as many expected claims, all else equal. @tbl-models lists the models compared.
+
+```{python}
+#| label: tbl-models
+#| tbl-cap: "Models compared. The three main models receive the same features, so differences in performance come from the models themselves."
+#| echo: false
+
+models_desc = pd.DataFrame([
+    ("Null model", "None: one claim rate for all cells", "Benchmark that every model must beat"),
+    ("Poisson GLM, zone only", "Flood zone", "Simple benchmark: FEMA's map alone"),
+    ("Poisson GLM", "Flood zone, coverage, past claims of the cell and of the county", "Main model (RQ1)"),
+    ("Negative binomial GLM", "Same as the Poisson GLM", "Main model (RQ1, H2)"),
+    ("LightGBM", "Same as the Poisson GLM", "Main model, the challenger (RQ1, H1)"),
+], columns=["Model", "Features", "Role"])
+md_table(models_desc, align=["l", "l", "l"])
+```
 
 ## Poisson GLM
 
@@ -15,15 +30,15 @@ $$
 N_{it}\sim\text{Poisson}(\mu_{it}),\qquad \log\mu_{it}=\log e_{it}+\mathbf{x}_{it}^\top\boldsymbol\beta
 $$ {#eq-poisson}
 
-The Poisson GLM is the textbook model for claim counts. Each feature multiplies the claim rate by a fixed factor, which makes the model easy to read: for example, "homes in V zones file $k$ times more claims than homes in X zones". Its weakness is that it assumes the variance of the counts equals their mean.
+The Poisson GLM is the textbook model for claim counts. Each feature multiplies the claim rate by a fixed factor, which makes the model easy to read: for example, "homes in V zones file $k$ times more claims than homes in X zones". The flood zone enters as indicator variables, the coverage in thousands of dollars, and the past claims as $\log(1+x)$ because of their skew (@tbl-summary). Its weakness is that it assumes the variance of the counts equals their mean.
 
 ## Negative Binomial GLM
 
 $$
-\text{Var}(N_{it})=\mu_{it}+\alpha\mu_{it}^2
+N_{it}\sim\text{NegBin}(\mu_{it},\alpha),\qquad \text{Var}(N_{it})=\mu_{it}+\alpha\mu_{it}^2
 $$ {#eq-nb}
 
-The negative binomial GLM keeps the same structure as @eq-poisson but lets the variance grow faster than the mean, through an extra parameter $\alpha$. This is exactly what the data show: counts vary about `{python} f"{pearson / df_disp:.0f}"` times more than a Poisson model expects (@fig-eda-dispersion). Because it gives less weight to the cells with very large counts, its predictions can differ from those of the Poisson model (H2).
+The negative binomial GLM keeps the same mean as @eq-poisson but lets the variance grow faster than the mean, through an extra parameter $\alpha$. This is what the data show: counts vary about `{python} f"{pearson / df_disp:.0f}"` times more than a Poisson model expects (@fig-eda-dispersion). Because it gives less weight to the cells with very large counts, its predictions can differ from those of the Poisson model (H2).
 
 ## LightGBM with Poisson Objective
 
@@ -31,30 +46,40 @@ LightGBM builds many small decision trees, each one correcting the errors of the
 
 - **Same target.** It uses the same Poisson loss, so it predicts the same quantity.
 - **Same exposure.** The number of insured homes enters as a starting point for the trees: the logarithm of the policy-years plus the logarithm of the average claim rate of the training years. Without the second term, the first trees must learn the overall level by themselves and the predictions come out far too high.
-- **More flexibility.** The trees can discover on their own that, say, the effect of the flood zone depends on the location, where a GLM would need us to specify this in advance.
+- **More flexibility.** The trees can discover on their own that, say, the effect of past claims depends on the flood zone, where a GLM would need us to specify this in advance.
 
-RQ1 asks whether this flexibility pays off on years the model has never seen. A fixed random seed makes the results reproducible.
+A fixed random seed makes the results reproducible.
 
 ## Validation
 
-We mimic what an insurer does every year: use all past years to predict the next one.
+We mimic what an insurer does every year: use all past years to predict the next one (@tbl-rolling).
 
 - **One prediction per year.** For each year from 2016 to 2024, the models are fitted on all earlier years, starting in 2010, and predict that year.
 - **Validation and test.** The years 2016 to 2019 serve as validation, the years 2020 to 2024 as test.
-- **Tuning.** The settings of LightGBM (size of the trees, learning speed, number of trees) are chosen each time on the last two years of the training window, never on the year to predict.
-- **Same inputs.** The Poisson GLM, the negative binomial GLM and LightGBM receive the facts known in advance listed in @tbl-variables.
-- **Two benchmarks.** A null model applies the same rate everywhere, and a simple Poisson GLM uses the flood zone only.
+- **Tuning.** The settings of LightGBM (size of the trees, learning speed, regularization) are chosen on the last two years of each training window, and the number of trees by early stopping on the same two years. The year to predict is never used.
 
 Predicting nine years instead of fitting once gives a result that does not hang on one particular split.
+
+```{python}
+#| label: tbl-rolling
+#| tbl-cap: "Rolling-origin evaluation: each year is predicted by models fitted on the earlier years only."
+#| echo: false
+
+rolling = pd.DataFrame([
+    (str(t), f"2010 to {t - 1}", f"{t - 2} and {t - 1}", "validation" if t <= 2019 else "test")
+    for t in range(2016, 2025)
+], columns=["Year predicted", "Models fitted on", "LightGBM settings chosen on", "Period"])
+md_table(rolling, align=["l", "l", "l", "l"])
+```
 
 ## Metrics
 
 Each metric answers a different question:
 
-- **Deviance gain**: how much closer are the predicted counts to the observed ones than those of the null model? A positive gain means the model beats the null model.
-- **Gain after yearly recalibration**: the same gain once every model is rescaled to the observed total of each year. No model can know when a hurricane will strike; this version removes that error and only judges *where* the model places the claims.
-- **Gini index**: does the model rank areas in the right order, from safe to risky?
-- **Predicted over observed totals**: how far off is the overall level?
+- **Deviance gain**: how much closer are the predictions to the observed counts than those of the null model? With $D$ the Poisson deviance summed over all cells and years, the gain is $1 - D_\text{model}/D_\text{null}$. A positive gain means the model beats the null model.
+- **Gain after yearly recalibration**: the same gain once every model is rescaled to the observed total of each year. No model can know when a hurricane will strike; this version removes that error and only judges *where* the model places the claims. It is our main metric.
+- **Gini index**: does the model rank areas in the right order, from safe to risky? 0 means no better than random, higher is better.
+- **Predicted over observed totals**: how far off is the overall level? 100% means the right total.
 - **Calibration by decile**: grouping areas from least to most risky according to the model, does each group get roughly the number of claims predicted? ([Appendix C](#sec-appendix-tables))
 
 Differences between models come with 95% confidence intervals, obtained by resampling the counties. Results are reported overall and separately for Florida and the other seven states (RQ2). Three checks complete the picture:
@@ -63,7 +88,11 @@ Differences between models come with 95% confidence intervals, obtained by resam
 - the same evaluation on all claims rather than paid claims only;
 - LightGBM kept at fixed settings instead of being tuned again every year.
 
-**A caveat on the method.** The models were first fitted once on 2010 to 2019 and evaluated on 2020 to 2024. The evaluation described here, and the choice of coverage in constant dollars, came after seeing those first results. The test years are therefore no longer untouched, and the results below should be read as exploratory.
+::: {.callout-warning}
+## A caveat on the method
+
+The models were first fitted once on 2010 to 2019 and evaluated on 2020 to 2024. The evaluation described here, and the choice of coverage in constant dollars, came after seeing those first results. The test years are therefore no longer untouched, and the results below should be read as exploratory.
+:::
 
 # Findings and Discussion
 
@@ -71,16 +100,18 @@ These are first results on the county table, not the final answer of the project
 
 ```{python}
 #| label: tbl-model-results
-#| tbl-cap: "Models fitted on all earlier years and evaluated on each year from 2016 to 2024. Gains are relative to the null model, in percent."
+#| tbl-cap: "Scores of the models, fitted on all earlier years and evaluated on each year from 2016 to 2024. Gains are relative to the null model. Main metric: gain after recalibration."
 
 mod_dir = repo_root / "Modeles" / "resultats"
 res = pd.read_csv(mod_dir / "glissant_resultats.csv")
 ci = pd.read_csv(mod_dir / "glissant_intervalles.csv")
 reg = pd.read_csv(mod_dir / "glissant_par_region.csv")
 hp = pd.read_csv(mod_dir / "glissant_hyperparametres.csv")
+deciles = pd.read_csv(mod_dir / "glissant_calibration_deciles.csv")
 first_fit = pd.read_csv(mod_dir / "deviance_par_modele.csv")
 
 MAIN, VAL, TEST = "A", "validation 2016-2019", "test 2020-2024"
+ORD = "payes_hors_grands_evenements"
 model_name = {"M1": "Poisson GLM, zone only", "M2": "Poisson GLM", "M3": "Negative binomial GLM", "M4": "LightGBM"}
 
 
@@ -101,47 +132,44 @@ def pct(v):
     return f"{100 * v:+.1f}%"
 
 
-rows = []
-for m, name in model_name.items():
-    row = {"model": name}
-    for per, lab in {VAL: "2016 to 2019", TEST: "2020 to 2024"}.items():
-        row[(lab, "gain")] = round(100 * score(m, "gain_brut", per), 1)
-        row[(lab, "gain, recalibrated")] = round(100 * score(m, "gain_recale", per), 1)
-        row[(lab, "Gini")] = round(score(m, "gini", per), 2)
-        row[(lab, "predicted / observed")] = round(score(m, "predit_sur_observe", per), 2)
-    rows.append(row)
-model_table = pd.DataFrame(rows).set_index("model")
-model_table.columns = pd.MultiIndex.from_tuples(model_table.columns)
-display(model_table)
+def interval(g):
+    return f"{100 * g['ic95_bas']:+.1f} to {100 * g['ic95_haut']:+.1f} points"
+
+
+metrics = {"gain_recale": pct, "gain_brut": pct, "gini": "{:.2f}".format, "predit_sur_observe": "{:.0%}".format}
+rows = [[name] + [f"{fmt(score(m, k, VAL))} / {fmt(score(m, k, TEST))}" for k, fmt in metrics.items()]
+        for m, name in model_name.items()]
+cols = ["Model (validation / test)", "Gain, recalibrated", "Gain, raw", "Gini", "Predicted / observed"]
+display(md_table(pd.DataFrame(rows, columns=cols)))
 
 g41, g41_val, g41_fixed = gap("M4 - M1"), gap("M4 - M1", VAL), gap("M4_fixe - M1")
-deciles = pd.read_csv(mod_dir / "glissant_calibration_deciles.csv")
 hp_main = hp[(hp["cible"] == "payes") & (hp["variables"] == MAIN)]
 first_lgb = float(first_fit[(first_fit["cible"] == "payes") & (first_fit["ensemble"] == "test 2020-2024")
                             & (first_fit["modele"] == "M4")]["gain_relatif_vs_M0"].iloc[0])
-ORD = "payes_hors_grands_evenements"
 ```
 
 ![Deviance gain over the null model after yearly recalibration, which judges only where each model places the claims.](../Modeles/figures/glissant_gain.png){#fig-model-gain width=75%}
 
-**Every model predicts too few claims.** On the test years, the Poisson GLM predicts `{python} f"{score('M2', 'predit_sur_observe'):.0%}"` of the paid claims that occurred and LightGBM `{python} f"{score('M4', 'predit_sur_observe'):.0%}"` (@tbl-model-results). This confirms H3: no model fitted on past years can anticipate Ian or Helene.
+The results are organized by question.
 
-**LightGBM does not beat the GLMs.** H1 is not supported. Once the yearly level is set aside (@fig-model-gain):
+**Level of claims (H3): every model predicts too few.** On the test years, the Poisson GLM predicts `{python} f"{score('M2', 'predit_sur_observe'):.0%}"` of the paid claims that occurred and LightGBM `{python} f"{score('M4', 'predit_sur_observe'):.0%}"` (@tbl-model-results). This confirms H3: no model fitted on past years can anticipate Ian or Helene.
 
-- **Validation years**: LightGBM is slightly ahead, `{python} pct(score('M4', 'gain_recale', VAL))` against `{python} pct(score('M1', 'gain_recale', VAL))` for the GLM with the zone only. The difference is not significant (95% interval from `{python} f"{100 * g41_val['ic95_bas']:+.1f}"` to `{python} f"{100 * g41_val['ic95_haut']:+.1f}"` points).
-- **Test years**: it falls behind, `{python} pct(score('M4', 'gain_recale'))` against `{python} pct(score('M1', 'gain_recale'))`, and this time the interval excludes zero (`{python} f"{100 * g41['ic95_bas']:+.1f}"` to `{python} f"{100 * g41['ic95_haut']:+.1f}"` points).
-- **With fixed settings**: LightGBM reaches `{python} pct(score('M4_fixe', 'gain_recale'))` on the test years, still below the GLM with the zone only, but the difference is no longer significant (`{python} f"{100 * g41_fixed['ic95_bas']:+.1f}"` to `{python} f"{100 * g41_fixed['ic95_haut']:+.1f}"` points).
+**LightGBM against the GLMs (RQ1, H1): LightGBM does not win.** Once the yearly level is set aside (@fig-model-gain):
+
+- **Validation years**: LightGBM is slightly ahead, `{python} pct(score('M4', 'gain_recale', VAL))` against `{python} pct(score('M1', 'gain_recale', VAL))` for the GLM with the zone only. The difference is not significant (95% interval from `{python} interval(g41_val)`).
+- **Test years**: it falls behind, `{python} pct(score('M4', 'gain_recale'))` against `{python} pct(score('M1', 'gain_recale'))`, and this time the interval excludes zero (`{python} interval(g41)`). Its ranking of places also collapses: a Gini index of `{python} f"{score('M4', 'gini'):.2f}"` against `{python} f"{score('M2', 'gini'):.2f}"` for the Poisson GLM.
+- **With fixed settings**: LightGBM reaches `{python} pct(score('M4_fixe', 'gain_recale'))` on the test years, still below the GLM with the zone only, but the difference is no longer significant (`{python} interval(g41_fixed)`).
 - **With all claims** instead of paid claims: same picture, `{python} pct(score('M4', 'gain_recale', target='tous'))` for LightGBM against `{python} pct(score('M1', 'gain_recale', target='tous'))` for the GLM with the zone only.
 
-The safe reading is that LightGBM is not better, and probably worse. The simplest model, the flood zone alone, is the most robust when the storms change place.
+H1 is not supported. The safe reading is that LightGBM is not better, and probably worse. The simplest model, the flood zone alone, is the most robust when the storms change place.
 
 **Why a first attempt looked better.** A single fit on 2010 to 2019 gave LightGBM a gain of `{python} pct(first_lgb)` on the test years. Two things explain it:
 
 - **A variable that revealed the year.** That fit used the coverage in current dollars, which rises every year and let the trees guess the year.
 - **Fragile settings.** Across the nine training windows, the number of trees retained ranges from `{python} int(hp_main['iterations'].min())` to `{python} int(hp_main['iterations'].max())`. A flexible model has little stable signal to hold on to.
 
-**The negative binomial model wins for the wrong reason.** It has the best raw gain on the test years (`{python} pct(score('M3', 'gain_brut'))`), but only because it predicts a higher level everywhere (`{python} f"{score('M3', 'predit_sur_observe'):.0%}"` of the observed claims), which happens to help when claims surge. After recalibration its gain (`{python} pct(score('M3', 'gain_recale'))`) is close to that of the Poisson GLM (`{python} pct(score('M2', 'gain_recale'))`). The answer to H2 is mixed: the two GLMs place the claims in similar areas, but not at the same level.
+**The two GLMs (H2): similar ranking, different level.** The negative binomial model has the best raw gain on the test years (`{python} pct(score('M3', 'gain_brut'))`), but only because it predicts a higher level everywhere (`{python} f"{score('M3', 'predit_sur_observe'):.0%}"` of the observed claims), which happens to help when claims surge. After recalibration, its gain (`{python} pct(score('M3', 'gain_recale'))`) is close to that of the Poisson GLM (`{python} pct(score('M2', 'gain_recale'))`). The answer to H2 is mixed: the two GLMs place the claims in similar areas, but not at the same level.
 
-**Florida drives the result.** In Florida, LightGBM does worse than the null model on the test years (`{python} pct(score('M4', 'gain_recale', table=reg, region='Floride'))` after recalibration), while in the other seven states it stays positive (`{python} pct(score('M4', 'gain_recale', table=reg, region='sept autres États'))`) but behind the Poisson GLM (`{python} pct(score('M2', 'gain_recale', table=reg, region='sept autres États'))`). The answer to RQ2 is that the ranking of the models differs between the two groups, and that the failure of LightGBM comes mostly from Florida.
+**Florida and the other states (RQ2): Florida drives the result.** In Florida, LightGBM does worse than the null model on the test years (`{python} pct(score('M4', 'gain_recale', table=reg, region='Floride'))` after recalibration). In the other seven states it stays positive (`{python} pct(score('M4', 'gain_recale', table=reg, region='sept autres États'))`) but behind the Poisson GLM (`{python} pct(score('M2', 'gain_recale', table=reg, region='sept autres États'))`). The ranking of the models differs between the two groups, and the failure of LightGBM comes mostly from Florida.
 
-**Ordinary floods are predictable.** Outside the ten largest events, the level problem disappears: the Poisson GLM predicts `{python} f"{score('M2', 'predit_sur_observe', target=ORD):.0%}"` of the observed claims on the test years, with a gain of `{python} pct(score('M2', 'gain_brut', target=ORD))` (`{python} pct(score('M2', 'gain_brut', VAL, target=ORD))` on the validation years), against `{python} pct(score('M4', 'gain_brut', target=ORD))` for LightGBM. The facts we know in advance do carry information, but about everyday floods, not about hurricanes.
+**Ordinary floods are predictable.** Outside the ten largest events, the level problem disappears: the Poisson GLM predicts `{python} f"{score('M2', 'predit_sur_observe', target=ORD):.0%}"` of the observed claims on the test years, with a raw gain of `{python} pct(score('M2', 'gain_brut', target=ORD))` (`{python} pct(score('M2', 'gain_brut', VAL, target=ORD))` on the validation years), against `{python} pct(score('M4', 'gain_brut', target=ORD))` for LightGBM. The facts we know in advance do carry information, but about everyday floods, not about hurricanes.

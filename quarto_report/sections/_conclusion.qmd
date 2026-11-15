@@ -2,43 +2,54 @@
 
 ## Summary
 
-We set out to test whether a machine learning method, LightGBM, predicts flood insurance claims better than the classical GLMs that insurers rely on, using FEMA's records for the eight states of the Southeast. So far, we have downloaded and verified the data, cleaned the claims, measured how many homes were insured each year, and joined the two in a single table by county, flood zone and year.
+We set out to test whether a machine learning method, LightGBM, predicts flood insurance claims better than the classical GLMs that insurers rely on, using FEMA's records for the eight states of Region 4. So far, we have downloaded and verified the data, cleaned the claims, measured how many homes were insured each year, joined the two in a table by county, flood zone and year, explored it, and fitted first models.
 
-**What the data show:**
+**What the data show** (@sec-eda):
 
 - Flood claims are driven by a few hurricanes, not by the size of the insured portfolio.
 - Most places have no claim in a given year while a few have thousands, far more variation than a Poisson model allows.
 - The flood zone and past claims are the clearest signals of risk.
 - The test years are unusual: they hold most of the claims, and the storms struck places, Florida above all, that had been relatively spared in the previous decade.
 
-**What the first models show:**
+**What the first models show**, question by question:
 
-- Every model predicts too few claims in the hurricane years, as expected.
-- LightGBM does not beat the GLMs. Once the yearly level is set aside, it is no better than a GLM with the flood zone alone on the validation years, and behind it on the test years, mostly because of Florida.
-- Its apparent advantage in a first attempt came from a variable that revealed the year and from fragile settings.
-- The facts known in advance do help, but for ordinary floods rather than for hurricanes.
+| Question | First answer |
+|:---|:---|
+| **H3.** Too few claims predicted in hurricane years? | Yes, for every model. |
+| **RQ1 / H1.** Does LightGBM beat the GLMs? | No. It is level with a GLM using the flood zone alone on the validation years and behind it on the test years. Its advantage in a first attempt came from a variable that revealed the year and from fragile settings. |
+| **H2.** Do the two GLMs predict alike? | They place the claims in similar areas, but the negative binomial GLM predicts a higher level. |
+| **RQ2.** Same answer in Florida and elsewhere? | No. LightGBM fails mainly in Florida; elsewhere it stays positive but behind the Poisson GLM. |
+| **Beyond the questions.** Do the features carry signal? | Yes, for ordinary floods rather than for hurricanes. |
 
 These results are preliminary: they rest on a county table with few features.
 
 ## Limitations
 
+**Data**
+
 - **Insured homes only.** Flood insurance is mandatory only in high-risk zones, so the data describe insured homes, not all homes.
-- **County level for now.** This update works by county and flood zone. Within a county, homes on the coast and inland are mixed, which blurs some differences; the final table by census tract will be finer.
+- **Anonymized records.** Claims and policies cannot be linked one by one, so the features describe areas, not individual homes.
+- **County level for now.** Within a county, homes on the coast and inland are mixed, which blurs some differences; the final table by census tract will be finer.
+- **Few features.** The models only know the flood zone, the coverage and past claims. A flexible model such as LightGBM has little to work with.
+
+**Method**
+
+- **Exploratory results.** The evaluation was refined after a first look at the test years, so the comparison is not a clean, one-time test.
+- **A slight look ahead in one feature.** Past claims per 1,000 policy-years (`hist_per_1000`, `county_hist_per_1000`) are scaled by the average number of insured homes over 2010 to 2019. When predicting 2016 to 2018, this average includes a few later years. Only the number of homes is affected, not the claims, so the effect should be small; the final table will compute it from earlier years only.
+
+**Scope**
+
 - **A few storms decide a lot.** With Ian and Helene in the test years, the results depend heavily on two events, even when nine years are predicted instead of five.
 - **A changing system.** The NFIP changed its pricing in 2021, inside the test period, which may have changed who is insured.
-- **Exploratory results.** The evaluation was refined after a first look at the test years, so the comparison is not a clean, one-time test.
-- **Few features.** The models only know the flood zone, the coverage and past claims. A flexible model such as LightGBM has little to work with.
-- **A slight look ahead in one feature.** Past claims per 1,000 homes (`hist_per_1000`, `county_hist_per_1000`) are scaled by the average number of insured homes over 2010 to 2019. When predicting 2016 to 2018, this average includes a few later years. Only the number of homes is affected, not the claims, so the effect should be small; the final table will compute it from earlier years only.
-- **Anonymized records.** Claims and policies cannot be linked one by one, so the features describe areas, not individual homes.
 
 ## Future Work
 
 The plan up to the final report (21 December):
 
 | Deadline | Step |
-|---|---|
+|:---|:---|
 | 27 November | **Build the table by census tract**, with the same structure as `ds_clean`, and check that tract boundaries are stable over 2010 to 2024. |
 | 4 December | **Add features from the policy file**, such as the share of homes built before the flood maps or the deductible, computed from past years only, and run the exploration again on the new table. |
-| 11 December | **Fix the evaluation in advance** (years, metrics, settings), make the tuning of LightGBM more stable, since its settings change a lot from one training window to the next, and then run the models, using the test years only once. |
+| 11 December | **Fix the evaluation in advance** (years, metrics, settings), make the tuning of LightGBM more stable, and then run the models, using the test years only once. |
 | 18 December | **Write and proofread the final report**, with every number produced by code. |
 | 21 December | **Submit the final report.** |

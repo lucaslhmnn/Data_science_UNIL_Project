@@ -164,7 +164,7 @@ The research questions, the choice of data and scope, the modelling design, the 
 
 ![Candidate features against the frequency, training years 2010 to 2019. County-zone cells with at least 100 policy-years are grouped in deciles of each feature: (left) mean building coverage per policy in constant dollars, (middle) paid claims of 1990 to 2008 per 1,000 policy-years in the same cell, (right) the same measure for the whole county. Log scale for the frequency.](../EDA/figures/eda_5_features.png){#fig-eda-features}
 
-@fig-eda-features compares the facts known in advance with the frequency over the training years. Places with many claims from 1990 to 2008 also have more claims in the 2010s, both for the same county and zone (rank correlation `{python} f"{kn['feature_spearman_train']['hist_per_1000']:.2f}"`) and for the county as a whole (`{python} f"{kn['feature_spearman_train']['county_hist_per_1000']:.2f}"`). The average coverage per policy is only weakly related (`{python} f"{kn['feature_spearman_train']['coverage_real']:.2f}"`). The curves are irregular rather than straight lines, which is why a flexible model such as LightGBM was worth testing.
+@fig-eda-features shows the shape behind the correlations of @tbl-spearman. For past claims, both of the cell and of the county, the frequency stays low and irregular across the lower deciles, then jumps in the upper deciles: a threshold rather than a straight line. For the coverage, the frequency tends to fall as the coverage rises, with large swings from one decile to the next.
 
 ## Appendix B: Complete Code Listings {#sec-appendix-code .unnumbered}
 
@@ -173,8 +173,8 @@ The code is in the project repository, <https://github.com/lucaslhmnn/Data_scien
 - `Data_cleaning/clean/clean_data.py`: audit of the raw files, treatment of sentinel values, cleaning of the claims and computation of the policy exposure (`zone_year.parquet`);
 - `EDA/build_ds_clean.py`: joins the paid claims and the exposure per county, flood zone and year into the analysis table `EDA/ds_clean.csv`, with the definition of each column in `EDA/ds_clean_roles.json`;
 - `EDA/eda.py`: exploratory analysis of `ds_clean`, which writes the figures of @sec-eda and [Appendix A](#sec-appendix-plots) and the key numbers (`EDA/figures/eda_key_numbers.json`) used in the text;
-- `Modeles/`: the models (`scripts/02_modeles.py` for a first single fit, `scripts/04_evaluation_glissante.py` for the year-by-year evaluation used in this report) and their results;
-- `quarto_report/`: this report, whose code cells compute all statistics from the cleaned files.
+- `Modeles/`: the models (`scripts/02_modeles.py` for a first single fit, `scripts/04_evaluation_glissante.py` for the year-by-year evaluation used in this report) and their results; `bash Modeles/run_all.sh` runs everything;
+- `quarto_report/`: this report, whose code cells compute all statistics from the cleaned files and the model results.
 
 ## Appendix C: Supplementary Tables {#sec-appendix-tables .unnumbered}
 
@@ -182,27 +182,46 @@ The code is in the project repository, <https://github.com/lucaslhmnn/Data_scien
 #| label: tbl-freq-year
 #| tbl-cap: "Paid claims, all claims, policy-years and frequency per 1,000 policy-years by year, computed from ds_clean."
 
-freq_year = ds.groupby("year")[["n_claims", "n_all", "exposure_years"]].sum()
-freq_year["paid_per_1000"] = 1000 * freq_year["n_claims"] / freq_year["exposure_years"]
-freq_year["all_per_1000"] = 1000 * freq_year["n_all"] / freq_year["exposure_years"]
-freq_year["period"] = ["train" if y <= 2019 else "test" for y in freq_year.index]
-display(freq_year.round({"exposure_years": 0, "paid_per_1000": 2, "all_per_1000": 2})
-        .astype({"exposure_years": int}))
+fy = ds.groupby("year")[["n_claims", "n_all", "exposure_years"]].sum()
+year_table = pd.DataFrame({
+    "Year": fy.index.astype(str),
+    "Period": ["training" if y <= 2019 else "test" for y in fy.index],
+    "Paid claims": fy["n_claims"].map("{:,.0f}".format),
+    "All claims": fy["n_all"].map("{:,.0f}".format),
+    "Policy-years": fy["exposure_years"].map("{:,.0f}".format),
+    "Paid per 1,000": (1000 * fy["n_claims"] / fy["exposure_years"]).map("{:.2f}".format),
+    "All per 1,000": (1000 * fy["n_all"] / fy["exposure_years"]).map("{:.2f}".format),
+})
+md_table(year_table, align=["l", "l", "r", "r", "r", "r", "r"])
+```
+
+```{python}
+#| label: tbl-freq-state
+#| tbl-cap: "Paid claims, policy-years and claims per 1,000 policy-years by state, training (2010 to 2019) and test (2020 to 2024) years."
+
+state_rows = []
+for s in list(STATE_NAMES) + ["Other seven states"]:
+    name = STATE_NAMES.get(s, "**Other seven states**")
+    a, b = st_tr.loc[s], st_te.loc[s]
+    state_rows.append([name, f"{a['n_claims']:,.0f}", f"{a['exposure_years']:,.0f}", f"{a['per_1000']:.2f}",
+                       f"{b['n_claims']:,.0f}", f"{b['exposure_years']:,.0f}", f"{b['per_1000']:.2f}"])
+md_table(pd.DataFrame(state_rows, columns=["State", "Training: paid claims", "Training: policy-years",
+                                           "Training: per 1,000", "Test: paid claims", "Test: policy-years",
+                                           "Test: per 1,000"]))
 ```
 
 ```{python}
 #| label: tbl-deciles
-#| tbl-cap: "Calibration by decile on the test years, after yearly recalibration: areas are ranked by predicted frequency and split in ten groups; observed and predicted paid claims per 1,000 policy-years."
+#| tbl-cap: "Calibration by decile on the test years, after yearly recalibration: areas are ranked by predicted frequency and split in ten groups; predicted and observed paid claims per 1,000 policy-years."
 
-dec = deciles[(deciles["periode"] == TEST) & deciles["modele"].isin(["M2", "M4"])]
-dec_table = dec.pivot(index="decile", columns="modele", values=["observe_pour_1000", "predit_pour_1000"]).round(1)
-dec_table.columns = [f"{model_name[m]}, {'observed' if v.startswith('observe') else 'predicted'}"
-                     for v, m in dec_table.columns]
-display(dec_table[sorted(dec_table.columns, reverse=True)])
-top = dec[dec["decile"] == 10].set_index("modele")
+dec = deciles[(deciles["periode"] == TEST) & deciles["modele"].isin(["M2", "M4"])].set_index(["modele", "decile"])
+dec_rows = [[str(k)] + [f"{dec.loc[(m, k), c]:.1f}" for m in ("M2", "M4")
+                        for c in ("predit_pour_1000", "observe_pour_1000")] for k in range(1, 11)]
+md_table(pd.DataFrame(dec_rows, columns=["Decile (1 = safest)", "Poisson GLM: predicted", "Poisson GLM: observed",
+                                         "LightGBM: predicted", "LightGBM: observed"]))
 ```
 
-In @tbl-deciles, both models are too confident about the places they consider most at risk: in the top group, the Poisson GLM predicts `{python} f"{top.loc['M2', 'predit_pour_1000']:.0f}"` paid claims per 1,000 policy-years where `{python} f"{top.loc['M2', 'observe_pour_1000']:.0f}"` occurred, and LightGBM `{python} f"{top.loc['M4', 'predit_pour_1000']:.0f}"` where `{python} f"{top.loc['M4', 'observe_pour_1000']:.0f}"` occurred.
+In @tbl-deciles, both models are too confident about the places they consider most at risk: in the top group, the Poisson GLM predicts `{python} f"{dec.loc[('M2', 10), 'predit_pour_1000']:.0f}"` paid claims per 1,000 policy-years where `{python} f"{dec.loc[('M2', 10), 'observe_pour_1000']:.0f}"` occurred, and LightGBM `{python} f"{dec.loc[('M4', 10), 'predit_pour_1000']:.0f}"` where `{python} f"{dec.loc[('M4', 10), 'observe_pour_1000']:.0f}"` occurred.
 
 ```{python}
 #| label: tbl-anomalies
@@ -214,12 +233,10 @@ reason_en = {
     "paiement sans couverture": "payment without coverage",
     "paiement négatif": "negative payment",
 }
-anomaly_table = (
+anomaly_counts = (
     anomalies["motif"]
     .map(lambda m: "; ".join(reason_en.get(part.strip(), part.strip()) for part in m.split(";")))
     .value_counts()
-    .rename_axis("reason")
-    .reset_index(name="claims")
 )
-display(anomaly_table)
+md_table(pd.DataFrame({"Reason": anomaly_counts.index, "Claims": anomaly_counts.map("{:,}".format).to_numpy()}))
 ```

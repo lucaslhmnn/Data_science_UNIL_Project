@@ -2,28 +2,39 @@
 
 ## Project Goals
 
-Every hurricane season, thousands of homeowners in the southeastern United States file a flood insurance claim. Most of them are insured by the National Flood Insurance Program (NFIP), the public scheme run by the Federal Emergency Management Agency (FEMA). For an insurer, the first question is simple to ask and hard to answer: how many claims should we expect next year, and where? This expected number of claims per insured home, the claim frequency, drives the price of a policy and the reserves a portfolio needs.
+Every hurricane season, thousands of homeowners in the southeastern United States file a flood insurance claim. Most of them are insured by the National Flood Insurance Program (NFIP), the public scheme run by the Federal Emergency Management Agency (FEMA). For an insurer, the first question is simple to ask and hard to answer: how many claims should we expect next year, and where? This expected number of claims per insured home, the *claim frequency*, drives the price of a policy and the reserves a portfolio needs.
 
-Insurers have long answered this question with generalized linear models (GLMs), which are transparent and easy to explain. Machine learning methods such as gradient boosting promise better predictions by finding patterns that a GLM does not look for. Our project tests this promise on real flood data. We compare LightGBM, a gradient boosting method, with two classical count models, a Poisson GLM and a negative binomial GLM, on the claims and policies that FEMA publishes through its OpenFEMA platform.
+Insurers have long answered this question with generalized linear models (GLMs), which are transparent and easy to explain. Machine learning methods such as gradient boosting promise better predictions by finding patterns that a GLM does not look for. Our project tests this promise on real flood data: we compare LightGBM, a gradient boosting method, with two classical count models, a Poisson GLM and a negative binomial GLM.
 
-We study FEMA Region 4, the eight states of the Southeast (Alabama, Florida, Georgia, Kentucky, Mississippi, North Carolina, South Carolina and Tennessee), from the coast of Florida to the hills of Kentucky. The data cover 2010 to 2024. Each year from 2016 on is predicted from the years before it, the way an insurer would use the past to predict the future, and the years 2020 to 2024 are kept as the final test.
+**Study area.** FEMA divides the United States into ten regions. We study Region 4, the Southeast, which groups eight states: Alabama, Florida, Georgia, Kentucky, Mississippi, North Carolina, South Carolina and Tennessee (@tbl-region). It runs from the hurricane-exposed coasts of Florida and the Carolinas to the river valleys of Kentucky and Tennessee. The data cover 2010 to 2024. Each year from 2016 on is predicted from the years before it, the way an insurer uses the past to price the future, and the years 2020 to 2024 are kept as the final test.
+
+::: {.callout-note}
+## Key terms used in this report
+
+- **Policy-year**: one home insured for one full year. A home insured for six months counts as half a policy-year. Policy-years measure the *exposure*, the number of insured homes over a year.
+- **Paid claim**: a claim with a payment for damage to the building. This is the event we predict.
+- **Claim frequency**: paid claims per 1,000 policy-years.
+- **Flood zone**: FEMA's official flood risk class of a location: V (coast, exposed to waves), A (100-year floodplain) or X (moderate or low risk).
+- **Cell**: one county and one flood zone, for example the A zone of Lee County, Florida. A **county-zone-year** is a cell observed during one year, the unit of our analysis table.
+- **Training and test years**: the exploration compares 2010 to 2019 (training years) with 2020 to 2024 (test years). The models are always fitted on earlier years only: each year from 2016 is predicted from the years before it, 2016 to 2019 serving to compare models while they are developed (validation) and 2020 to 2024 to report the final scores (test).
+:::
 
 ### Adjustments to the Proposal
 
 - **From the whole United States to Region 4.** The national files hold 2,725,989 claims and 74,739,461 policy records, too heavy to process and share comfortably. Region 4 (787,274 claims and 31,463,858 policy records) remains large and varied, with coastal and inland states.
 - **Training starts in 2010 instead of 2009**, because the policy records start during 2009 and that year is incomplete.
 - **A claim counts when it is paid.** We count claims with a payment for building damage; counting all claims is kept as a check.
-- **A county-level table for this update.** The final analysis will be at the level of the census tract, a neighborhood of a few thousand people. Building that table requires the raw files and is still in progress, so this update works with the same kind of table at the level of the county and flood zone (@sec-ds-clean).
+- **A county-level table for this update.** The final analysis will be at the level of the census tract, a neighborhood of a few thousand people. That table is still being built, so this update works with the same kind of table at the level of the county and flood zone (@sec-ds-clean).
 
 ## Research Questions
 
-- **RQ1.** Does LightGBM predict flood claim frequency better than a Poisson GLM and a negative binomial GLM? The question is whether the extra flexibility of boosting improves predictions on years it has never seen, enough to give up the transparency of a GLM.
-- **RQ2.** Does the answer hold both for Florida and for the other seven states? Florida holds about 71% of the policies, so a single overall score would mostly describe Florida.
+- **RQ1.** Does LightGBM predict flood claim frequency better than a Poisson GLM and a negative binomial GLM on years it has never seen, enough to give up the transparency of a GLM?
+- **RQ2.** Does the answer hold both for Florida and for the other seven states? Florida holds more than two thirds of the insured homes (@tbl-region), so a single overall score would mostly describe Florida.
 
-We expect that:
+We start from three hypotheses:
 
 - **H1.** LightGBM predicts better than both GLMs, because flood risk likely depends on combinations of factors, such as flood zone and location, that a simple GLM does not capture.
-- **H2.** It is an open question whether the two GLMs give similar predictions. The negative binomial model gives less weight to the very large hurricane cells, so its coefficients and its average predictions can differ from those of the Poisson GLM; we check whether it predicts better or mainly describes the uncertainty better.
+- **H2.** Open question: do the two GLMs give similar predictions? The negative binomial model gives less weight to the very large hurricane counts, so its coefficients and its average predictions can differ from those of the Poisson GLM.
 - **H3.** All models predict too few claims in the hurricane years of the test period, because nothing in the data tells them in advance which year a hurricane will strike.
 
 ## Related Work

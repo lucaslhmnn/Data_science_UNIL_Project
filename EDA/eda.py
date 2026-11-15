@@ -341,8 +341,8 @@ export(fig, "eda_4_zone")
 # -------------------------------------------------------------------------
 FEATURES = {"coverage_real": ("Mean building coverage per policy (constant 2024 USD)",
                               FuncFormatter(lambda v, _: f"${v / 1000:,.0f}k"), 1),
-            "hist_per_1000": ("Paid claims 1990-2008 per 1,000 policies, same cell", plain, 1),
-            "county_hist_per_1000": ("Paid claims 1990-2008 per 1,000 policies, county",
+            "hist_per_1000": ("Paid claims 1990-2008 per 1,000 policy-years, same cell", plain, 1),
+            "county_hist_per_1000": ("Paid claims 1990-2008 per 1,000 policy-years, county",
                                      plain, 1)}
 FEATURES = {k: v for k, v in FEATURES.items() if k in tr and tr[k].notna().any()}
 rho = {}

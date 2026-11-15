@@ -1,5 +1,39 @@
 # Data
 
+```{python}
+#| label: data-setup
+#| echo: false
+
+import json
+
+import pandas as pd
+import pyarrow.parquet as pq
+from IPython.display import Markdown, display
+from quarto_runtime import project_root
+
+# project_root points to quarto_report/; the data live at the repository root, one level above.
+repo_root = project_root.parent
+clean_dir = repo_root / "Data_cleaning" / "clean"
+
+STATE_NAMES = {"AL": "Alabama", "FL": "Florida", "GA": "Georgia", "KY": "Kentucky", "MS": "Mississippi",
+               "NC": "North Carolina", "SC": "South Carolina", "TN": "Tennessee"}
+ZONE_LABEL = {"V*": "V", "A*": "A", "X": "X"}
+
+
+def md_table(df, align=None):
+    """Render a DataFrame of already formatted strings as a Markdown table (no extra dependency)."""
+    cols = list(df.columns)
+    align = align or ["l"] + ["r"] * (len(cols) - 1)
+    rule = ["---:" if a == "r" else ":---" for a in align]
+    lines = ["| " + " | ".join(map(str, cols)) + " |", "| " + " | ".join(rule) + " |"]
+    lines += ["| " + " | ".join(map(str, row)) + " |" for row in df.itertuples(index=False)]
+    return Markdown("\n".join(lines))
+
+
+ds_overview = pd.read_csv(repo_root / "EDA" / "ds_clean.csv", dtype={"county_id": str})
+kn = json.loads((repo_root / "EDA" / "figures" / "eda_key_numbers.json").read_text())
+```
+
 ## Sources
 
 All data come from OpenFEMA, FEMA's open data platform. We use version 3 of two NFIP datasets: the claims, one record per claim filed since 1978, and the policies, one record per insurance contract since 2009.
@@ -8,37 +42,74 @@ All data come from OpenFEMA, FEMA's open data platform. We use version 3 of two 
 - Policies: <https://www.fema.gov/about/reports-and-data/openfema/v3/NfipPoliciesV3.parquet>
 - Documentation: <https://www.fema.gov/api/open/v3/NfipClaims> and <https://www.fema.gov/api/open/v3/NfipPolicies>
 
-The full files were downloaded on 2026-11-11 (data as of 2026-09-08). Their national row counts match the OpenFEMA metadata, and the files are identical on all team members' machines.
+The full files were accessed and downloaded on 2026-11-11 (data as of 2026-09-08). Their national row counts match the OpenFEMA metadata, and the files are identical on all team members' machines.
 
 > *This product uses the Federal Emergency Management Agency's OpenFEMA API, but is not endorsed by FEMA.* The data used in this report were filtered and aggregated by the team and are not endorsed by FEMA.
 
 ## Description
 
-- **Observations**: 787,274 claims and 31,463,858 policy records in Region 4. Florida alone holds about 57% of these raw claims (all years since 1978, all types of buildings) and 71% of the policy records. Its share is lower once the scope is narrowed to paid claims of single-family homes over 2010 to 2019 (see below).
-- **Time period**: claims from 1978, policies from 2009. The analysis covers 2010 to 2024.
-- **Geographic coverage**: the eight states of FEMA Region 4.
-- **Key variables**: for each claim, the year, the county, the flood zone and the amount paid; for each policy, its dates, location, flood zone and coverage. The flood zone is FEMA's official risk map: V zones on the coast, exposed to waves; A zones in the 100-year floodplain; X zones at moderate or low risk. V and A zones together form the Special Flood Hazard Area, where flood insurance is mandatory for homes with a federally backed mortgage.
+```{python}
+#| label: description-stats
+#| echo: false
 
-The data are anonymized: a claim cannot be linked to the policy that covered it. This shapes the whole project, since we can only bring claims and policies together by counting both in the same area and year.
+n_cols_claims = len(pq.read_schema(clean_dir / "claims_clean.parquet").names)
+n_cols_expo = len(pq.read_schema(clean_dir / "zone_year.parquet").names)
+```
+
+- **Number of observations**: 787,274 claims and 31,463,858 policy records in Region 4, all years and all types of buildings.
+- **Number of variables**: after cleaning, `{python} n_cols_claims` columns per claim and `{python} n_cols_expo` columns in the exposure file; the analysis table `ds_clean` has `{python} ds_overview.shape[1]` columns (@tbl-variables).
+- **Time period**: claims since 1978, policies since 2009. The analysis covers 2010 to 2024.
+- **Geographic coverage**: the eight states of FEMA Region 4 (@tbl-region).
+- **Key variables**: for each claim, the year, the county, the flood zone and the amount paid; for each policy, its start and end dates, county, flood zone and coverage.
+
+```{python}
+#| label: tbl-region
+#| tbl-cap: "The eight states of FEMA Region 4 in the analysis table, single-family homes, 2010 to 2024. Shares are of the regional total."
+
+st = ds_overview.groupby("state").agg(counties=("county_id", "nunique"), py=("exposure_years", "sum"),
+                                      claims=("n_claims", "sum"))
+st = st.sort_values("py", ascending=False)
+region = pd.DataFrame({
+    "State": [STATE_NAMES[s] for s in st.index],
+    "Code": st.index,
+    "Counties": st["counties"].astype(str),
+    "Policy-years": st["py"].map("{:,.0f}".format),
+    "Share of policy-years": (st["py"] / st["py"].sum()).map("{:.1%}".format),
+    "Paid claims": st["claims"].map("{:,.0f}".format),
+    "Share of paid claims": (st["claims"] / st["claims"].sum()).map("{:.1%}".format),
+})
+region.loc[len(region)] = ["**Region 4**", "", str(st["counties"].sum()), f"{st['py'].sum():,.0f}", "100%",
+                           f"{st['claims'].sum():,.0f}", "100%"]
+md_table(region, align=["l", "l", "r", "r", "r", "r", "r"])
+```
+
+The **flood zone** is FEMA's official flood risk map, and the strongest risk factor we have. The claim and policy files record detailed zone codes, which we group into three classes (@tbl-zones). V and A zones together form the Special Flood Hazard Area, where flood insurance is mandatory for homes with a federally backed mortgage. Zone D (undetermined risk) and unknown zones are left out; they hold well below 1% of claims and policy-years.
+
+```{python}
+#| label: tbl-zones
+#| tbl-cap: "Flood zone groups used in this report."
+
+zones = pd.DataFrame({
+    "Group": ["V", "A", "X"],
+    "FEMA codes": ["V, VE, V1 to V30", "A, AE, AH, AO, AR, A99, A1 to A30", "X, and the older codes B and C"],
+    "Meaning": ["Coastal high hazard: flooding with waves", "100-year floodplain (1% chance of flooding each year)",
+                "Moderate or low risk, outside the 100-year floodplain"],
+    "Share of policy-years": [f"{kn['zone_share_exposure'][z]:.1%}" for z in ["V*", "A*", "X"]],
+})
+md_table(zones, align=["l", "l", "l", "r"])
+```
+
+The data are anonymized: a claim cannot be linked to the policy that covered it. This shapes the whole project, since we can only bring claims and policies together by counting both in the same area and year (@sec-ds-clean).
 
 ## Loading Data
 
-The cleaned files are versioned in the repository, so the report can be rendered without the raw files. They cover single-family homes only.
+The cleaned files are versioned in the repository, so the report can be rendered without the raw files (several gigabytes). They cover single-family homes only.
 
 ```{python}
 #| label: load-data
 #| output: true
 
-import json
-
-import pandas as pd
-from IPython.display import display
-from quarto_runtime import project_root
-
-# project_root points to quarto_report/; the data live at the repository root, one level above.
-repo_root = project_root.parent
-clean_dir = repo_root / "Data_cleaning" / "clean"
-
+# Cleaned claims, anomalies set aside during cleaning, and exposure (built by Data_cleaning/clean/clean_data.py)
 claims = pd.read_parquet(
     clean_dir / "claims_clean.parquet",
     columns=["loss_year", "state", "paid_flag", "paid_na_to_zero", "floodEvent"],
@@ -47,17 +118,26 @@ claims["loss_year"] = claims["loss_year"].astype(int)
 zone_year = pd.read_parquet(clean_dir / "zone_year.parquet")
 anomalies = pd.read_parquet(clean_dir / "claims_anomalies.parquet", columns=["motif"])
 
-# Analysis table of this update (county x flood zone x year), built by EDA/build_ds_clean.py
+# Analysis table of this update (county x flood zone x year), built by EDA/build_ds_clean.py.
+# county_id is read as text to keep its leading zero (e.g. "01001").
 ds = pd.read_csv(repo_root / "EDA" / "ds_clean.csv", dtype={"county_id": str, "zone": str, "state": str})
 ds_roles = json.loads((repo_root / "EDA" / "ds_clean_roles.json").read_text())
-# Key numbers written by the EDA script (EDA/eda.py)
-kn = json.loads((repo_root / "EDA" / "figures" / "eda_key_numbers.json").read_text())
 
 print(f"claims_clean:     {claims.shape[0]:,} rows")
 print(f"claims_anomalies: {anomalies.shape[0]:,} rows")
 print(f"zone_year:        {zone_year.shape[0]:,} rows x {zone_year.shape[1]} columns")
-print(f"ds_clean:         {ds.shape[0]:,} rows x {ds.shape[1]} columns")
-display(ds.sample(6, random_state=42).sort_values(["state", "county_id", "year"]))
+print(f"ds_clean:         {ds.shape[0]:,} rows x {ds.shape[1]} columns, "
+      f"{ds['n_claims'].isna().sum() + ds['exposure_years'].isna().sum()} missing values in the target and exposure")
+
+# Six random rows of the main columns (fixed seed)
+preview_cols = ["county_id", "state", "zone", "year", "n_claims", "exposure_years", "coverage_real",
+                "hist_per_1000", "county_hist_per_1000"]
+preview = ds[preview_cols].sample(6, random_state=42).sort_values(["state", "county_id", "year"])
+preview = preview.assign(zone=preview["zone"].map(ZONE_LABEL), exposure_years=preview["exposure_years"].map("{:,.1f}".format),
+                         coverage_real=preview["coverage_real"].map("${:,.0f}".format),
+                         hist_per_1000=preview["hist_per_1000"].map("{:.1f}".format),
+                         county_hist_per_1000=preview["county_hist_per_1000"].map("{:.1f}".format))
+display(md_table(preview, align=["l", "l", "l", "l", "r", "r", "r", "r", "r"]))
 ```
 
 ## Wrangling
@@ -66,7 +146,8 @@ display(ds.sample(6, random_state=42).sort_values(["state", "county_id", "year"]
 #| label: wrangling-stats
 #| echo: false
 
-N_RAW_CLAIMS = 787_274  # raw Region 4 claims (verified count; raw file not versioned)
+N_RAW_CLAIMS = 787_274        # raw Region 4 claims (verified count; raw file not versioned)
+N_RAW_POLICIES = 31_463_858   # raw Region 4 policy records (verified count; raw file not versioned)
 
 n_clean = len(claims)
 n_anomalies = len(anomalies)
@@ -74,31 +155,42 @@ n_not_single_family = N_RAW_CLAIMS - n_clean - n_anomalies
 n_unpaid = int((~claims["paid_flag"]).sum())
 n_recoded = int(claims["paid_na_to_zero"].sum())
 
-# Analysis table: share of the source data kept, and what claim counts alone would suggest
+# Analysis table: share of the source data kept
 drop = ds_roles["dropped"]
 n_paid_window = int((claims["loss_year"].between(2010, 2024) & claims["paid_flag"]).sum())
 py_window = zone_year.loc[zone_year["year"].between(2010, 2024), "policy_years"].sum()
 kept_claims = ds["n_claims"].sum() / n_paid_window
 kept_py = ds["exposure_years"].sum() / py_window
-
-ds_tr = ds[ds["period"] == "train"]
-zone_tr = ds_tr.groupby("zone")[["n_claims", "exposure_years"]].sum()
-zone_tr["claim_share"] = zone_tr["n_claims"] / zone_tr["n_claims"].sum()
-zone_tr["per_1000"] = 1000 * zone_tr["n_claims"] / zone_tr["exposure_years"]
-state_tr = ds_tr.groupby("state")[["n_claims", "exposure_years"]].sum()
-state_tr["claim_share"] = state_tr["n_claims"] / state_tr["n_claims"].sum()
-state_tr["per_1000"] = 1000 * state_tr["n_claims"] / state_tr["exposure_years"]
-fl_rank = int(state_tr["per_1000"].rank(ascending=False)["FL"])
 ```
 
 ### General Transformations
 
-- **Cleaning the claims.** Of the `{python} f"{N_RAW_CLAIMS:,}"` claims of Region 4, we keep single-family homes and set aside `{python} f"{n_anomalies:,}"` inconsistent records, such as duplicates or negative payments (listed in [Appendix C](#sec-appendix-tables)). This leaves `{python} f"{n_clean:,}"` claims. Amounts are converted to today's dollars with the consumer price index.
-- **Measuring exposure.** A policy that runs for six months counts as half a policy-year. Each policy is spread over the calendar years it covers, in proportion to its days (days divided by 365.25), from its start date to its end date; the end date recorded by FEMA already accounts for cancelled or lapsed policies. This gives `{python} f"{py_window:,.0f}"` policy-years of single-family homes from 2010 to 2024. Exposure is what turns a number of claims into a frequency: ten claims among a hundred homes is not the same risk as ten claims among ten thousand.
+@tbl-pipeline follows the two files from the raw records to the analysis table.
+
+```{python}
+#| label: tbl-pipeline
+#| tbl-cap: "From the raw files to the analysis table, Region 4."
+
+pipeline = pd.DataFrame([
+    ("Claims", "Raw claims, all years and buildings", f"{N_RAW_CLAIMS:,}"),
+    ("Claims", "Not single-family homes, removed", f"{n_not_single_family:,}"),
+    ("Claims", "Inconsistent records, set aside", f"{n_anomalies:,}"),
+    ("Claims", "Cleaned claims of single-family homes", f"{n_clean:,}"),
+    ("Claims", "Paid claims of 2010 to 2024", f"{n_paid_window:,}"),
+    ("Claims", "Paid claims placed in the analysis table", f"{int(ds['n_claims'].sum()):,}"),
+    ("Policies", "Raw policy records, all buildings", f"{N_RAW_POLICIES:,}"),
+    ("Policies", "Policy-years of single-family homes, 2010 to 2024", f"{py_window:,.0f}"),
+    ("Policies", "Policy-years placed in the analysis table", f"{ds['exposure_years'].sum():,.0f}"),
+    ("Both", "Rows of the analysis table (county-zone-years)", f"{len(ds):,}"),
+], columns=["File", "Step", "Count"])
+md_table(pipeline, align=["l", "l", "r"])
+```
+
+- **Cleaning the claims.** We keep single-family homes, the largest and most homogeneous group, and set aside inconsistent records such as duplicates or negative payments (listed in [Appendix C](#sec-appendix-tables)). Amounts are converted to constant dollars with the consumer price index.
+- **Measuring exposure.** Each policy is spread over the calendar years it covers, in proportion to its days (days divided by 365.25), from its start date to its end date. The end date recorded by FEMA already accounts for cancelled or lapsed policies. Exposure is what turns a number of claims into a frequency: ten claims among a hundred homes is not the same risk as ten claims among ten thousand.
 - **Years kept.** 2009 is dropped because policies that started before 2009 are missing from the file, and 2025 onward because many recent claims are still open.
-- **What counts as a claim.** We count claims with a payment for damage to the building, the losses an insurer actually covers. Claims that only paid for contents are not counted, since the cleaned data cover the building guarantee. Unpaid claims mix small losses, uncovered damage and recording issues: `{python} f"{n_recoded:,}"` of the `{python} f"{n_unpaid:,}"` unpaid claims have no recorded amount at all. Counting all claims is kept as a check.
-- **What the models may use.** The models only use information known before the year starts. The year itself is excluded, since a model cannot know in advance whether a year will bring a hurricane, and so are insurance premiums, which reflect the insurer's pricing rather than the risk itself. The state is not used either: location already enters through the past claims of the county and of its flood zone, and Florida is evaluated separately from the other seven states (RQ2).
-- **Coverage in constant dollars.** The average coverage per policy (`coverage_real` in @tbl-variables) rises with prices: by `{python} f"{kn['coverage_nominal_change']:.0%}"` in current dollars between 2010 and 2024, while it falls by `{python} f"{abs(kn['coverage_real_change']):.0%}"` once inflation is removed. Left in current dollars, it would let a model guess the year. We therefore express it in 2024 dollars, using the consumer price index of the previous year, which is known in advance.
+- **What counts as a claim.** We count claims with a payment for damage to the building, the losses an insurer actually covers. Claims that only paid for contents are not counted. Unpaid claims mix small losses, uncovered damage and recording issues: `{python} f"{n_recoded:,}"` of the `{python} f"{n_unpaid:,}"` unpaid claims have no recorded amount at all. Counting all claims is kept as a check.
+- **Coverage in constant dollars.** The average coverage per policy rises with prices: by `{python} f"{kn['coverage_nominal_change']:.0%}"` in current dollars between 2010 and 2024, while it falls by `{python} f"{abs(kn['coverage_real_change']):.0%}"` once inflation is removed. Left in current dollars, it would let a model guess the year. We therefore express it in 2024 dollars (`coverage_real`), using the consumer price index of the previous year, which is known in advance.
 
 ### From Two Files to One Table: `ds_clean` {#sec-ds-clean}
 
@@ -119,20 +211,18 @@ ex21, ex22 = ex.loc[2021], ex.loc[2022]
 - **Which flood zone**: V, A or X, inside each county.
 - **When**: the `{python} ds["year"].nunique()` years from 2010 to 2024.
 
-A county and a flood zone together form a *cell*: for example, the homes of Lee County, Florida, that lie in an A zone. There are `{python} f"{n_cells:,}"` cells, since not every county has homes in every zone. Each cell is followed year after year, which gives `{python} f"{len(ds):,}"` rows, called county-zone-years in the rest of the report.
+There are `{python} f"{n_cells:,}"` cells (county and flood zone), since not every county has homes in every zone. Each cell is followed year after year, which gives `{python} f"{len(ds):,}"` county-zone-years.
 
-**An example.** In 2021, the A zone of Lee County had `{python} f"{ex21['exposure_years']:,.0f}"` policy-years and `{python} int(ex21['n_claims'])` paid claims. In 2022, the year of Hurricane Ian, the same cell had `{python} f"{ex22['exposure_years']:,.0f}"` policy-years and `{python} f"{int(ex22['n_claims']):,}"` paid claims. These are two rows of the table, and @tbl-variables lists what each row contains, with the values of the second one.
+**An example.** In 2021, the A zone of Lee County, Florida, had `{python} f"{ex21['exposure_years']:,.0f}"` policy-years and `{python} int(ex21['n_claims'])` paid claims. In 2022, the year of Hurricane Ian, the same cell had `{python} f"{ex22['exposure_years']:,.0f}"` policy-years and `{python} f"{int(ex22['n_claims']):,}"` paid claims. @tbl-variables lists what each row contains, with the values of the 2022 row.
 
 ```{python}
 #| label: tbl-variables
-#| tbl-cap: "Variables of ds_clean. The example is the A zone of Lee County, Florida, in 2022."
+#| tbl-cap: "Main variables of ds_clean. The example is the A zone of Lee County, Florida, in 2022."
 #| echo: false
 
-from IPython.display import Markdown
-
-variables = [
+variables = pd.DataFrame([
     ("Identifies the row", "`county_id`, `state`", "County (5-digit code) and its state", f"{ex22['county_id']}, {ex22['state']}"),
-    ("Identifies the row", "`zone`", "Flood zone: V (coast), A (100-year floodplain) or X (lower risk)", "A"),
+    ("Identifies the row", "`zone`", "Flood zone group: V, A or X (@tbl-zones)", ZONE_LABEL[ex.iloc[0]["zone"]]),
     ("Identifies the row", "`year`", "Calendar year", "2022"),
     ("What we predict", "`n_claims`", "Number of claims with a payment for building damage", f"{int(ex22['n_claims']):,}"),
     ("Exposure", "`exposure_years`", "Policy-years: number of homes insured, counted over the year", f"{ex22['exposure_years']:,.0f}"),
@@ -142,30 +232,24 @@ variables = [
     ("Known in advance", "`county_hist_per_1000`", "The same measure for the whole county, all zones together", f"{ex22['county_hist_per_1000']:.1f}"),
     ("Checks only", "`n_all`", "All claims, paid or not", f"{int(ex22['n_all']):,}"),
     ("Checks only", "`n_major`", "Paid claims caused by one of the ten largest events", f"{int(ex22['n_major']):,}"),
-]
-lines = ["| Role | Variable | Meaning | Example |", "|---|---|---|---|"]
-lines += [f"| {r} | {v} | {m} | {e} |" for r, v, m, e in variables]
-Markdown("\n".join(lines))
+], columns=["Role", "Variable", "Meaning", "Example"])
+md_table(variables, align=["l", "l", "l", "r"])
 ```
 
 Three points help to read this table:
 
 - **The frequency is not stored, it is computed**: paid claims divided by policy-years, times 1,000. In the example, `{python} f"{1000 * ex22['n_claims'] / ex22['exposure_years']:.0f}"` paid claims per 1,000 policy-years in 2022, against `{python} f"{1000 * ex21['n_claims'] / ex21['exposure_years']:.2f}"` in 2021.
-- **The facts known in advance are the only inputs of the models.** They describe the cell before the year starts. The year itself is not an input.
-- **Zeros are real.** A row with insured homes but no claim gets a count of zero, not a missing value. Nothing is imputed. The table keeps `{python} f"{kept_claims:.1%}"` of the paid claims and `{python} f"{kept_py:.1%}"` of the policy-years; the rest are claims without county or flood zone.
-
-**Why joining the two files matters.** Counting claims without counting homes would have pointed us to the wrong places:
-
-- **Coastal V zones** hold only `{python} f"{zone_tr.loc['V*', 'claim_share']:.1%}"` of the paid claims of 2010 to 2019, which makes them look minor. Per insured home, they are the riskiest: `{python} f"{zone_tr.loc['V*', 'per_1000']:.1f}"` claims per 1,000 policy-years, against `{python} f"{zone_tr.loc['X', 'per_1000']:.1f}"` in the X zones.
-- **Florida** files the most claims (`{python} f"{state_tr.loc['FL', 'claim_share']:.0%}"`) simply because it has the most policies. Its frequency over these years is the lowest of the eight states (rank `{python} fl_rank` of 8).
+- **Only the facts known in advance enter the models.** They describe the cell before the year starts. Three things are deliberately left out: the year, since a model cannot know in advance whether a year will bring a hurricane; insurance premiums, which reflect the insurer's pricing rather than the risk; and the state, since location already enters through the past claims of the county and of the cell, and Florida is evaluated separately (RQ2).
+- **Zeros are real.** A row with insured homes but no claim gets a count of zero, not a missing value. Nothing is imputed.
 
 ### Spotting Mistakes and Missing Data
 
-- **Missing location.** Claims without county (`{python} f"{drop['claims_without_county_share']:.2%}"`) or flood zone (`{python} f"{drop['claims_zone_D_or_unknown_share']:.2%}"`) cannot be placed in the table and are left out. The shares are small.
+- **Missing location.** Claims without county (`{python} f"{drop['claims_without_county_share']:.2%}"`) or flood zone (`{python} f"{drop['claims_zone_D_or_unknown_share']:.2%}"`) cannot be placed in the table and are left out. As a result, the table keeps `{python} f"{kept_claims:.1%}"` of the paid claims and `{python} f"{kept_py:.1%}"` of the policy-years of 2010 to 2024.
 - **Missing payments.** Before 2018, a claim closed without payment was often recorded with no amount rather than zero. Our target, paid claims, does not depend on this, but the all-claims check does.
 - **Information recorded after the flood.** Water depth or the adjuster's estimate of the building value are only known after a loss, so they are never used to predict it.
 
 ### Listing Anomalies and Outliers
 
+- **Inconsistent records.** The `{python} f"{n_anomalies:,}"` claims set aside during cleaning are listed by reason in [Appendix C](#sec-appendix-tables).
 - **Hurricane years.** A handful of hurricanes produce most claims, and the test years include two of the largest, Ian (2022) and Helene (2024). These are real losses, not errors, so they are kept: removing them would remove exactly the situations a flood model must handle.
 - **Zeros.** Most county-zone-years have no paid claim at all (@fig-eda-dispersion). The share of zeros will be even higher in the final table by census tract, whose areas are much smaller.
