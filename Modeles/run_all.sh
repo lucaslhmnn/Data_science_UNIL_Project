@@ -52,6 +52,6 @@ if ! run 01_verifications Modeles/scripts/01_verifications.py; then
 fi
 run 02_modeles Modeles/scripts/02_modeles.py
 run 03_evaluation Modeles/scripts/03_evaluation.py
-# Phase 4 (analyse complémentaire, environ 3 minutes) : évaluation à origine glissante 2016-2024
+# Phase 4 (analyse complémentaire, environ 4 minutes) : évaluation à origine glissante 2016-2024
 run 04_evaluation_glissante Modeles/scripts/04_evaluation_glissante.py
 echo "Terminé. Résultats : Modeles/resultats/ ; figures : Modeles/figures/ ; journaux : Modeles/logs/"

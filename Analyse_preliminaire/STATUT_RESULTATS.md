@@ -1,5 +1,7 @@
 # Registre des résultats (STATUT_RESULTATS)
 
+> **Mise à jour du 15/11/2026.** Ce document décrit le premier jet (un seul ajustement 2010–2019, test 2020–2024). Une évaluation à origine glissante a été ajoutée ensuite (`Modeles/scripts/04_evaluation_glissante.py`, voir la section « Phase 4 » de `Modeles/README.md`). Elle nuance la lecture ci-dessous : avec la couverture en dollars constants et neuf années prédites, LightGBM ne bat plus le GLM avec la zone seule. Le rapport Quarto s'appuie sur cette phase 4.
+
 > 15/11/2026 · branche `modeles-premier-jet` · version `v0.1` · **Résultats provisoires et exploratoires, voir `STATUT_RESULTATS.md`** · aucun commit à ce stade.
 
 Ce registre est la base du travail futur. Chaque résultat cité dans `section_modelisation.qmd` y figure, avec un identifiant repris dans le texte sous la forme d'un commentaire `<!-- Rk -->`. Quand un résultat change de statut, on modifie sa ligne et on ajoute une entrée au journal ; le texte n'a pas besoin d'être réécrit tant que ses formulations restent conditionnelles.

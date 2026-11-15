@@ -6,7 +6,7 @@ We set out to test whether a machine learning method, LightGBM, predicts flood i
 
 The exploration of this table tells a clear story. Flood claims are driven by a few hurricanes, not by the size of the insured portfolio. Most places have no claim in a given year while a few have thousands, far more variation than a Poisson model allows. The flood zone and past claims are the clearest signals of risk. And the test years are unusual: they hold most of the claims, and the storms struck places, Florida above all, that had been relatively spared in the previous decade.
 
-First models on this table give a sober answer to our question. Every model predicts too few claims in the hurricane years, as expected. LightGBM does not beat the GLMs: once the yearly level is set aside, it is no better than a GLM with the flood zone alone on the validation years, and worse on the test years, mostly because of Florida. Its apparent advantage in a first attempt came from a variable that revealed the year and from fragile settings. The facts known in advance do help, but for ordinary floods rather than for hurricanes. These results are preliminary: they rest on a county table with few features.
+First models on this table give a sober answer to our question. Every model predicts too few claims in the hurricane years, as expected. LightGBM does not beat the GLMs: once the yearly level is set aside, it is no better than a GLM with the flood zone alone on the validation years, and behind it on the test years, mostly because of Florida. Its apparent advantage in a first attempt came from a variable that revealed the year and from fragile settings. The facts known in advance do help, but for ordinary floods rather than for hurricanes. These results are preliminary: they rest on a county table with few features.
 
 ## Limitations
 
@@ -14,6 +14,7 @@ First models on this table give a sober answer to our question. Every model pred
 - **County level for now.** This update works by county and flood zone. Within a county, homes on the coast and inland are mixed, which blurs some differences; the final table by census tract will be finer.
 - **A few storms decide a lot.** With Ian and Helene in the test years, the results depend heavily on two events, even when nine years are predicted instead of five.
 - **A changing system.** The NFIP changed its pricing in 2021, inside the test period, which may have changed who is insured.
+- **Exploratory results.** The evaluation was refined after a first look at the test years, so the comparison is not a clean, one-time test.
 - **Few features.** The models only know the flood zone, the coverage and past claims. A flexible model such as LightGBM has little to work with.
 - **Anonymized records.** Claims and policies cannot be linked one by one, so the features describe areas, not individual homes.
 
@@ -21,5 +22,5 @@ First models on this table give a sober answer to our question. Every model pred
 
 1. **Build the table by census tract**, with the same structure as `ds_clean`, and check that tract boundaries are stable over 2010 to 2024.
 2. **Add features from the policy file**, such as the share of homes built before the flood maps or the deductible, to give the models more to learn from.
-3. **Run the exploration and the models again on that table**, with the same evaluation, and add the calibration by decile.
-4. **Check the claim definition**, by refitting the models on all claims.
+3. **Run the exploration and the models again on that table**, with the evaluation fixed in advance this time, so that the test years are used only once.
+4. **Make the tuning of LightGBM more stable**, since its settings change a lot from one training window to the next.

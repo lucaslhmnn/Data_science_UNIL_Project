@@ -1,7 +1,7 @@
 # Modeles/ : premier jet des modèles de fréquence
 
-**Statut : modèles exécutés (aucun blocage).** Branche locale `modeles-premier-jet`, créée depuis `main`
-(`69d0d21`). **Rien n'est commité ni poussé.**
+**Statut : modèles exécutés (aucun blocage).** Premier jet fait sur la branche `modeles-premier-jet`,
+fusionnée dans `main` le 15/11/2026, puis complétée par la phase 4 (fin de ce fichier).
 
 ## Objectif
 
@@ -86,16 +86,23 @@ et leurs résultats ne sont pas modifiés. `scripts/04_evaluation_glissante.py` 
    historique du comté), C (sans couverture), D (avec historique récent de la cellule).
 3. **Mesures** : gain de déviance brut et recalé par année, Gini, prédit sur observé, intervalles à 95 %
    par rééchantillonnage des comtés, et détail Floride contre les sept autres États.
-4. **Sensibilité** : même évaluation sur les sinistres payés hors des dix plus grands événements.
+4. **Sensibilité** : même évaluation sur les sinistres payés hors des dix plus grands événements, sur
+   tous les sinistres, et avec LightGBM aux réglages fixes du premier jet (`M4_fixe`).
+5. **Calibration par décile** (`glissant_calibration_deciles.csv`).
 
 Sorties : `resultats/glissant_*.csv`, `figures/glissant_gain.png`, `logs/04_evaluation_glissante.log`.
-Le rapport Quarto lit ces fichiers. Durée : environ 3 minutes.
+Le rapport Quarto lit ces fichiers. Durée : environ 4 minutes.
 
 Résultat principal (cible « payés », jeu A, gain recalé par rapport à M0) : sur le test, M1 (zone seule)
 +12,6 %, M2 +4,4 %, M3 +3,6 %, M4 −8,6 % ; l'écart M4 − M1 a un intervalle à 95 % qui exclut zéro.
+Avec les réglages fixes du premier jet, M4 fait +0,4 % : toujours derrière M1, mais l'écart n'est plus
+significatif. Lecture prudente : LightGBM n'est pas meilleur, et probablement moins bon.
 Le gain de M4 dans le premier jet (+15,9 %) ne résiste pas : le nombre d'arbres retenu varie de 1 à 272
 selon l'origine. Hors grands événements, les totaux prédits sont proches des observés et M2 gagne
 +8,9 % sur le test.
+
+Réserve : cette phase a été conçue après avoir vu les résultats du premier jet sur 2020–2024. Le test
+n'est donc plus vierge et ces résultats sont exploratoires (le rapport le dit).
 
 Contrôles : le script reproduit d'abord le premier jet (`glissant_reproduction_premier_jet.csv`, mêmes
 gains à trois décimales). `ds_clean.csv` a gagné la colonne `coverage_real` ; ses 18 autres colonnes sont

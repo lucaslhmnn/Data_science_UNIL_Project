@@ -8,7 +8,10 @@ grille LightGBM, même offset (avenant n° 1 : init_score = log(e) + log(r)). Ce
      couverture, avec un historique récent ;
   3. les mesures : déviance brute et recalée par année (le OÙ sans le QUAND), indice de Gini,
      intervalles de confiance par rééchantillonnage des comtés ;
-  4. une cible de sensibilité : sinistres payés hors des dix plus grands événements.
+  4. deux cibles de sensibilité : sinistres payés hors des dix plus grands événements, et tous les
+     sinistres (payés ou non) ;
+  5. une variante M4_fixe : LightGBM avec les réglages fixes du premier jet, pour vérifier que la
+     conclusion ne tient pas à l'instabilité du réglage à chaque origine.
 Le jeu de variables principal est A (les variables déclarées, couverture déflatée). Les autres jeux
 sont des analyses de sensibilité : aucun n'est choisi d'après le test.
 Les résultats sont aussi donnés pour la Floride et pour les sept autres États (RQ2).
@@ -16,6 +19,7 @@ Sorties : Modeles/resultats/glissant_*.csv et Modeles/figures/glissant_gain.png.
 Usage, depuis la racine du dépôt : bash Modeles/run_all.sh (ou ce script seul, avec Modeles/.venv).
 """
 import itertools
+import json
 import sys
 import warnings
 from pathlib import Path
@@ -58,7 +62,7 @@ SET_LABEL = {"P": "premier jet : couverture nominale, historique, historique du 
              "C": "historique seul (sans couverture)",
              "D": "couverture réelle, historique, historique récent"}
 MAIN_SET = "A"
-TARGETS = {"payes": "n_claims", "payes_hors_grands_evenements": "n_hors_majeurs"}
+TARGETS = {"payes": "n_claims", "payes_hors_grands_evenements": "n_hors_majeurs", "tous": "n_all"}
 LOG1P = {"hist_per_1000", "county_hist_per_1000", "recent_per_1000"}
 
 
@@ -134,6 +138,23 @@ def fit_lgb(tr, te, col, feats):
     return np.exp(m.predict(lgb_X(te, feats), raw_score=True) + te["log_e"] + np.log(r_tr)), hp
 
 
+def first_draft_settings():
+    """Réglages de LightGBM retenus par le premier jet (02_modeles.py), cible payés."""
+    info = json.loads((RES / "ajustement_payes.json").read_text())
+    return {**LGB_BASE, **info["M4_hyperparametres"]}, int(info["M4_iterations"])
+
+
+def fit_lgb_fixed(tr, te, col, feats):
+    """Sensibilité : LightGBM avec les réglages fixes du premier jet, sans nouveau réglage à chaque
+    origine. Sert à vérifier que la conclusion ne tient pas à l'instabilité du réglage."""
+    params, n_iter = first_draft_settings()
+    r_tr = tr[col].sum() / tr["exposure_years"].sum()
+    dall = lgb.Dataset(lgb_X(tr, feats), tr[col].to_numpy(float), init_score=tr["log_e"] + np.log(r_tr),
+                       categorical_feature=["zone"], free_raw_data=False)
+    m = lgb.train(params, dall, n_iter)
+    return np.asarray(np.exp(m.predict(lgb_X(te, feats), raw_score=True) + te["log_e"] + np.log(r_tr)))
+
+
 def predict_year(tr, te, col, feats):
     """Ajuste M0..M4 sur tr et renvoie les prédictions sur te."""
     y = tr[col].to_numpy(float)
@@ -149,6 +170,7 @@ def predict_year(tr, te, col, feats):
                  else np.full(len(te), np.nan))
     mu4, hp = fit_lgb(tr, te, col, feats)
     out["M4"] = np.asarray(mu4)
+    out["M4_fixe"] = fit_lgb_fixed(tr, te, col, feats)
     return out, hp
 
 
@@ -161,7 +183,7 @@ def gini(y, mu, e):
     return 1 - 2 * np.trapezoid(cy, cx)
 
 
-MODELS = ["M0", "M1", "M2", "M3", "M4"]
+MODELS = ["M0", "M1", "M2", "M3", "M4", "M4_fixe"]
 
 
 def recal(p, mod):
@@ -238,6 +260,22 @@ def by_year(p):
     return pd.DataFrame(rows)
 
 
+def deciles(p, years):
+    """Calibration par décile : cellules classées par fréquence prédite (après recalage annuel) et
+    réparties en dix groupes de même taille ; observé et prédit par groupe."""
+    t = p[p["year"].isin(years)]
+    rows = []
+    for mod in MODELS[1:]:
+        if t[mod].isna().any():
+            continue
+        mu = recal(t, mod)
+        g = pd.qcut((mu / t["e"]).rank(method="first"), 10, labels=False) + 1
+        a = pd.DataFrame({"decile": g, "observe": t["y"], "predit": mu, "e": t["e"]}).groupby("decile").sum()
+        a["observe_pour_1000"], a["predit_pour_1000"] = 1000 * a["observe"] / a["e"], 1000 * a["predit"] / a["e"]
+        rows.append(a.reset_index().assign(modele=mod))
+    return pd.concat(rows, ignore_index=True)
+
+
 def figure(res):
     """Gain de déviance recalé, jeu principal, cible payés. Libellés en anglais : figure du rapport."""
     t = res[(res["cible"] == "payes") & (res["variables"] == MAIN_SET) & (res["modele"] != "M0")]
@@ -282,6 +320,10 @@ def main():
             ident = {"cible": target, "variables": name}
             hp_rows.append(hp.assign(**ident))
             year_rows.append(by_year(p).assign(**ident))
+            if name == MAIN_SET and target == "payes":
+                pd.concat([deciles(p, yrs).assign(periode=per) for per, yrs in
+                           {"validation 2016-2019": VALID_YEARS, "test 2020-2024": TEST_YEARS}.items()]
+                          ).to_csv(RES / "glissant_calibration_deciles.csv", index=False)
             for per, years in {"validation 2016-2019": VALID_YEARS, "test 2020-2024": TEST_YEARS}.items():
                 s = summarise(p, years).reset_index(names="modele").assign(**ident, periode=per)
                 all_rows.append(s)
@@ -289,7 +331,7 @@ def main():
                 for reg, part in {"Floride": p[p["state"] == "FL"], "sept autres États": p[p["state"] != "FL"]}.items():
                     reg_rows.append(summarise(part, years).reset_index(names="modele")
                                     .assign(**ident, periode=per, region=reg))
-                for a, b in [("M4", "M2"), ("M4", "M1"), ("M2", "M1")]:
+                for a, b in [("M4", "M2"), ("M4", "M1"), ("M2", "M1"), ("M4_fixe", "M1"), ("M4_fixe", "M2")]:
                     pt, lo, hi = boot_counties(p, years, a, b, rng)
                     ci_rows.append({**ident, "periode": per, "ecart": f"{a} - {b}",
                                     "ecart_gain_recale": pt, "ic95_bas": lo, "ic95_haut": hi})

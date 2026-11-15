@@ -4,98 +4,178 @@ payes,P,"premier jet : couverture nominale, historique, historique du comté",va
 payes,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M2,0.006312724801171843,0.0385687796729135,0.2693749003601667,0.4638415468885491
 payes,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M3,0.13953188412982098,0.06366645257871995,0.27257951281606024,0.919410293193002
 payes,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M4,0.03398979407747005,0.04634703674194873,0.22922112207948733,0.5428250025103231
+payes,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M4_fixe,0.07968341563884529,0.08998490611953791,0.3647389741124639,0.545692481175828
 payes,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M0,0.0,0.0,,0.378953523660498
 payes,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M1,0.08938990218032572,0.12644087760959388,0.23275454133507428,0.37292927519969415
 payes,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M2,0.018989608725403784,0.03909582931556299,0.2736185032609365,0.36421041105198093
 payes,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M3,0.09013861137223977,0.03620183160368573,0.23714168031168456,0.6103544803285492
 payes,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M4,-0.0305580800818801,-0.02759380899826236,0.2149006338929777,0.49372103363770203
+payes,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M4_fixe,0.030590793718289877,0.01165472615278551,0.2679702189734827,0.5659658873752299
 payes,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M0,0.0,0.0,,0.5046674817209061
 payes,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M1,0.032960606321021824,0.045240133837918584,0.2414032971668962,0.48910177018125095
 payes,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M2,0.03170506825838071,0.035839825846817996,0.2673691798492411,0.5158042593436806
 payes,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M3,0.14646481942627787,0.06322734292163201,0.2707112564053848,0.9776372123105223
 payes,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M4,0.05708855651035938,0.07212551287632585,0.3101614790880232,0.5272262784813079
+payes,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M4_fixe,0.0836664426196766,0.0971597381779139,0.31890890245791,0.5281200403052084
 payes,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M0,0.0,0.0,,0.378953523660498
 payes,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M1,0.08938990218032572,0.12644087760959388,0.23275454133507428,0.37292927519969415
 payes,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M2,0.07499309974288759,0.0439406485187811,0.2737096951554037,0.42768265456748333
 payes,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M3,0.13633896729543804,0.03585418632452608,0.23622178385509518,0.6961127622548244
 payes,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M4,-0.04227649052078797,-0.08617482333853177,0.032756957800660944,0.41697794892471496
+payes,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M4_fixe,0.0668419703749501,0.004246666483829875,0.1680280300113467,0.47565332459997317
 payes,B,"couverture réelle, historique",validation 2016-2019,M0,0.0,0.0,,0.5046674817209061
 payes,B,"couverture réelle, historique",validation 2016-2019,M1,0.032960606321021824,0.045240133837918584,0.2414032971668962,0.48910177018125095
 payes,B,"couverture réelle, historique",validation 2016-2019,M2,0.034850561956493276,0.039839368085897275,0.2716912969208054,0.5158110322303698
 payes,B,"couverture réelle, historique",validation 2016-2019,M3,0.14440246463698303,0.06093319744522474,0.27758299211473325,0.9695309873262637
 payes,B,"couverture réelle, historique",validation 2016-2019,M4,0.0463988192104271,0.059945257490916615,0.2537299839836595,0.5206062520558602
+payes,B,"couverture réelle, historique",validation 2016-2019,M4_fixe,0.06227703354878966,0.07775503080317159,0.30993174635127363,0.5151442580705342
 payes,B,"couverture réelle, historique",test 2020-2024,M0,0.0,0.0,,0.378953523660498
 payes,B,"couverture réelle, historique",test 2020-2024,M1,0.08938990218032572,0.12644087760959388,0.23275454133507428,0.37292927519969415
 payes,B,"couverture réelle, historique",test 2020-2024,M2,0.07899099540798027,0.048934059662852025,0.2748725027018264,0.4283730732802342
 payes,B,"couverture réelle, historique",test 2020-2024,M3,0.14461875127875412,0.0458726842197974,0.2634531603658892,0.6952819767612438
 payes,B,"couverture réelle, historique",test 2020-2024,M4,-0.03606114775988911,-0.09132474436105897,0.061683321786485806,0.42744639977041643
+payes,B,"couverture réelle, historique",test 2020-2024,M4_fixe,0.08285159264424924,0.01785877246503431,0.23420176946183405,0.48031556378917173
 payes,C,historique seul (sans couverture),validation 2016-2019,M0,0.0,0.0,,0.5046674817209061
 payes,C,historique seul (sans couverture),validation 2016-2019,M1,0.032960606321021824,0.045240133837918584,0.2414032971668962,0.48910177018125095
 payes,C,historique seul (sans couverture),validation 2016-2019,M2,0.04269368327744005,0.05221889135322899,0.28548817810141996,0.5007120689851546
 payes,C,historique seul (sans couverture),validation 2016-2019,M3,0.13784675625717546,0.06558020304367562,0.31873088318609705,1.4024657563909617
 payes,C,historique seul (sans couverture),validation 2016-2019,M4,0.09317308000779578,0.10904823122999652,0.39501058942878386,0.5155315212808323
+payes,C,historique seul (sans couverture),validation 2016-2019,M4_fixe,0.10944982807590076,0.12607486965388626,0.3911139312698008,0.5163579589347596
 payes,C,historique seul (sans couverture),test 2020-2024,M0,0.0,0.0,,0.378953523660498
 payes,C,historique seul (sans couverture),test 2020-2024,M1,0.08938990218032572,0.12644087760959388,0.23275454133507428,0.37292927519969415
 payes,C,historique seul (sans couverture),test 2020-2024,M2,0.040055876126096845,0.04719867809317768,0.2754799023161729,0.38450385154901234
 payes,C,historique seul (sans couverture),test 2020-2024,M3,0.17923591117036886,0.07311849523916614,0.316621886782151,0.8791666988697244
 payes,C,historique seul (sans couverture),test 2020-2024,M4,-0.05121151864771978,-0.07693732851327795,0.12387545468451364,0.38612206338111377
+payes,C,historique seul (sans couverture),test 2020-2024,M4_fixe,-9.437581198357137e-05,-0.008025119528434432,0.2105459264185104,0.38740005447546005
 payes,D,"couverture réelle, historique, historique récent",validation 2016-2019,M0,0.0,0.0,,0.5046674817209061
 payes,D,"couverture réelle, historique, historique récent",validation 2016-2019,M1,0.032960606321021824,0.045240133837918584,0.2414032971668962,0.48910177018125095
 payes,D,"couverture réelle, historique, historique récent",validation 2016-2019,M2,0.06914653889001743,0.06415383540894493,0.3125936961852895,0.6000511287922088
 payes,D,"couverture réelle, historique, historique récent",validation 2016-2019,M3,0.13517232871076135,0.05071987543472212,0.23911962017610763,0.9671451793571049
 payes,D,"couverture réelle, historique, historique récent",validation 2016-2019,M4,0.06820855849282381,0.060487275031983145,0.28226970487520164,0.6189736374462564
+payes,D,"couverture réelle, historique, historique récent",validation 2016-2019,M4_fixe,0.07540556294290701,0.04353425137613798,0.292461301515362,0.6631815101571951
 payes,D,"couverture réelle, historique, historique récent",test 2020-2024,M0,0.0,0.0,,0.378953523660498
 payes,D,"couverture réelle, historique, historique récent",test 2020-2024,M1,0.08938990218032572,0.12644087760959388,0.23275454133507428,0.37292927519969415
 payes,D,"couverture réelle, historique, historique récent",test 2020-2024,M2,0.09265250393201774,0.03639402026724381,0.2810380138338009,0.4898121239510522
 payes,D,"couverture réelle, historique, historique récent",test 2020-2024,M3,0.1436782727254554,0.04429649535516722,0.25749336556862046,0.6963775723363634
 payes,D,"couverture réelle, historique, historique récent",test 2020-2024,M4,-0.0584704783513077,-0.10042538931304779,0.06632818153108629,0.40573416907550897
+payes,D,"couverture réelle, historique, historique récent",test 2020-2024,M4_fixe,0.06918009657085566,0.014120118177947338,0.19575758189683698,0.4731754877810629
 payes_hors_grands_evenements,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M0,0.0,0.0,,1.0072963117670102
 payes_hors_grands_evenements,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M1,0.020929958840344542,0.021377728868112733,0.2511037278484527,0.9997611490241909
 payes_hors_grands_evenements,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M2,0.1870152654688928,0.19750604033722996,0.5703845946980656,0.8296209439774223
 payes_hors_grands_evenements,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M3,-0.0358378852657848,0.12060909814333132,0.5332429685769479,2.134635391882342
 payes_hors_grands_evenements,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M4,0.1958569054124345,0.20144115609527524,0.605375035350964,0.9476892504359569
+payes_hors_grands_evenements,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M4_fixe,0.19997406943512142,0.2048047679196252,0.6006610477958193,0.9525935646826023
 payes_hors_grands_evenements,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M0,0.0,0.0,,0.853025658585905
 payes_hors_grands_evenements,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M1,0.03666269985206183,0.039678004971111624,0.1857872744653894,0.8465165989270612
 payes_hors_grands_evenements,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M2,0.033390903951747375,0.08504595606042165,0.273727794659141,0.6170824302274212
 payes_hors_grands_evenements,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M3,-0.026492450980474036,0.08348148021771706,0.29378156550944556,1.753520551502782
 payes_hors_grands_evenements,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M4,-0.015474117583458291,1.9196698508028298e-05,0.30188925238313635,0.7905959040194374
+payes_hors_grands_evenements,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M4_fixe,0.04161301049871513,0.049043089211137536,0.22018881409269714,0.8190727895057631
 payes_hors_grands_evenements,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M0,0.0,0.0,,1.0072963117670102
 payes_hors_grands_evenements,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M1,0.020929958840344542,0.021377728868112733,0.2511037278484527,0.9997611490241909
 payes_hors_grands_evenements,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M2,0.1929476574970902,0.19567545139387033,0.5648837311187992,1.046866420814277
 payes_hors_grands_evenements,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M3,-0.10890381198967147,0.11508159445302601,0.528062459088339,2.4477877898704365
 payes_hors_grands_evenements,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M4,0.17435599347384423,0.17834293499329357,0.563551273006933,1.0682008527614761
+payes_hors_grands_evenements,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M4_fixe,0.1994156576918168,0.2033799591503942,0.5797577939586691,1.0538887117731994
 payes_hors_grands_evenements,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M0,0.0,0.0,,0.853025658585905
 payes_hors_grands_evenements,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M1,0.03666269985206183,0.039678004971111624,0.1857872744653894,0.8465165989270612
 payes_hors_grands_evenements,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M2,0.08923598861843796,0.09401873925345428,0.2725610911611455,1.0345869498436526
 payes_hors_grands_evenements,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M3,-0.16683828733893713,0.08155800627046883,0.28276990993386364,2.2607192260726325
 payes_hors_grands_evenements,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M4,0.03128144573027536,0.04712029768127224,0.2491312162730012,1.0982669796153988
+payes_hors_grands_evenements,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M4_fixe,0.04361363362194537,0.07108664986347435,0.24614626587324026,1.187467573086861
 payes_hors_grands_evenements,B,"couverture réelle, historique",validation 2016-2019,M0,0.0,0.0,,1.0072963117670102
 payes_hors_grands_evenements,B,"couverture réelle, historique",validation 2016-2019,M1,0.020929958840344542,0.021377728868112733,0.2511037278484527,0.9997611490241909
 payes_hors_grands_evenements,B,"couverture réelle, historique",validation 2016-2019,M2,0.19862044402115753,0.20146714156940537,0.5831035222576701,1.047415424623695
 payes_hors_grands_evenements,B,"couverture réelle, historique",validation 2016-2019,M3,-0.10860942258358963,0.11299502866536093,0.520824977919432,2.437890528876215
 payes_hors_grands_evenements,B,"couverture réelle, historique",validation 2016-2019,M4,0.18580321061945604,0.18878668214690586,0.5708447946956037,1.0458387865164485
+payes_hors_grands_evenements,B,"couverture réelle, historique",validation 2016-2019,M4_fixe,0.2002957806656125,0.20390730054768147,0.5817874573276878,1.0465796868099777
 payes_hors_grands_evenements,B,"couverture réelle, historique",test 2020-2024,M0,0.0,0.0,,0.853025658585905
 payes_hors_grands_evenements,B,"couverture réelle, historique",test 2020-2024,M1,0.03666269985206183,0.039678004971111624,0.1857872744653894,0.8465165989270612
 payes_hors_grands_evenements,B,"couverture réelle, historique",test 2020-2024,M2,0.08926478626667844,0.09389918814709419,0.2769338866903641,1.0332335510377488
 payes_hors_grands_evenements,B,"couverture réelle, historique",test 2020-2024,M3,-0.1642791131056187,0.08318673963148071,0.2884343600243257,2.256602239041465
 payes_hors_grands_evenements,B,"couverture réelle, historique",test 2020-2024,M4,0.03919741560231815,0.06557105984938871,0.28308248819430293,1.1138153040262284
+payes_hors_grands_evenements,B,"couverture réelle, historique",test 2020-2024,M4_fixe,0.047202736310871796,0.08299135132236812,0.2498457386281798,1.2161797593953463
 payes_hors_grands_evenements,C,historique seul (sans couverture),validation 2016-2019,M0,0.0,0.0,,1.0072963117670102
 payes_hors_grands_evenements,C,historique seul (sans couverture),validation 2016-2019,M1,0.020929958840344542,0.021377728868112733,0.2511037278484527,0.9997611490241909
 payes_hors_grands_evenements,C,historique seul (sans couverture),validation 2016-2019,M2,0.14699283488597825,0.14937214671121601,0.5404693108988805,1.012553718587238
 payes_hors_grands_evenements,C,historique seul (sans couverture),validation 2016-2019,M3,-0.6238918880032398,0.04149014333904277,0.350943220540759,4.065480667897844
 payes_hors_grands_evenements,C,historique seul (sans couverture),validation 2016-2019,M4,0.21022429011318466,0.21375880543221992,0.5923622331856173,1.0292871850730458
+payes_hors_grands_evenements,C,historique seul (sans couverture),validation 2016-2019,M4_fixe,0.19375029800917942,0.19722994327774213,0.6000079893627142,1.0238264117573104
 payes_hors_grands_evenements,C,historique seul (sans couverture),test 2020-2024,M0,0.0,0.0,,0.853025658585905
 payes_hors_grands_evenements,C,historique seul (sans couverture),test 2020-2024,M1,0.03666269985206183,0.039678004971111624,0.1857872744653894,0.8465165989270612
 payes_hors_grands_evenements,C,historique seul (sans couverture),test 2020-2024,M2,0.01952261518658549,0.01948709217235034,0.23101427700463706,0.8703855930264374
 payes_hors_grands_evenements,C,historique seul (sans couverture),test 2020-2024,M3,-0.5916545615936581,0.05561524089463343,0.28133337595242985,3.384533974643631
 payes_hors_grands_evenements,C,historique seul (sans couverture),test 2020-2024,M4,-0.0006531103388931481,-0.001954988886290643,0.2974581814551526,0.8640902345675673
+payes_hors_grands_evenements,C,historique seul (sans couverture),test 2020-2024,M4_fixe,0.04140589771567893,0.043464543751729035,0.2437569967398058,0.8589505186905754
 payes_hors_grands_evenements,D,"couverture réelle, historique, historique récent",validation 2016-2019,M0,0.0,0.0,,1.0072963117670102
 payes_hors_grands_evenements,D,"couverture réelle, historique, historique récent",validation 2016-2019,M1,0.020929958840344542,0.021377728868112733,0.2511037278484527,0.9997611490241909
 payes_hors_grands_evenements,D,"couverture réelle, historique, historique récent",validation 2016-2019,M2,0.19836717912884194,0.20139727672324892,0.581962142115757,1.0407719267774913
 payes_hors_grands_evenements,D,"couverture réelle, historique, historique récent",validation 2016-2019,M3,-0.11597524634347667,0.09032781927858136,0.417221783562522,2.3686013373536348
 payes_hors_grands_evenements,D,"couverture réelle, historique, historique récent",validation 2016-2019,M4,0.16805571067118275,0.17082122850683046,0.5491178705621194,1.004787008003728
+payes_hors_grands_evenements,D,"couverture réelle, historique, historique récent",validation 2016-2019,M4_fixe,0.1793097723398408,0.1824193442111426,0.5683293747072327,1.0255509534480873
 payes_hors_grands_evenements,D,"couverture réelle, historique, historique récent",test 2020-2024,M0,0.0,0.0,,0.853025658585905
 payes_hors_grands_evenements,D,"couverture réelle, historique, historique récent",test 2020-2024,M1,0.03666269985206183,0.039678004971111624,0.1857872744653894,0.8465165989270612
 payes_hors_grands_evenements,D,"couverture réelle, historique, historique récent",test 2020-2024,M2,0.08984048134851441,0.09715573577984082,0.28042007538582253,1.068925455555488
 payes_hors_grands_evenements,D,"couverture réelle, historique, historique récent",test 2020-2024,M3,-0.16663458100246786,0.0771096108877507,0.2724198887815534,2.2412060934622504
 payes_hors_grands_evenements,D,"couverture réelle, historique, historique récent",test 2020-2024,M4,0.040939338741169284,0.05853975512647691,0.25384827393085346,1.081904412546212
+payes_hors_grands_evenements,D,"couverture réelle, historique, historique récent",test 2020-2024,M4_fixe,0.02536820805549511,0.06092936698306728,0.21715656526848204,1.1898761290807198
+tous,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M0,0.0,0.0,,0.514742332815145
+tous,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M1,0.03409926072217362,0.0479915936624451,0.20532118613590666,0.5002037373205892
+tous,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M2,-0.003940282476361023,0.027732695260210605,0.23035327998251992,0.47916282206323907
+tous,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M3,0.1425440952170488,0.05352410895895876,0.23314601789856443,0.9079155371023898
+tous,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M4,0.02225895951705259,0.0391683377947859,0.1537100159780991,0.5551255850797406
+tous,P,"premier jet : couverture nominale, historique, historique du comté",validation 2016-2019,M4_fixe,0.05298004711998128,0.058216835414946044,0.2964545322059661,0.5661050277118171
+tous,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M0,0.0,0.0,,0.43008253972271204
+tous,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M1,0.08557307306704987,0.11858390581073863,0.20645098205919699,0.42381416027624386
+tous,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M2,0.021920199881645064,0.039007182501901605,0.25401039029954176,0.418312458423901
+tous,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M3,0.08728363842250386,0.036939954300646005,0.23145663850350057,0.6761970130519707
+tous,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M4,-0.024647997447716508,-0.012439007470374852,0.24018372980877914,0.5713298153779446
+tous,P,"premier jet : couverture nominale, historique, historique du comté",test 2020-2024,M4_fixe,0.018572415816079157,0.014188301585008278,0.2827176539161116,0.632047697426144
+tous,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M0,0.0,0.0,,0.514742332815145
+tous,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M1,0.03409926072217362,0.0479915936624451,0.20532118613590666,0.5002037373205892
+tous,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M2,0.02201021603647102,0.02408690254482082,0.22781333125122527,0.5252274415663357
+tous,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M3,0.14973278431335113,0.053139460408974215,0.23113590178205845,0.9565658225283907
+tous,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M4,0.04107420826004071,0.05430822214232123,0.2442911125139034,0.5344788983826246
+tous,A,"principal : couverture réelle, historique, historique du comté",validation 2016-2019,M4_fixe,0.05895939816515916,0.0712062297576832,0.2569277880283508,0.5368228702610374
+tous,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M0,0.0,0.0,,0.43008253972271204
+tous,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M1,0.08557307306704987,0.11858390581073863,0.20645098205919699,0.42381416027624386
+tous,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M2,0.07098330509261375,0.04330455933171595,0.2582289780185877,0.4789103867991412
+tous,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M3,0.12852441164418182,0.03693291655967523,0.22921345569308926,0.7609915700402891
+tous,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M4,-0.04595657323408586,-0.09237636789511217,0.1430596876094198,0.469585471445349
+tous,A,"principal : couverture réelle, historique, historique du comté",test 2020-2024,M4_fixe,0.052352470713375565,-0.0027666070356615613,0.15111298106578708,0.5213918804489065
+tous,B,"couverture réelle, historique",validation 2016-2019,M0,0.0,0.0,,0.514742332815145
+tous,B,"couverture réelle, historique",validation 2016-2019,M1,0.03409926072217362,0.0479915936624451,0.20532118613590666,0.5002037373205892
+tous,B,"couverture réelle, historique",validation 2016-2019,M2,0.024208061462314467,0.027069090816336794,0.23283827287258896,0.5252427683274905
+tous,B,"couverture réelle, historique",validation 2016-2019,M3,0.14860003364347218,0.051920856452234654,0.2347689102217513,0.9514265240069852
+tous,B,"couverture réelle, historique",validation 2016-2019,M4,0.035778981079137684,0.04809536787634172,0.20316672463959437,0.5256471495601371
+tous,B,"couverture réelle, historique",validation 2016-2019,M4_fixe,0.03823808610781454,0.053893609032222844,0.2214017412811097,0.5276280935018536
+tous,B,"couverture réelle, historique",test 2020-2024,M0,0.0,0.0,,0.43008253972271204
+tous,B,"couverture réelle, historique",test 2020-2024,M1,0.08557307306704987,0.11858390581073863,0.20645098205919699,0.42381416027624386
+tous,B,"couverture réelle, historique",test 2020-2024,M2,0.07619091312058845,0.04949910605019303,0.25686922650131877,0.4799965981434386
+tous,B,"couverture réelle, historique",test 2020-2024,M3,0.13528145981204387,0.044943769714498316,0.2518353118451627,0.7605895177580412
+tous,B,"couverture réelle, historique",test 2020-2024,M4,-0.031375921068719004,-0.07618196258641641,0.05279018466328412,0.47390343836594023
+tous,B,"couverture réelle, historique",test 2020-2024,M4_fixe,0.07643727511820975,0.025675199388317083,0.23495222329030976,0.5151431356773419
+tous,C,historique seul (sans couverture),validation 2016-2019,M0,0.0,0.0,,0.514742332815145
+tous,C,historique seul (sans couverture),validation 2016-2019,M1,0.03409926072217362,0.0479915936624451,0.20532118613590666,0.5002037373205892
+tous,C,historique seul (sans couverture),validation 2016-2019,M2,0.034319119999574155,0.04390184635259464,0.2485435483764677,0.5093976224262455
+tous,C,historique seul (sans couverture),validation 2016-2019,M3,0.1553566995616965,0.060698024986715615,0.2853914272712058,1.311115239621351
+tous,C,historique seul (sans couverture),validation 2016-2019,M4,0.061797719779408955,0.07305741307298963,0.29168479679557757,0.5241931555923152
+tous,C,historique seul (sans couverture),validation 2016-2019,M4_fixe,0.08540071639552849,0.1002813041163273,0.32306337988158945,0.5247211775137691
+tous,C,historique seul (sans couverture),test 2020-2024,M0,0.0,0.0,,0.43008253972271204
+tous,C,historique seul (sans couverture),test 2020-2024,M1,0.08557307306704987,0.11858390581073863,0.20645098205919699,0.42381416027624386
+tous,C,historique seul (sans couverture),test 2020-2024,M2,0.04042289234302554,0.04804394320324945,0.2570670891334376,0.4345897216497276
+tous,C,historique seul (sans couverture),test 2020-2024,M3,0.16216329010945219,0.06922792296180291,0.30223788697082765,0.9277772118926073
+tous,C,historique seul (sans couverture),test 2020-2024,M4,-0.030555048054919265,-0.04631964647736919,0.19417900262948962,0.4367622227162981
+tous,C,historique seul (sans couverture),test 2020-2024,M4_fixe,0.002801461534012506,-0.0026721155566569177,0.2149932280159225,0.4380882489867605
+tous,D,"couverture réelle, historique, historique récent",validation 2016-2019,M0,0.0,0.0,,0.514742332815145
+tous,D,"couverture réelle, historique, historique récent",validation 2016-2019,M1,0.03409926072217362,0.0479915936624451,0.20532118613590666,0.5002037373205892
+tous,D,"couverture réelle, historique, historique récent",validation 2016-2019,M2,0.05001584641966583,0.03940826305912715,0.2581113532646798,0.6033336695190818
+tous,D,"couverture réelle, historique, historique récent",validation 2016-2019,M3,0.14196661735357619,0.04449399781547536,0.2050450158565981,0.9492794543007923
+tous,D,"couverture réelle, historique, historique récent",validation 2016-2019,M4,0.04710027634535441,0.03058293300848447,0.18848200714630595,0.6104368077750155
+tous,D,"couverture réelle, historique, historique récent",validation 2016-2019,M4_fixe,0.06020577752771217,0.01751289824984248,0.22589386109525655,0.6624279115132777
+tous,D,"couverture réelle, historique, historique récent",test 2020-2024,M0,0.0,0.0,,0.43008253972271204
+tous,D,"couverture réelle, historique, historique récent",test 2020-2024,M1,0.08557307306704987,0.11858390581073863,0.20645098205919699,0.42381416027624386
+tous,D,"couverture réelle, historique, historique récent",test 2020-2024,M2,0.08625967484325203,0.03836144036635547,0.26264857776760847,0.5375187682339838
+tous,D,"couverture réelle, historique, historique récent",test 2020-2024,M3,0.13438979887685454,0.0436408710016879,0.2519739888766365,0.7617837207341052
+tous,D,"couverture réelle, historique, historique récent",test 2020-2024,M4,-0.04899433318395374,-0.08358623130375831,0.03899443014996481,0.4582818803764958
+tous,D,"couverture réelle, historique, historique récent",test 2020-2024,M4_fixe,0.06665567994090005,0.02733063520196244,0.2564880265482125,0.5126775779581482

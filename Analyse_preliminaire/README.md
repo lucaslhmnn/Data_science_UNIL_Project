@@ -1,5 +1,7 @@
 # Analyse_preliminaire/ : base permanente de l'analyse préliminaire de fréquence
 
+> **Mise à jour du 15/11/2026.** Ce document décrit le premier jet (un seul ajustement 2010–2019, test 2020–2024). Une évaluation à origine glissante a été ajoutée ensuite (`Modeles/scripts/04_evaluation_glissante.py`, voir la section « Phase 4 » de `Modeles/README.md`). Elle nuance la lecture ci-dessous : avec la couverture en dollars constants et neuf années prédites, LightGBM ne bat plus le GLM avec la zone seule. Le rapport Quarto s'appuie sur cette phase 4.
+
 > 15/11/2026 · branche `modeles-premier-jet` · version `v0.1` · **Résultats provisoires et exploratoires, voir
 > `STATUT_RESULTATS.md`** · aucun commit à ce stade.
 

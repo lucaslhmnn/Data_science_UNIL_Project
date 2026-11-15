@@ -1,5 +1,7 @@
 # Rapport : premier jet des modèles de fréquence (comté × zone × année)
 
+> **Mise à jour du 15/11/2026.** Ce document décrit le premier jet (un seul ajustement 2010–2019, test 2020–2024). Une évaluation à origine glissante a été ajoutée ensuite (`Modeles/scripts/04_evaluation_glissante.py`, voir la section « Phase 4 » de `Modeles/README.md`). Elle nuance la lecture ci-dessous : avec la couverture en dollars constants et neuf années prédites, LightGBM ne bat plus le GLM avec la zone seule. Le rapport Quarto s'appuie sur cette phase 4.
+
 *Branche locale `modeles-premier-jet` (depuis `main`, commit `69d0d21`). Exécution du 15/11/2026.
 Rien n'est commité.*
 

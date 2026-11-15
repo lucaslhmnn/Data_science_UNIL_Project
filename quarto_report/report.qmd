@@ -52,7 +52,7 @@ format:
 
 jupyter: python3
 abstract: |
-  Flood insurance claims in the southeastern United States come in waves, with each hurricane season bringing its own map of damage. This project asks whether a machine learning method, LightGBM, predicts how many flood claims to expect per insured home better than the classical models insurers use, a Poisson GLM and a negative binomial GLM. We use FEMA's public records of the National Flood Insurance Program for the eight states of FEMA Region 4. Because claims and policies are anonymized and cannot be linked one by one, we count both in the same area and year, and join them into a single table by county, flood zone and year. Each year from 2016 to 2024 is predicted from the years before it, with 2020 to 2024 kept as the test. A first exploration shows that claims are driven by a few hurricanes rather than by the number of insured homes; that most places have no claim in a year while a few have thousands, far more variation than a Poisson model allows; that the flood zone and past claims are the clearest signals of risk; and that the test years are unusual, holding most of the claims and hitting places, Florida above all, that the previous decade had spared. First models on this table confirm that every model predicts too few claims in the hurricane years. They also show that LightGBM does not beat the GLMs: once the yearly level is set aside, a GLM with the flood zone alone is the most robust, and LightGBM does worse on the test years, mostly because of Florida. The features known in advance help to predict ordinary floods, not hurricanes. These results are preliminary and will be revisited on a finer table with more features.
+  Flood insurance claims in the southeastern United States come in waves, with each hurricane season bringing its own map of damage. This project asks whether a machine learning method, LightGBM, predicts how many flood claims to expect per insured home better than the classical models insurers use, a Poisson GLM and a negative binomial GLM. We use FEMA's public records of the National Flood Insurance Program for the eight states of FEMA Region 4. Because claims and policies are anonymized and cannot be linked one by one, we count both in the same area and year, and join them into a single table by county, flood zone and year. Each year from 2016 to 2024 is predicted from the years before it, with 2020 to 2024 kept as the test. A first exploration shows that claims are driven by a few hurricanes rather than by the number of insured homes; that most places have no claim in a year while a few have thousands, far more variation than a Poisson model allows; that the flood zone and past claims are the clearest signals of risk; and that the test years are unusual, holding most of the claims and hitting places, Florida above all, that the previous decade had spared. First models on this table confirm that every model predicts too few claims in the hurricane years. They also show that LightGBM does not beat the GLMs: once the yearly level is set aside, a GLM with the flood zone alone is the most robust, and LightGBM falls behind it on the test years, mostly because of Florida. The features known in advance help to predict ordinary floods, not hurricanes. These results are preliminary and will be revisited on a finer table with more features.
 execute: 
   warning: false
   # Note: echo setting is controlled per-format above (HTML, PDF, DOCX)
@@ -185,6 +185,20 @@ freq_year["period"] = ["train" if y <= 2019 else "test" for y in freq_year.index
 display(freq_year.round({"exposure_years": 0, "paid_per_1000": 2, "all_per_1000": 2})
         .astype({"exposure_years": int}))
 ```
+
+```{python}
+#| label: tbl-deciles
+#| tbl-cap: "Calibration by decile on the test years, after yearly recalibration: areas are ranked by predicted frequency and split in ten groups; observed and predicted paid claims per 1,000 policy-years."
+
+dec = deciles[(deciles["periode"] == TEST) & deciles["modele"].isin(["M2", "M4"])]
+dec_table = dec.pivot(index="decile", columns="modele", values=["observe_pour_1000", "predit_pour_1000"]).round(1)
+dec_table.columns = [f"{model_name[m]}, {'observed' if v.startswith('observe') else 'predicted'}"
+                     for v, m in dec_table.columns]
+display(dec_table[sorted(dec_table.columns, reverse=True)])
+top = dec[dec["decile"] == 10].set_index("modele")
+```
+
+In @tbl-deciles, both models are too confident about the places they consider most at risk: in the top group, the Poisson GLM predicts `{python} f"{top.loc['M2', 'predit_pour_1000']:.0f}"` paid claims per 1,000 policy-years where `{python} f"{top.loc['M2', 'observe_pour_1000']:.0f}"` occurred, and LightGBM `{python} f"{top.loc['M4', 'predit_pour_1000']:.0f}"` where `{python} f"{top.loc['M4', 'observe_pour_1000']:.0f}"` occurred.
 
 ```{python}
 #| label: tbl-anomalies

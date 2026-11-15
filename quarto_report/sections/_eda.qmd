@@ -1,6 +1,6 @@
 # EDA {#sec-eda}
 
-The exploration follows four questions an insurer would ask: when do claims happen, how are they spread, where is the risk, and does the past predict the future. All figures come from `EDA/eda.py` applied to `ds_clean`, and frequencies are paid claims per 1,000 policy-years. Wherever features are compared with frequency, only the training years are used.
+The exploration follows four questions an insurer would ask: when do claims happen, how are they spread, where is the risk, and does the past predict the future. All figures come from `EDA/eda.py` applied to `ds_clean`, and frequencies are paid claims per 1,000 policy-years. We call 2010 to 2019 the training years and 2020 to 2024 the test years. Wherever features are compared with frequency, only the training years are used.
 
 ```{python}
 #| label: eda-stats
@@ -30,7 +30,7 @@ disp_p = stats.chi2.sf(pearson, df_disp)
 
 ![Insured homes and claims per year, 2010 to 2024. (a) Policy-years in force; (b) paid claims, with the largest hurricanes named; (c) claims per 1,000 policy-years, log scale (dashed: all claims; orange: paid claims outside the ten largest events). Test years shaded.](../EDA/figures/eda_1_exposure_claims.png){#fig-eda-years}
 
-The number of insured homes barely moves from one year to the next, drifting down by `{python} f"{abs(py_change):.0%}"` over fifteen years (@fig-eda-years, panel a). Claims, on the other hand, come in waves. In a quiet year such as `{python} min_year`, about `{python} f"{fby[min_year]:.1f}"` insured homes in 1,000 file a paid claim; in `{python} max_year`, the year of Hurricanes Helene and Milton, it is `{python} f"{fby[max_year]:.1f}"`, `{python} f"{kn['freq_max_min_ratio']:.0f}"` times more. Every peak has a name: Matthew, Irma, Florence, Ian, Helene. The two worst years, `{python} max_year` and `{python} second_year`, both fall in the test period.
+The number of insured homes changes slowly, drifting down by `{python} f"{abs(py_change):.0%}"` over fifteen years (@fig-eda-years, panel a). Claims, on the other hand, come in waves. In a quiet year such as `{python} min_year`, about `{python} f"{fby[min_year]:.1f}"` insured homes in 1,000 file a paid claim; in `{python} max_year`, the year of Hurricanes Helene and Milton, it is `{python} f"{fby[max_year]:.1f}"`, `{python} f"{kn['freq_max_min_ratio']:.0f}"` times more. Every peak has a name: Matthew, Irma, Florence, Ian, Helene. The two worst years, `{python} max_year` and `{python} second_year`, both fall in the test period.
 
 Without the ten largest events, the picture is calm: `{python} f"{kn['freq_ex_major_train']:.1f}"` paid claims per 1,000 policy-years in the training years and `{python} f"{kn['freq_ex_major_test']:.1f}"` in the test years (orange line in panel c). Ordinary floods are stable; the waves come from a few storms.
 

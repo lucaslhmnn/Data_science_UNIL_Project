@@ -30,14 +30,17 @@ All models receive the same facts: the flood zone, the average coverage in const
 
 ## Metrics
 
-The metrics are fixed in advance, and each answers a different question:
+Each metric answers a different question:
 
 - **Deviance gain**: how much closer are the predicted counts to the observed ones than those of the null model? A positive gain means the model beats the null model.
 - **Gain after yearly recalibration**: the same gain once every model is rescaled to the observed total of each year. No model can know when a hurricane will strike; this version removes that error and only judges *where* the model places the claims.
 - **Gini index**: does the model rank areas in the right order, from safe to risky?
 - **Predicted over observed totals**: how far off is the overall level?
+- **Calibration by decile**: grouping areas from least to most risky according to the model, does each group get roughly the number of claims predicted? (@sec-appendix-tables)
 
-Differences between models come with 95% confidence intervals, obtained by resampling the counties. Results are reported overall and separately for Florida and the other seven states (RQ2). As a check, the same evaluation is run on the claims outside the ten largest events.
+Differences between models come with 95% confidence intervals, obtained by resampling the counties. Results are reported overall and separately for Florida and the other seven states (RQ2). Three checks complete the picture: the same evaluation on the claims outside the ten largest events, on all claims rather than paid claims only, and with LightGBM kept at fixed settings instead of being tuned again every year.
+
+One caveat on the method. The models were first fitted once on 2010 to 2019 and evaluated on 2020 to 2024. The evaluation described here, and the choice of coverage in constant dollars, came after seeing those first results. The test years are therefore no longer untouched, and the results below should be read as exploratory.
 
 # Findings and Discussion
 
@@ -88,7 +91,8 @@ model_table = pd.DataFrame(rows).set_index("model")
 model_table.columns = pd.MultiIndex.from_tuples(model_table.columns)
 display(model_table)
 
-g41, g41_val = gap("M4 - M1"), gap("M4 - M1", VAL)
+g41, g41_val, g41_fixed = gap("M4 - M1"), gap("M4 - M1", VAL), gap("M4_fixe - M1")
+deciles = pd.read_csv(mod_dir / "glissant_calibration_deciles.csv")
 hp_main = hp[(hp["cible"] == "payes") & (hp["variables"] == MAIN)]
 first_lgb = float(first_fit[(first_fit["cible"] == "payes") & (first_fit["ensemble"] == "test 2020-2024")
                             & (first_fit["modele"] == "M4")]["gain_relatif_vs_M0"].iloc[0])
@@ -99,7 +103,7 @@ ORD = "payes_hors_grands_evenements"
 
 **Every model predicts too few claims.** On the test years, the Poisson GLM predicts `{python} f"{score('M2', 'predit_sur_observe'):.0%}"` of the paid claims that occurred and LightGBM `{python} f"{score('M4', 'predit_sur_observe'):.0%}"` (@tbl-model-results). This confirms H3: no model fitted on past years can anticipate Ian or Helene.
 
-**LightGBM does not beat the GLMs.** Once the yearly level is set aside, LightGBM is slightly ahead on the validation years (`{python} pct(score('M4', 'gain_recale', VAL))` against `{python} pct(score('M1', 'gain_recale', VAL))` for the GLM with the zone only), a difference that is not significant (95% interval from `{python} f"{100 * g41_val['ic95_bas']:+.1f}"` to `{python} f"{100 * g41_val['ic95_haut']:+.1f}"` points). On the test years it falls behind (`{python} pct(score('M4', 'gain_recale'))` against `{python} pct(score('M1', 'gain_recale'))`, @fig-model-gain), and this time the interval excludes zero (`{python} f"{100 * g41['ic95_bas']:+.1f}"` to `{python} f"{100 * g41['ic95_haut']:+.1f}"` points). H1 is not supported. The simplest model, the flood zone alone, is the most robust when the storms change place.
+**LightGBM does not beat the GLMs.** Once the yearly level is set aside, LightGBM is slightly ahead on the validation years (`{python} pct(score('M4', 'gain_recale', VAL))` against `{python} pct(score('M1', 'gain_recale', VAL))` for the GLM with the zone only), a difference that is not significant (95% interval from `{python} f"{100 * g41_val['ic95_bas']:+.1f}"` to `{python} f"{100 * g41_val['ic95_haut']:+.1f}"` points). On the test years it falls behind (`{python} pct(score('M4', 'gain_recale'))` against `{python} pct(score('M1', 'gain_recale'))`, @fig-model-gain), and this time the interval excludes zero (`{python} f"{100 * g41['ic95_bas']:+.1f}"` to `{python} f"{100 * g41['ic95_haut']:+.1f}"` points). How far behind depends on the settings: kept at fixed settings, LightGBM reaches `{python} pct(score('M4_fixe', 'gain_recale'))`, still below the GLM with the zone only, but the difference is no longer significant (`{python} f"{100 * g41_fixed['ic95_bas']:+.1f}"` to `{python} f"{100 * g41_fixed['ic95_haut']:+.1f}"` points). The safe reading is that LightGBM is not better, and probably worse. H1 is not supported. The simplest model, the flood zone alone, is the most robust when the storms change place. Counting all claims instead of paid claims gives the same picture (`{python} pct(score('M4', 'gain_recale', target='tous'))` for LightGBM against `{python} pct(score('M1', 'gain_recale', target='tous'))` for the GLM with the zone only).
 
 **Why a first attempt looked better.** A single fit on 2010 to 2019 gave LightGBM a gain of `{python} pct(first_lgb)` on the test years. Two things explain it. That fit used the coverage in current dollars, which rises every year and let the trees guess the year. And the result depended on the settings: across the nine training windows, the number of trees retained ranges from `{python} int(hp_main['iterations'].min())` to `{python} int(hp_main['iterations'].max())`. A flexible model has little stable signal to hold on to.
 
