@@ -41,6 +41,19 @@ Only HTML is enabled. The `pdf` and `docx` formats are commented out in the YAML
 
 `report.html` is self-contained (`self-contained: true`), so it can be shared as a single file.
 
+## Open the HTML report
+
+After rendering, open `report.html` in any web browser:
+
+```bash
+xdg-open report.html     # Linux
+open report.html         # macOS
+start report.html        # Windows (Command Prompt or PowerShell)
+```
+
+You can also double-click `report.html` in your file manager, or drag it into a browser window.
+`quarto preview report.qmd` opens the report in the browser automatically and refreshes it on save.
+
 ## Good to know
 
 - The setup chunk takes as project root the first folder, from `report.qmd` upwards, that contains

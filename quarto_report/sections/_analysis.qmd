@@ -1,77 +1,56 @@
-# Methods *(optional, only if you have models)*
+# Methods
 
-::: {.callout-note}
-## When to Include This Section
+Let $N_{it}$ be the number of claims in tract $i$ and year $t$, $e_{it}$ the exposure in policy-years, and $\mathbf{x}_{it}$ the vector of features built from policy information known at inception. All three models predict the expected count $\mu_{it}$ with $\log e_{it}$ as an offset, so they share the same target and the same exposure adjustment.
 
-Include a Methods section if you:
+**[TO FILL BY TEAM: confirm that the three models use the same feature set]**
 
-- Apply statistical models (linear regression, logistic regression, etc.)
-- Perform hypothesis testing
-- Use machine learning algorithms
-- Conduct advanced statistical analyses
+## Poisson GLM
 
-If your project is primarily exploratory (descriptive statistics and visualizations only), you can skip this section or keep it minimal.
-:::
+$$
+N_{it}\sim\text{Poisson}(\mu_{it}),\qquad \log\mu_{it}=\log e_{it}+\mathbf{x}_{it}^\top\boldsymbol\beta
+$$ {#eq-poisson}
 
-Outline the statistical methods or models selected, along with the rationale for their selection.
+The Poisson GLM is the reference model for claim counts. The log link makes the effects multiplicative, and the offset turns the model into a model of the claim rate per policy-year, so tracts with different exposure are directly comparable. It assumes that the variance equals the mean, which the next model relaxes.
 
-**Important**: Don't just show model output, **explain your choices**:
+## Negative Binomial GLM
 
-- **Why** did you choose this particular method?
-- **What** assumptions does it make, and do your data meet them?
-- **How** does this method help answer your research questions?
+$$
+\text{Var}(N_{it})=\mu_{it}+\alpha\mu_{it}^2
+$$ {#eq-nb}
 
-```{python}
-#| label: initial-analysis
+The negative binomial GLM keeps the mean structure of @eq-poisson and adds a dispersion parameter $\alpha$. Flood claims cluster in event years, so counts are likely to vary more than a Poisson model allows. The Poisson model is the limit $\alpha \to 0$, so the comparison shows whether modelling overdispersion changes the predictions or only their uncertainty.
 
-from sklearn.linear_model import LinearRegression
-import numpy as np
-import pandas as pd
+**[TO FILL BY TEAM: estimation method for $\alpha$]**
 
-model = LinearRegression()
+## LightGBM with Poisson Objective
 
-# Prepare the data (using dummy variables for categorical instructor variable)
-X = np.array(pd.get_dummies(data_clean[["instructor"]], drop_first=True))
-y = np.array(data_clean["performance"])
+LightGBM fits gradient boosted trees by minimizing the Poisson negative log-likelihood, with $\log e_{it}$ as initial score. The initial score plays the role of the offset, so the trees learn the log claim rate relative to exposure, as in the GLMs. Unlike the GLMs, the trees can capture non-linear effects and interactions without specifying them in advance, which is the flexibility that RQ1 evaluates.
 
-# Fit the model
-model.fit(X, y)
+**[TO FILL BY TEAM: LightGBM hyperparameters, search grid and random seed]**
 
-print("=== Linear Regression Results ===")
-print(f"Coefficients: {model.coef_}")
-print(f"Intercept: {model.intercept_:.4f}")
-print(f"R-squared: {model.score(X, y):.4f}")
-```
+## Validation
 
-::: {.callout-important}
-## Interpretation is Essential!
+Hyperparameters and model choices are selected by forward-chaining validation inside 2010 to 2019: each fold trains on earlier years and validates on the following year. This respects the time order and mimics the real task of predicting future years without using future information. The test years 2020 to 2024 are used only once, for the final evaluation, and never for tuning.
 
-After showing model results, you **must interpret them**:
+**[TO FILL BY TEAM: exact forward-chaining folds (training and validation years of each fold)]**
 
-**Example interpretation:**
+## Metrics
 
-"The Poisson regression model identifies three significant predictors of insurance claim frequency. Vehicle age shows a positive coefficient (β = 0.08, p < 0.01), indicating that each additional year of vehicle age increases expected claims by approximately 8%. Driver age has a negative coefficient (β = -0.02, p < 0.001), meaning older drivers file fewer claims. The urban location dummy variable (β = 0.15, p < 0.05) suggests urban drivers have 15% higher claim rates than rural drivers.
+All metrics are fixed in advance, before looking at the test years.
 
-However, the model's pseudo-R² of 0.22 indicates that these predictors explain only 22% of claim variation. Unobserved factors like driving behavior, road conditions, and individual risk tolerance likely account for the remaining variation. This suggests that while demographic variables are useful for pricing, insurers should not rely solely on them for risk assessment."
+- **Poisson deviance** on the test years:
+  $$
+  D=2\sum_{i,t}\left[y_{it}\log\frac{y_{it}}{\hat\mu_{it}}-(y_{it}-\hat\mu_{it})\right],
+  $$ {#eq-deviance}
+  with $y_{it}\log(y_{it}/\hat\mu_{it})=0$ when $y_{it}=0$. It is the natural loss for count predictions and the quantity the Poisson models optimize, so it compares the three models on a common scale. Lower is better.
+- **Calibration by prediction decile.** Test tract-years are grouped into ten classes of predicted frequency, and predicted and observed claims are compared in each class. This shows whether a model is biased for low-risk or high-risk tracts, which the deviance alone does not reveal.
+- **Gini index.** It measures how well a model ranks tract-years from low to high risk, independently of the level of the predictions. Ranking is what matters for risk segmentation. **[TO FILL BY TEAM: exact Gini definition (exposure-weighted or not)]**
+- **Predicted versus observed totals per test year.** This checks aggregate bias year by year, which matters because the test window contains Hurricane Ian (2022) and Hurricane Helene (2024).
 
-**Remember**: Model output without interpretation demonstrates technical skills but not understanding!
-:::
+Results are reported overall and for Florida versus the other seven states, because Florida accounts for about 71% of policy records and 57% of claims and could dominate the overall metrics.
+
+**Sensitivity check.** The models are refitted with a target that counts all claims, not only claims with a positive paid amount, to check whether the comparison depends on the claim definition.
 
 # Findings and Discussion
 
-Provide your results or observations from applying statistical methods, then **discuss them thoroughly** in the context of your research questions and project goals.
-
-::: {.callout-tip}
-## Structure Your Discussion
-
-A good discussion:
-
-1. **States the finding** clearly (reference tables/figures)
-2. **Interprets the result** (what does it mean?)
-3. **Connects to research questions** (how does it answer your questions?)
-4. **Relates to domain knowledge** (does it align with theory or prior research?)
-5. **Acknowledges limitations** (what are the caveats?)
-6. **Suggests implications** (what should we do with this information?)
-
-**Example**: "Our regression analysis shows that experience significantly predicts performance (β = 0.01, p < 0.001), supporting our hypothesis that skill develops over time. This aligns with learning curve theory in organizational psychology and suggests that training programs should emphasize sustained practice. However, the wide confidence interval (95% CI: [0.005, 0.015]) indicates substantial individual variation, meaning experience alone cannot guarantee high performance."
-:::
+**[TO FILL BY TEAM: preliminary model results (metrics on validation and test years, overall and Florida versus the other seven states, sensitivity check), and our reading of them in relation to RQ1 and RQ2]**
