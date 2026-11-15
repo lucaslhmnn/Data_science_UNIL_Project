@@ -1,55 +1,145 @@
-# EDA
+# EDA {#sec-eda}
 
-The figures below come from the exploratory analysis of the cleaned claim-level data (script `EDA/EDA.py`, output in `EDA/figures_v2/`). Each observation is an individual claim in FEMA Region 4, not a tract-year count, and the figures were produced for an earlier severity framing of the project. Their titles and labels are in French.
+The EDA so far has two parts. First, a crude claim frequency computed from the cleaned files: paid claims divided by policy-years, by year and by state. This is the quantity the models will predict, at a coarser level than the tract. Second, figures from the claim-level exploratory analysis (script `EDA/EDA.py`, output in `EDA/figures_v2/`), which was carried out before the tract-year design and also looked at claim amounts. These figures have French titles and labels; English versions will be produced for the final report. The figures on claim amounts are in @sec-appendix-plots.
 
-**[TO FILL BY TEAM: tract x year frequency EDA (exposure per year, claim counts, share of zero tract-years, frequency by state and year), and English versions of the figure titles and labels]**
+All statistics in this section are computed on single-family homes (`occupancyType` 1 and 11), the scope of the cleaned files.
 
 ## Univariate Analysis
 
-![Share of missing values (a) by column and (b) by decade.](../EDA/figures_v2/fig1_missing.png){#fig-eda-missing}
+### Claim frequency per year
 
-**[TO FILL BY TEAM: interpretation of @fig-eda-missing]**
+```{python}
+#| label: freq-stats
+#| echo: false
 
-![(a) Claims per year, (b) payment rate per year, (c) median paid amount per year in real USD.](../EDA/figures_v2/fig2_annual.png){#fig-eda-annual}
+years = range(2010, 2025)
+policy_years_by_year = zone_year.groupby("year")["policy_years"].sum()
+in_window = claims[claims["loss_year"].between(2010, 2024)]
 
-**[TO FILL BY TEAM: interpretation of @fig-eda-annual]**
+freq_year = (
+    in_window.groupby("loss_year")
+    .agg(all_claims=("paid_flag", "size"), paid_claims=("paid_flag", "sum"))
+    .reindex(years)
+)
+freq_year["policy_years"] = policy_years_by_year.reindex(years)
+freq_year["paid_per_1000"] = 1000 * freq_year["paid_claims"] / freq_year["policy_years"]
+freq_year["all_per_1000"] = 1000 * freq_year["all_claims"] / freq_year["policy_years"]
+freq_year["split"] = ["train" if y <= 2019 else "test" for y in years]
+freq_year.index.name = "year"
+
+train = freq_year[freq_year["split"] == "train"]
+test = freq_year[freq_year["split"] == "test"]
+freq_train = 1000 * train["paid_claims"].sum() / train["policy_years"].sum()
+freq_test = 1000 * test["paid_claims"].sum() / test["policy_years"].sum()
+top_year = int(freq_year["paid_per_1000"].idxmax())
+second_year = int(freq_year["paid_per_1000"].nlargest(2).index[1])
+min_year = int(freq_year["paid_per_1000"].idxmin())
+share_top2 = freq_year.loc[[top_year, second_year], "paid_claims"].sum() / freq_year["paid_claims"].sum()
+py_change = freq_year.loc[2024, "policy_years"] / freq_year.loc[2010, "policy_years"] - 1
+```
+
+```{python}
+#| label: fig-freq-year
+#| fig-cap: "Crude claim frequency per 1,000 policy-years by year, single-family homes in FEMA Region 4. Bars: claims with a positive paid amount; line: all claims. Training years in grey, test years in orange."
+
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(9, 4.5))
+colors = ["#9e9e9e" if s == "train" else "#e8702a" for s in freq_year["split"]]
+ax.bar(freq_year.index, freq_year["paid_per_1000"], color=colors, label="Paid claims")
+ax.plot(freq_year.index, freq_year["all_per_1000"], color="black", marker="o", lw=1.2, label="All claims")
+ax.axvline(2019.5, color="black", ls=":", lw=1)
+ax.set_xlabel("Year")
+ax.set_ylabel("Claims per 1,000 policy-years")
+ax.set_xticks(list(years))
+ax.tick_params(axis="x", rotation=45)
+ax.legend(frameon=False)
+ax.spines[["top", "right"]].set_visible(False)
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+#| label: tbl-freq-year
+#| tbl-cap: "Claims, exposure and crude frequency per year (single-family homes, FEMA Region 4)."
+
+display(
+    freq_year.reset_index().round({"policy_years": 0, "paid_per_1000": 2, "all_per_1000": 2})
+    .astype({"all_claims": int, "paid_claims": int, "policy_years": int})
+)
+```
+
+@fig-freq-year and @tbl-freq-year show that claim frequency is not stable over time: it ranges from `{python} f"{freq_year['paid_per_1000'].min():.2f}"` paid claims per 1,000 policy-years in `{python} min_year` to `{python} f"{freq_year['paid_per_1000'].max():.2f}"` in `{python} top_year`. Peaks match hurricane years, and the two highest years of the whole period, `{python} top_year` and `{python} second_year`, both fall in the test window and together hold `{python} f"{share_top2:.0%}"` of the paid claims of 2010 to 2024. The pooled frequency is `{python} f"{freq_train:.2f}"` per 1,000 policy-years over the training years and `{python} f"{freq_test:.2f}"` over the test years. Exposure, in contrast, changes slowly (`{python} f"{py_change:+.0%}"` between 2010 and 2024).
+
+This has two consequences for the models. First, most of the year-to-year variation comes from the hazard of a given year, which no policy feature describes; the models can only learn which tracts are more exposed when a flood occurs. Second, the test years are much more severe than the training years on average, so all models are likely to under-predict test totals. This is why predicted versus observed totals per test year are part of the metrics, and why the comparison between models must focus on ranking and calibration, not only on the overall level.
+
+![Annual claims. (a) Claims per year, with the five years with most claims highlighted; (b) payment rate per year, with and without the claims whose missing payment was recoded as unpaid; (c) median paid amount per year in real USD.](../EDA/figures_v2/fig2_annual.png){#fig-eda-annual}
+
+@fig-eda-annual extends the view back to 1978 with claim counts, without exposure. Claim counts are dominated by a few years (1999, 2004, 2005, 2022 and 2024). Panel (b) shows that the dips in the payment rate come from the recoding of missing payments: without these claims, the payment rate stays above 90% for most years. This supports using positive payments as the target and keeping all claims only as a sensitivity check.
 
 ![Monthly claims, with the largest named events shaded.](../EDA/figures_v2/fig3_monthly.png){#fig-eda-monthly}
 
-**[TO FILL BY TEAM: interpretation of @fig-eda-monthly]**
+@fig-eda-monthly shows that claims arrive in short bursts linked to named storms (Katrina, Matthew, Irma, Florence, Ian, Helene, Milton). Between events, monthly counts are low. At the tract-year level, this means many zeros and a few very large counts, which motivates the negative binomial model and a Poisson objective that handles counts directly.
 
-![(a) Distribution of the paid amount on a log scale, (b) ratio of paid amount to coverage, (c) share of paid claims at the coverage cap by era.](../EDA/figures_v2/fig4_severity.png){#fig-eda-severity}
+![Share of missing values (a) by column and (b) by decade.](../EDA/figures_v2/fig1_missing.png){#fig-eda-missing}
 
-**[TO FILL BY TEAM: interpretation of @fig-eda-severity]**
+@fig-eda-missing shows that missingness in the claim records depends on the period: primary residence is missing for all claims before 2000, and flood duration is mostly missing in the 2020s. For the frequency models, the variables that matter come from the policies and are aggregated per tract, so claim-level missingness mainly affects the description. The missing tract, discussed in the Data section, is the missing value that matters most for the tract-year table.
 
 ## Bivariate Analysis
 
-![Paid amount (a) by flood zone group and (b) by elevation status.](../EDA/figures_v2/fig5_boxes.png){#fig-eda-boxes}
+### Claim frequency by state
 
-**[TO FILL BY TEAM: interpretation of @fig-eda-boxes]**
+```{python}
+#| label: tbl-freq-state
+#| tbl-cap: "Paid claims, policy-years and crude frequency per 1,000 policy-years by state, training (2010 to 2019) and test (2020 to 2024) periods."
+
+state_of_fips = {"01": "AL", "12": "FL", "13": "GA", "21": "KY", "28": "MS", "37": "NC", "45": "SC", "47": "TN"}
+zy = zone_year.assign(state=zone_year["county_fips"].astype("string").str[:2].map(state_of_fips))
+
+
+def state_table(first, last):
+    paid = claims[claims["loss_year"].between(first, last)].groupby("state", observed=True)["paid_flag"].sum()
+    exposure = zy[zy["year"].between(first, last)].groupby("state")["policy_years"].sum()
+    out = pd.DataFrame({"paid_claims": paid, "policy_years": exposure})
+    out.loc["Other seven states"] = out.drop(index="FL").sum()
+    out["per_1000"] = 1000 * out["paid_claims"] / out["policy_years"]
+    return out
+
+
+by_state = pd.concat({"train": state_table(2010, 2019), "test": state_table(2020, 2024)}, axis=1)
+fl_share_py = by_state.loc["FL", ("train", "policy_years")] / by_state.loc["Other seven states", ("train", "policy_years")]
+fl_share_py = fl_share_py / (1 + fl_share_py)
+fl_freq_train = by_state.loc["FL", ("train", "per_1000")]
+other_freq_train = by_state.loc["Other seven states", ("train", "per_1000")]
+fl_freq_test = by_state.loc["FL", ("test", "per_1000")]
+ian_helene = claims[claims["paid_flag"] & claims["floodEvent"].isin(["Hurricane Ian", "Hurricane Helene"])]
+ian_helene_fl_share = (ian_helene["state"] == "FL").mean()
+other_freq_test = by_state.loc["Other seven states", ("test", "per_1000")]
+display(by_state.round(2))
+```
+
+@tbl-freq-state shows the weight of Florida: `{python} f"{fl_share_py:.0%}"` of single-family policy-years in the training period. Yet over 2010 to 2019, Florida's crude frequency (`{python} f"{fl_freq_train:.2f}"` per 1,000 policy-years) is far below that of the other seven states together (`{python} f"{other_freq_train:.2f}"`): Florida has most claims because it has most policies, not because each policy is riskier. Over the test years the order reverses, with `{python} f"{fl_freq_test:.2f}"` in Florida against `{python} f"{other_freq_test:.2f}"` in the other states, because `{python} f"{ian_helene_fl_share:.0%}"` of the paid claims of Hurricanes Ian and Helene are in Florida. The relative risk of the two groups is therefore not stable over time. A model trained on 2010 to 2019 learns that Florida tracts claim less often and is likely to under-predict them in the test years. This supports reporting results for Florida and the other seven states separately (RQ2), since an overall metric would mostly reflect Florida.
+
+![(a) Claims and paid amounts by state, (b) the 15 counties with the most claims, 1978 to 2026.](../EDA/figures_v2/fig8_geography.png){#fig-eda-geography}
+
+@fig-eda-geography confirms the concentration of claims: Florida has by far the most claims, and a few coastal counties hold a large share of all claims. Location is therefore a strong driver of claim counts, which the tract-level unit and the historical claim count `hist_claims_1990_2008` are designed to capture.
 
 ![Payment rate by categorical variable. The dotted line is the overall payment rate.](../EDA/figures_v2/fig6_frequency.png){#fig-eda-payrate}
 
-**[TO FILL BY TEAM: interpretation of @fig-eda-payrate]**
-
-![(a) Water depth against paid amount (hexbin density), (b) median paid amount by depth class. Water depth is known only after the loss and is not a model feature.](../EDA/figures_v2/fig7_depth.png){#fig-eda-depth}
-
-**[TO FILL BY TEAM: interpretation of @fig-eda-depth]**
-
-![(a) Claims and paid amounts by state, (b) the 15 counties with the most claims.](../EDA/figures_v2/fig8_geography.png){#fig-eda-geography}
-
-**[TO FILL BY TEAM: interpretation of @fig-eda-geography]**
-
-![Payment rate and median paid amount by (a) event-grouped fold, (b) earlier time split and (c) major hurricane (Helene, Ian, Katrina) versus other claims.](../EDA/figures_v2/fig10_model_vars.png){#fig-eda-modelvars}
-
-**[TO FILL BY TEAM: interpretation of @fig-eda-modelvars; note that the folds and time split shown here belong to the earlier severity design, not to the 2010-2019 / 2020-2024 split used in this report]**
+@fig-eda-payrate shows the share of claims that end with a payment across claim characteristics. The overall rate is `{python} f"{eda_metrics['paid_rate']:.1%}"`. It varies little by flood zone, but it is higher in recent years and for claims coded under Risk Rating 2.0. Part of this change comes from the recoding of missing payments in older claims. The choice of claim definition can therefore shift the level of frequency over time, which is why the all-claims definition is kept as a sensitivity check.
 
 ## Correlation Analysis
 
 ![Spearman rank correlations between claim-level variables.](../EDA/figures_v2/fig9_correlation.png){#fig-eda-correlation}
 
-**[TO FILL BY TEAM: interpretation of @fig-eda-correlation]**
+@fig-eda-correlation shows mostly weak rank correlations between claim characteristics. The strongest are between building value and coverage, and between the year and building age, deductible and paid amount. The year correlates with several characteristics because the insured portfolio and the amounts change over time. This is a reason not to use the year as a feature: its effect would mix portfolio changes with the hazard of the training years, and it cannot be extrapolated to the test years.
 
 ## Key Findings
 
-**[TO FILL BY TEAM: main EDA findings, each referencing a figure, and how they inform the frequency models]**
+1. **Frequency is driven by event years** (@fig-freq-year, @fig-eda-monthly). A few hurricane years explain most claims, and counts between events are low. Tract-year counts will be overdispersed with many zeros, which motivates the negative binomial GLM and the Poisson objective.
+2. **The test window is harsher than the training window** (@tbl-freq-year). The two highest-frequency years of 2010 to 2024 are in the test period. Out-of-time totals will be hard to predict for every model, so calibration and ranking metrics are needed in addition to deviance.
+3. **Florida dominates volume, and its relative frequency is unstable** (@tbl-freq-state, @fig-eda-geography). Florida's frequency is far below that of the other states in the training years but above it in the test years. Results must be reported separately for Florida and the other seven states.
+4. **The claim definition matters over time** (@fig-eda-annual, @fig-eda-payrate). Payment rates change with the period and with the recoding of missing payments, which supports the paid-claims target and the all-claims sensitivity check.
+5. **The year carries portfolio changes** (@fig-eda-correlation). It is excluded from the features, and the policy features are aggregated per tract-year instead.
+
+**[TO FILL BY TEAM: tract-level EDA once `tract_year.parquet` is built (share of zero tract-years, distribution of counts, mean and variance of counts to measure overdispersion)]**
