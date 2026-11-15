@@ -1,0 +1,35 @@
+# Introduction
+
+## Project Goals
+
+This project studies the frequency of flood insurance claims in the National Flood Insurance Program (NFIP), using the redacted claims and policies published by OpenFEMA. The expected number of claims per unit of exposure is a central input to the pricing and risk assessment of an insurance portfolio, so the choice of the model that predicts it matters in practice.
+
+We compare a gradient boosting model, LightGBM with a Poisson objective, to two generalized linear models for counts, a Poisson GLM and a negative binomial GLM. The unit of analysis is the census tract by calendar year, with exposure measured in policy-years. The study covers FEMA Region 4 (Alabama, Florida, Georgia, Kentucky, Mississippi, North Carolina, South Carolina and Tennessee). Models are trained on 2010 to 2019 and evaluated on 2020 to 2024.
+
+### Adjustments to the Proposal
+
+- **From the whole United States to FEMA Region 4.** The national files contain 2,725,989 claims and 74,739,461 policy records. At this size, the policy file was too heavy to process comfortably and to share between team members. Restricting the study to the eight states of Region 4 (787,274 claims and 31,463,858 policy records) keeps a large and varied sample, with coastal and inland states, while making the files practical to process and exchange.
+- **Training window.** The training period starts in 2010 instead of 2009, because policy records start in 2009 and the exposure of that year is understated.
+- **Claim definition.** The target counts claims with a positive paid amount, and counting all claims is kept as a sensitivity check.
+- **Analysis table of this update.** The tract-year table needs the raw files and is still being built. The exploratory analysis of this update uses the same kind of table at the county, flood zone and year level (`ds_clean`), built from the cleaned files already in the repository.
+
+## Research Questions
+
+- **RQ1.** Does LightGBM with a Poisson objective predict tract-year flood claim frequency better than a Poisson GLM and a negative binomial GLM? GLMs offer an explicit and interpretable structure, while gradient boosting can capture non-linear effects and interactions without specifying them in advance. The question is whether this flexibility improves out-of-time predictions enough to justify the loss of transparency.
+- **RQ2 (to confirm by the team).** Does the comparison hold separately for Florida and for the other seven states? Florida accounts for about 71% of policy records and 57% of claims in Region 4, so overall metrics may mainly reflect Florida.
+
+Our hypotheses are the following:
+
+- **H1.** LightGBM reaches a lower test deviance than both GLMs, because flood risk is likely to depend on interactions (for example between flood zone and location, or between coverage and building characteristics) that a GLM with main effects does not capture.
+- **H2.** The Poisson and negative binomial GLMs give similar mean predictions, since they share the same mean structure; the negative binomial model mainly differs in the variance, so we expect small differences in deviance and calibration between them.
+- **H3.** All models under-predict total claims in the hurricane years of the test window, because no feature describes the hazard of a given year. The gap between years may therefore be larger than the gap between models, and the ranking metrics are the most informative for RQ1.
+
+## Related Work
+
+**Flood insurance claims.** @kousky2017flood study more than one million NFIP claims filed between 1978 and 2012 and summarize their main features in six findings. Their work uses the same program and the same type of data as ours, at the level of individual claims; we move to claim counts per tract and year, which requires the policy data to measure exposure.
+
+**Count models.** Generalized linear models, introduced by @nelder1972glm, provide the framework for our two benchmarks: a Poisson or negative binomial distribution, a log link and an offset for exposure. They are the classical tool for claim frequency because their coefficients are directly interpretable as multiplicative effects on the claim rate.
+
+**Gradient boosting in insurance pricing.** @henckaerts2021boosting build full tariff plans, for claim frequency and severity, with regression trees, random forests and boosted trees, and find that boosted trees outperform a classical GLM benchmark. They also propose tools to interpret the boosted models. LightGBM [@ke2017lightgbm] is an efficient implementation of gradient boosted decision trees that speeds up training through sampling and feature bundling, with nearly the same accuracy, which makes it practical for a dataset of our size.
+
+Our project tests whether the advantage of boosting found in insurance pricing carries over to flood claim frequency, with two features that make the comparison demanding: the data are redacted, so claims and policies can only be joined in aggregate, and the evaluation is out-of-time, on test years that contain major hurricanes.

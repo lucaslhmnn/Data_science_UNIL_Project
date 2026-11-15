@@ -1,0 +1,168 @@
+# Data
+
+## Sources
+
+The data come from OpenFEMA, the open data platform of the Federal Emergency Management Agency (FEMA). We use two datasets of version 3 of the National Flood Insurance Program (NFIP) data, NfipClaims and NfipPolicies:
+
+- Claims, full-file download: <https://www.fema.gov/about/reports-and-data/openfema/v3/NfipClaimsV3.parquet>
+- Policies, full-file download: <https://www.fema.gov/about/reports-and-data/openfema/v3/NfipPoliciesV3.parquet>
+- API documentation: <https://www.fema.gov/api/open/v3/NfipClaims> and <https://www.fema.gov/api/open/v3/NfipPolicies>
+
+The files are the full parquet downloads from fema.gov, not API pulls. They were downloaded on 2026-11-11, and the data are as of 2026-09-08. The national row counts match the OpenFEMA metadata (2,725,989 claims and 74,739,461 policy records), and the files are identical across the team's machines (SHA-256 checksums). Field names and code tables come from the OpenFEMA data dictionary (`OpenFemaDataSetFields.csv`, versioned in the repository).
+
+> *This product uses the Federal Emergency Management Agency's OpenFEMA API, but is not endorsed by FEMA.* The data used in this report were filtered and aggregated by the team and are not endorsed by FEMA.
+
+## Description
+
+- **Number of observations**: the raw files for FEMA Region 4 contain 787,274 claims and 31,463,858 policy records. Florida alone accounts for 448,535 claims (about 57%) and 22,377,729 policy records (about 71%). The size of the analysis table of this update, `ds_clean`, is given in @sec-ds-clean. **[TO FILL BY TEAM: number of tract-years in the modelling table, in total and per split, once `tract_year.parquet` is built]**
+- **Number of variables**: the columns of `ds_clean` are listed in @sec-ds-clean. The planned tract-year table has 12 columns (listed under key variables below): three keys, the target, two exposure measures, five aggregated policy features and one historical claim count.
+- **Time period**: claims cover loss years from 1978; policy records have effective dates from 2009. The modelling period is 2010 to 2024 (training 2010 to 2019, test 2020 to 2024).
+- **Geographic coverage**: FEMA Region 4, eight states: Alabama (AL), Florida (FL), Georgia (GA), Kentucky (KY), Mississippi (MS), North Carolina (NC), South Carolina (SC) and Tennessee (TN).
+- **Key variables** of the planned tract-year table (`data/processed/tract_year.parquet`, defined in the team's data contract):
+  - `tract_id`: the first 11 digits of `censusGeoid`, a 12-digit census block group code present in both datasets;
+  - `year`, `state`: keys, never used as features;
+  - `n_claims`: number of claims with a positive paid amount in the tract-year (target);
+  - `exposure_years`: exposure in policy-years (offset), and `n_policies`;
+  - aggregated policy features, built from fields checked in the data dictionary: mean building coverage (`totalBuildingInsuranceCoverage`), mean deductible (`buildingDeductibleCode`, converted to dollars), share of policies in the Special Flood Hazard Area (A and V zones of `ratedFloodZone`), share of pre-FIRM buildings (`postFIRMConstructionIndicator`; the field `preFIRMConstructionIndicator` is misnamed in v3 and indicates eligibility for the pre-FIRM subsidy) and share of single-family homes (`occupancyType`);
+  - `hist_claims_1990_2008`: number of claims in the tract from 1990 to 2008, a measure of past flood experience that is known before the modelling period.
+
+Claims and policies are redacted and share no identifier, so a claim cannot be linked to the policy that covered it. The two datasets are therefore joined only in aggregate, at the tract-year level.
+
+## Loading Data
+
+The cleaned files produced so far are versioned in the repository (`Data_cleaning/clean/`), so the report can be rendered without the raw files. They cover single-family homes (`occupancyType` 1 and 11): one row per claim (`claims_clean.parquet`), the excluded claims with the reason (`claims_anomalies.parquet`), and the policy exposure aggregated by flood zone, county and year (`zone_year.parquet`).
+
+```{python}
+#| label: load-data
+#| output: true
+
+import json
+
+import pandas as pd
+from IPython.display import display
+from quarto_runtime import project_root
+
+# project_root points to quarto_report/; the data live at the repository root, one level above.
+repo_root = project_root.parent
+clean_dir = repo_root / "Data_cleaning" / "clean"
+
+claims = pd.read_parquet(
+    clean_dir / "claims_clean.parquet",
+    columns=["loss_year", "state", "paid_flag", "paid_na_to_zero", "floodEvent"],
+)
+claims["loss_year"] = claims["loss_year"].astype(int)
+zone_year = pd.read_parquet(clean_dir / "zone_year.parquet")
+anomalies = pd.read_parquet(clean_dir / "claims_anomalies.parquet", columns=["motif"])
+
+# Analysis table of this update (county x flood zone x year), built by EDA/build_ds_clean.py
+ds = pd.read_csv(repo_root / "EDA" / "ds_clean.csv", dtype={"county_id": str, "zone": str, "state": str})
+ds_roles = json.loads((repo_root / "EDA" / "ds_clean_roles.json").read_text())
+# Key numbers written by the EDA script (EDA/eda.py)
+kn = json.loads((repo_root / "EDA" / "figures" / "eda_key_numbers.json").read_text())
+
+print(f"claims_clean:     {claims.shape[0]:,} rows")
+print(f"claims_anomalies: {anomalies.shape[0]:,} rows")
+print(f"zone_year:        {zone_year.shape[0]:,} rows x {zone_year.shape[1]} columns")
+print(f"ds_clean:         {ds.shape[0]:,} rows x {ds.shape[1]} columns")
+display(ds.head())
+```
+
+The tract-year table is not built yet. Once it exists, it will be loaded as follows:
+
+```{python}
+#| label: load-tract-year
+#| eval: false
+
+# To confirm by the team: expected location of the tract-year table at the repository root.
+tract_year_path = project_root.parent / "data" / "processed" / "tract_year.parquet"
+tract_year = pd.read_parquet(tract_year_path)
+print(f"Dataset shape: {tract_year.shape[0]} rows x {tract_year.shape[1]} columns")
+print(tract_year.dtypes)
+```
+
+## Wrangling
+
+```{python}
+#| label: wrangling-stats
+#| echo: false
+
+N_RAW_CLAIMS = 787_274  # raw Region 4 claims (verified count; raw file not versioned)
+
+n_clean = len(claims)
+n_anomalies = len(anomalies)
+n_single_family = n_clean + n_anomalies
+n_not_single_family = N_RAW_CLAIMS - n_single_family
+n_unpaid = int((~claims["paid_flag"]).sum())
+n_recoded = int(claims["paid_na_to_zero"].sum())
+
+py_total = zone_year["policy_years"].sum()
+py_no_tract = zone_year.loc[zone_year["county_fips"].isna(), "policy_years"].sum()
+share_py_no_tract = py_no_tract / py_total
+partial_years = ", ".join(str(y) for y in sorted(zone_year.loc[zone_year["partial_year"], "year"].unique()))
+
+# Missing tract among raw claims: computed only if the raw file is present locally.
+raw_candidates = [
+    repo_root / "data" / "raw_se" / "NfipClaimsV3_SE.parquet",
+    repo_root / "Data_cleaning" / "NfipClaimsV3_SE.parquet",
+]
+raw_claims_path = next((p for p in raw_candidates if p.exists()), None)
+if raw_claims_path is not None:
+    geoid = pd.read_parquet(raw_claims_path, columns=["censusGeoid"])["censusGeoid"]
+    n_claims_no_tract = int(geoid.isna().sum())
+    claims_no_tract_txt = f"{n_claims_no_tract:,} of {len(geoid):,} raw claims ({n_claims_no_tract / len(geoid):.2%})"
+else:
+    claims_no_tract_txt = "not computed (raw claims file not available on this machine)"
+```
+
+### General Transformations
+
+- **Geographic filter.** Rows from states outside FEMA Region 4 were removed from both national files.
+- **Claim cleaning.** Of the `{python} f"{N_RAW_CLAIMS:,}"` raw claims, `{python} f"{n_not_single_family:,}"` are not single-family homes and `{python} f"{n_anomalies:,}"` were set aside as anomalies (negative building age, exact duplicates, payment without coverage, negative payment; see @sec-appendix-tables), which leaves `{python} f"{n_clean:,}"` cleaned claims. Amounts are converted to real dollars with the BLS consumer price index.
+- **Exposure.** Each policy record is spread over the calendar years it covers, in proportion to the number of days (`policy_years` = `policyCount` x days / 365.25). Single-family policies give `{python} f"{py_total:,.0f}"` policy-years in total.
+- **Tract identifier.** The tract is the first 11 digits of the 12-digit block group code `censusGeoid`.
+- **Aggregation.** Since claims and policies cannot be linked individually, claims are counted and policy records are aggregated per tract and calendar year. Exposure enters the models through the offset $\log e_{it}$. For this update, the same aggregation is done per county, flood zone and year (`ds_clean`, @sec-ds-clean).
+- **Years kept.** The cleaning code flags the following exposure years as partial: `{python} partial_years`. 2009 is excluded because policy records start in 2009, so policies that began earlier and were still running are missing and the exposure of that year is understated. 2025 and later are excluded because claims for these years are incomplete.
+- **Claim definition.** The target counts claims with a positive paid amount. These are the losses the insurer actually covers, which is the frequency that matters for pricing. Claims closed without payment mix losses below the deductible, uncovered losses and recording issues: among the `{python} f"{n_unpaid:,}"` unpaid cleaned claims, `{python} f"{n_recoded:,}"` come from a missing payment recoded as zero, so their count is less reliable. Counting all claims is kept as a sensitivity check.
+- **Features.** The year is never a feature: a year effect estimated on 2010 to 2019 cannot be carried over to the test years. Variables not known at policy inception (current flood zone, cancellation information) are excluded because using them would leak information from after the start of the policy. Risk Rating 2.0 pricing variables (premiums, rates, surcharges) are excluded because they reflect the insurer's own rating rather than characteristics of the insured risk.
+
+### Analysis table of this update: `ds_clean` {#sec-ds-clean}
+
+```{python}
+#| label: ds-clean-stats
+#| echo: false
+
+drop = ds_roles["dropped"]
+n_paid_window = int((claims["loss_year"].between(2010, 2024) & claims["paid_flag"]).sum())
+py_window = zone_year.loc[zone_year["year"].between(2010, 2024), "policy_years"].sum()
+kept_claims = ds["n_claims"].sum() / n_paid_window
+kept_py = ds["exposure_years"].sum() / py_window
+
+ds_tr = ds[ds["period"] == "train"]
+zone_tr = ds_tr.groupby("zone")[["n_claims", "exposure_years"]].sum()
+zone_tr["claim_share"] = zone_tr["n_claims"] / zone_tr["n_claims"].sum()
+zone_tr["per_1000"] = 1000 * zone_tr["n_claims"] / zone_tr["exposure_years"]
+state_tr = ds_tr.groupby("state")[["n_claims", "exposure_years"]].sum()
+state_tr["claim_share"] = state_tr["n_claims"] / state_tr["n_claims"].sum()
+state_tr["per_1000"] = 1000 * state_tr["n_claims"] / state_tr["exposure_years"]
+fl_rank = int(state_tr["per_1000"].rank(ascending=False)["FL"])
+```
+
+The tract-year table needs the raw files and is still being built. To run the exploratory analysis of this update with the right unit and target, we built the same kind of table at a coarser level from the cleaned files already in the repository: `ds_clean` (`EDA/ds_clean.csv`, made by `EDA/build_ds_clean.py`), with one row per county, flood zone and year from 2010 to 2024. It has `{python} f"{len(ds):,}"` rows (`{python} f"{(ds['period'] == 'train').sum():,}"` in the training period and `{python} f"{(ds['period'] == 'test').sum():,}"` in the test period) and `{python} ds.shape[1]` columns, and covers `{python} ds_roles["counties"]` counties and three flood zone groups: V (coastal zones exposed to waves), A (the 100-year floodplain) and X (moderate to low risk). V and A form the Special Flood Hazard Area.
+
+Since claims and policies share no identifier, the table is built from two independent counts brought to the same level and placed side by side: the paid claims of each county, zone and year from `claims_clean.parquet`, and the policy-years of the same county, zone and year from `zone_year.parquet`. A county-zone-year with policies but no claim gets a count of zero, which is a true zero and not an imputed value. No value is imputed or modified. The table keeps `{python} f"{kept_claims:.1%}"` of the paid claims of 2010 to 2024 and `{python} f"{kept_py:.1%}"` of the policy-years; the rest are claims without county (`{python} f"{drop['claims_without_county_share']:.2%}"`) or in zone D or without zone (`{python} f"{drop['claims_zone_D_or_unknown_share']:.2%}"`), set aside on purpose.
+
+The table contains the target `n_claims` (claims with a positive building paid amount), the offset `exposure_years`, the features `zone`, `mean_coverage`, `hist_claims_1990_2008`, `hist_per_1000` and `county_hist_per_1000` (flood zone, mean building coverage in nominal dollars, and paid claims of 1990 to 2008 for the cell and for the county, also per 1,000 average policies of the training years), and control variables used for description and checks only (period, all claims, claims from the largest events, raw frequency, low-exposure flag). Neither the year nor the premiums are features.
+
+Joining claims with exposure is necessary: a frequency needs both the number of claims and the number of policies exposed, and counting claims alone gives a misleading picture of risk. Over the training years, the V zones hold only `{python} f"{zone_tr.loc['V*', 'claim_share']:.1%}"` of the paid claims, yet their frequency (`{python} f"{zone_tr.loc['V*', 'per_1000']:.1f}"` per 1,000 policy-years) is about four times that of the X zones (`{python} f"{zone_tr.loc['X', 'per_1000']:.1f}"`). Florida has the most claims (`{python} f"{state_tr.loc['FL', 'claim_share']:.0%}"`) but the lowest frequency of the eight states (rank `{python} fl_rank` of 8, `{python} f"{state_tr.loc['FL', 'per_1000']:.1f}"` per 1,000 policy-years), because it holds most of the policies. The flood zone is kept as a dimension rather than averaged per county, because it is the clearest risk factor in the data (@fig-eda-zone).
+
+### Spotting Mistakes and Missing Data
+
+- **Missing tract.** `censusGeoid` is missing for `{python} claims_no_tract_txt`, and for `{python} f"{share_py_no_tract:.2%}"` of single-family policy-years. These records cannot be assigned to a tract and are left out of the tract-year table; the small shares make this loss minor.
+- **Tract vintage.** Tract boundaries can change between census vintages, which would break a 2010 to 2024 tract panel. A national check shows that 99.97% of claims from 1990 to 2008 have a tract that is also present in the policies, and that the number of tracts per year is stable, with no break in 2020 (to reconfirm on Region 4). **[TO FILL BY TEAM: result of the tract vintage check on Region 4, once the tract-year table is built]**
+- **Recoded payments.** Missing payments with a zero net payment were recoded as unpaid in the cleaned claims and flagged (`paid_na_to_zero`). This affects the all-claims sensitivity check but not the main target, which only counts positive payments.
+- **Post-loss variables.** Water depth, flood duration and the adjuster's building value are recorded after the loss. They are kept for description only and never used as features.
+
+### Listing Anomalies and Outliers
+
+- **Event years.** Claims are concentrated in a few hurricane years (@sec-eda). The test window contains Hurricane Ian (2022) and Hurricane Helene (2024). These years are real losses, not errors, so they are kept without capping: excluding them would remove exactly the situations a flood frequency model must handle. Their effect is monitored through predicted versus observed totals per test year.
+- **Zero counts.** `{python} f"{kn['zero_share']:.0%}"` of the county-zone-years of `ds_clean` have no paid claim, and the largest count is `{python} f"{kn['max_count']:,}"` (@fig-eda-dispersion). The share of zeros will be higher at the tract level, where units are smaller. **[TO FILL BY TEAM: share of tract-years with zero claims, once the tract-year table is built]**

@@ -2,24 +2,21 @@
 
 ## Summary
 
-This project asks whether LightGBM with a Poisson objective predicts flood insurance claim frequency better than a Poisson GLM and a negative binomial GLM, at the level of the census tract and calendar year in FEMA Region 4. So far, the OpenFEMA NFIP v3 claims and policies files have been downloaded and checked against the official metadata, and the study was restricted to the eight states of Region 4 to keep the data manageable for the team. Claims have been cleaned, with every excluded record kept and documented, and policy exposure has been computed in policy-years by spreading each policy over the calendar years it covers. Claims and exposure have been joined in an analysis table by county, flood zone and year (`ds_clean`). Its exploratory analysis shows that claim frequency is driven by a few hurricanes rather than by the portfolio; that counts have many zeros and are strongly overdispersed, even within a year and a flood zone; that the flood zone and past claims are the clearest risk factors; and that the test window 2020 to 2024 differs from the training years, with `{python} f"{kn['test_share_claims']:.0%}"` of the claims for `{python} f"{kn['test_share_exposure']:.0%}"` of the exposure and other places hit, Florida in particular. The modelling design is fixed in advance: three models with the same features and offset, forward-chaining validation on 2010 to 2019, and four metrics on the test years, reported overall and for Florida versus the other states.
+We set out to test whether a machine learning method, LightGBM, predicts flood insurance claims better than the classical GLMs that insurers rely on, using FEMA's records for the eight states of the Southeast. So far, we have downloaded and verified the data, cleaned the claims, measured how many homes were insured each year, and joined the two in a single table by county, flood zone and year.
+
+The exploration of this table tells a clear story. Flood claims are driven by a few hurricanes, not by the size of the insured portfolio. Most places have no claim in a given year while a few have thousands, far more variation than a Poisson model allows. The flood zone and past claims are the clearest signals of risk. And the test years are unusual: they hold most of the claims, and the storms struck places, Florida above all, that had been relatively spared in the previous decade. We therefore expect all models to under-predict the test years, and the comparison to be decided by how well each one ranks places by risk.
 
 ## Limitations
 
-The following limitations are known at this stage (to confirm by the team):
-
-- **Risk Rating 2.0.** The NFIP rating system changed in 2021, inside the test window, so the insured portfolio may differ between training and test years.
-- **Mandatory purchase.** Flood insurance is mandatory only in high-risk zones, so the insured portfolio is not representative of all properties, and the models describe claim frequency among insured policies only.
-- **Rounded location.** Locations in the redacted data are rounded, so the assignment of records to tracts can be imprecise.
-- **Missing tract.** The tract is missing for some records, which are lost for the tract-year analysis.
-- **Event concentration.** Claims are concentrated in event years, and the test window contains Hurricane Ian (2022) and Hurricane Helene (2024). Test metrics may therefore depend on a few events.
-- **Tract vintage.** Tract stability was checked nationally and still has to be reconfirmed on Region 4.
-- **Scope of the current EDA.** The exploratory analysis uses `ds_clean`, at the county, flood zone and year level, rather than the tract level. It covers single-family homes only, and the features other than the zone are averaged within each county.
+- **Insured homes only.** Flood insurance is mandatory only in high-risk zones, so the data describe insured homes, not all homes.
+- **County level for now.** This update works by county and flood zone. Within a county, homes on the coast and inland are mixed, which blurs some differences; the final table by census tract will be finer.
+- **A few storms decide a lot.** With Ian and Helene in the test years, the results may depend heavily on two events.
+- **A changing system.** The NFIP changed its pricing in 2021, inside the test period, which may have changed who is insured.
+- **Approximate locations.** The anonymized data give rounded locations, so some records may be assigned to the wrong area.
 
 ## Future Work
 
-1. **Build the tract-year table** (`tract_year.parquet`): count paid claims and all claims per tract and year, aggregate policy exposure and features per tract and year, add the historical claim count for 1990 to 2008, and reconfirm the tract vintage on Region 4.
-2. **Repeat the EDA at the tract level**: `EDA/eda.py` already produces the figures of @sec-eda from a unit-by-year table, so the share of zeros, the overdispersion, the feature relations and the persistence between periods can be checked on the tract-year table once it exists.
-3. **Fit the three models** with forward-chaining validation on 2010 to 2019, then evaluate them once on 2020 to 2024 with the four metrics, overall and for Florida versus the other seven states.
-4. **Run the sensitivity check** with all claims as target, and discuss whether the ranking of the models changes.
-5. **Complete the report**: related work, interpretation of the results and final conclusions.
+1. **Build the table by census tract**, with the same structure as `ds_clean`, and check that tract boundaries are stable over 2010 to 2024.
+2. **Run the exploration again on that table** with `EDA/eda.py`.
+3. **Fit and evaluate the three models**, overall and for Florida versus the other states.
+4. **Check the claim definition**, by refitting the models on all claims.

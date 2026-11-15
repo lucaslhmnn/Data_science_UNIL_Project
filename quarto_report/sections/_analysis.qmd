@@ -1,8 +1,6 @@
 # Methods
 
-Let $N_{it}$ be the number of claims in tract $i$ and year $t$, $e_{it}$ the exposure in policy-years, and $\mathbf{x}_{it}$ the vector of features built from policy information known at inception. All three models predict the expected count $\mu_{it}$ with $\log e_{it}$ as an offset, so they share the same target and the same exposure adjustment.
-
-The three models use the same feature set, so that differences in performance come from the model and not from the information it receives. The GLMs receive transformed versions of the features where needed (for example the logarithm of mean coverage, and an indicator for missing values), while LightGBM uses them directly, since trees are insensitive to monotone transformations.
+All three models answer the same question: given what we know about a place before the year starts, how many paid claims should we expect there, per insured home? Let $N_{it}$ be the number of claims in area $i$ and year $t$, $e_{it}$ the number of policy-years, and $\mathbf{x}_{it}$ the facts known in advance (flood zone, coverage, past claims). Each model predicts the expected count $\mu_{it}$, and each takes the number of insured homes into account in the same way, through an offset $\log e_{it}$: twice as many homes means twice as many expected claims, all else equal. The three models receive the same information, so differences in performance come from the models themselves.
 
 ## Poisson GLM
 
@@ -10,7 +8,7 @@ $$
 N_{it}\sim\text{Poisson}(\mu_{it}),\qquad \log\mu_{it}=\log e_{it}+\mathbf{x}_{it}^\top\boldsymbol\beta
 $$ {#eq-poisson}
 
-The Poisson GLM is the reference model for claim counts. The log link makes the effects multiplicative, and the offset turns the model into a model of the claim rate per policy-year, so tracts with different exposure are directly comparable. It assumes that the variance equals the mean, which the next model relaxes.
+The Poisson GLM is the textbook model for claim counts. Each feature multiplies the claim rate by a fixed factor, which makes the model easy to read: for example, "homes in V zones file $k$ times more claims than homes in X zones". Its weakness is that it assumes the variance of the counts equals their mean.
 
 ## Negative Binomial GLM
 
@@ -18,43 +16,35 @@ $$
 \text{Var}(N_{it})=\mu_{it}+\alpha\mu_{it}^2
 $$ {#eq-nb}
 
-The negative binomial GLM keeps the mean structure of @eq-poisson and adds a dispersion parameter $\alpha$, estimated jointly with $\boldsymbol\beta$ by maximum likelihood. The EDA shows that counts vary much more than a Poisson model allows: at the county-zone level, the Pearson dispersion is about `{python} f"{pearson / df_disp:.0f}"` within a year and zone, against 1 under a Poisson model, and a negative binomial variance function fits the observed variance far better (@fig-eda-dispersion). The Poisson model is the limit $\alpha \to 0$, so the comparison shows whether modelling overdispersion changes the predictions or only their uncertainty.
+The negative binomial GLM keeps the same structure as @eq-poisson but lets the variance grow faster than the mean, through an extra parameter $\alpha$. This is exactly what the data show: counts vary about `{python} f"{pearson / df_disp:.0f}"` times more than a Poisson model expects (@fig-eda-dispersion). We expect it to give similar average predictions to the Poisson model, but a more honest picture of their uncertainty.
 
 ## LightGBM with Poisson Objective
 
-LightGBM fits gradient boosted trees by minimizing the Poisson negative log-likelihood, with $\log e_{it}$ as initial score. The initial score plays the role of the offset, so the trees learn the log claim rate relative to exposure, as in the GLMs. Unlike the GLMs, the trees can capture non-linear effects and interactions without specifying them in advance, which is the flexibility that RQ1 evaluates.
-
-The hyperparameters tuned are the number of leaves, the learning rate, the minimum number of observations per leaf and the share of features used per tree. The number of boosting rounds is chosen by early stopping on the validation year of each fold. All random operations use a fixed seed (42), so that results are reproducible.
+LightGBM builds hundreds of small decision trees, each one correcting the errors of the previous ones. It uses the same Poisson loss and the same offset as the GLMs, so it predicts the same quantity. The difference is flexibility: the trees can discover on their own that, say, the effect of the flood zone depends on the location, where a GLM would need us to specify this in advance. RQ1 asks whether this flexibility pays off on years the model has never seen. Its settings (size of the trees, learning speed) are tuned on the training years, and a fixed random seed makes the results reproducible.
 
 ## Validation
 
-Hyperparameters and model choices are selected by forward-chaining validation inside 2010 to 2019: each fold trains on all earlier years and validates on the following year. We plan four folds: train 2010 to 2015 and validate on 2016, then validate on 2017, 2018 and 2019 in turn, each time adding the previous validation year to the training set. The validation years include both high-frequency years (2016 to 2018) and a quiet year (2019), so the selected settings are not tuned to a single regime. This respects the time order and mimics the real task of predicting future years without using future information. The final models are refitted on 2010 to 2019 with the selected settings, and the test years 2020 to 2024 are used only once, for the final evaluation.
+To mimic the real task of predicting the future from the past, settings are chosen by forward validation within 2010 to 2019: train on the earlier years, check on the next one, then move forward one year at a time. The checking years include both stormy years (2016 to 2018) and a quiet one (2019). The final models are then refitted on 2010 to 2019 and evaluated once, on 2020 to 2024.
 
 ## Metrics
 
-All metrics are fixed in advance, before looking at the test years.
+The metrics are fixed in advance, before looking at the test years, and each answers a different question:
 
-- **Poisson deviance** on the test years:
-  $$
-  D=2\sum_{i,t}\left[y_{it}\log\frac{y_{it}}{\hat\mu_{it}}-(y_{it}-\hat\mu_{it})\right],
-  $$ {#eq-deviance}
-  with $y_{it}\log(y_{it}/\hat\mu_{it})=0$ when $y_{it}=0$. It is the natural loss for count predictions and the quantity the Poisson models optimize, so it compares the three models on a common scale. Lower is better.
-- **Calibration by prediction decile.** Test tract-years are grouped into ten classes of predicted frequency, and predicted and observed claims are compared in each class. This shows whether a model is biased for low-risk or high-risk tracts, which the deviance alone does not reveal.
-- **Gini index.** Tract-years are sorted by predicted frequency, and the cumulative share of exposure is plotted against the cumulative share of observed claims (ordered Lorenz curve). The Gini index is twice the area between this curve and the diagonal, normalized by the value obtained when sorting by observed frequency, so that a perfect ranking scores 1. Weighting by exposure gives tracts with more policies more importance, as in a portfolio. It measures how well a model ranks tract-years from low to high risk, independently of the level of the predictions, which is what matters for risk segmentation.
-- **Predicted versus observed totals per test year.** This checks aggregate bias year by year, which matters because the test window contains Hurricane Ian (2022) and Hurricane Helene (2024).
+- **Poisson deviance**: how close are the predicted counts to the observed ones overall? Lower is better.
+- **Calibration by decile**: grouping areas from least to most risky according to the model, does each group get roughly the number of claims predicted?
+- **Gini index**: does the model rank areas in the right order, from safe to risky? This matters most for pricing, and it does not depend on the overall level of the predictions.
+- **Predicted versus observed totals per test year**: how far off is the model in each hurricane year?
 
-Results are reported overall and for Florida versus the other seven states, because Florida accounts for about 71% of policy records and 57% of claims and could dominate the overall metrics.
-
-**Sensitivity check.** The models are refitted with a target that counts all claims, not only claims with a positive paid amount, to check whether the comparison depends on the claim definition.
+Results are reported overall and separately for Florida and the other seven states (RQ2). As a check, the models are also refitted on all claims rather than paid claims only.
 
 # Findings and Discussion
 
-No model has been fitted at this stage: the tract-year table, which the models are designed for, is still being built. The preliminary findings come from the exploratory analysis of `ds_clean` and shape what we expect from the models.
+No model has been fitted yet, but the exploration already tells us what to expect.
 
-**The level of the test years will be under-predicted.** The frequency is `{python} f"{kn['freq_train']:.2f}"` paid claims per 1,000 policy-years over the training years and `{python} f"{kn['freq_test']:.2f}"` over the test years (@fig-eda-years), and the test years hold `{python} f"{kn['test_share_claims']:.0%}"` of the claims for `{python} f"{kn['test_share_exposure']:.0%}"` of the exposure (@fig-eda-concentration). A model well calibrated on 2010 to 2019 will thus predict too few claims in total for 2020 to 2024, whatever its type, because no feature describes the hazard of a given year. This supports H3. The totals per test year will measure how large this common bias is in the hurricane years.
+**All models will predict too few claims in the test years.** The frequency rises from `{python} f"{kn['freq_train']:.1f}"` claims per 1,000 policy-years in 2010 to 2019 to `{python} f"{kn['freq_test']:.1f}"` in 2020 to 2024 (@fig-eda-years). A model calibrated on the first decade cannot anticipate Ian or Helene. This supports H3, and the totals per year will show how large the gap is.
 
-**Ranking will be hard too.** The frequency of a county-zone cell in the training years barely predicts its frequency in the test years (rank correlation `{python} f"{kn['persistence_spearman']:.2f}"`, @fig-eda-persistence): the hurricanes of the test window hit other places. Florida's frequency is far below that of the other states in the training years (`{python} f"{fl_freq_train:.2f}"` against `{python} f"{other_freq_train:.2f}"` per 1,000 policy-years) but above it in the test years (`{python} f"{fl_freq_test:.2f}"` against `{python} f"{other_freq_test:.2f}"`, @tbl-freq-state). A more flexible model could learn the pattern of the training years more closely and suffer more from this shift, or rank places better within each group. The split by state (RQ2) and the calibration by decile are designed to tell these cases apart.
+**Ranking places by risk will be the real test.** Because the places hit change from one decade to the next (@fig-eda-persistence), even the ranking of areas will be hard to get right. LightGBM could gain by finding finer patterns, or lose by fitting too closely to the storms of the 2010s; the Gini index and the calibration by decile are designed to tell which.
 
-**The features carry signal, but limited.** The flood zone separates the frequency clearly (about four times higher in V zones than in X zones, @fig-eda-zone), and past claims are the other informative feature (@fig-eda-features). The strong overdispersion (@fig-eda-dispersion) means that the negative binomial and Poisson GLMs should give similar mean predictions with different uncertainty, as stated in H2, so the comparison with LightGBM will rest mainly on deviance, Gini index and calibration.
+**Florida is the case to watch.** It looked relatively safe in the training years and was hit hardest in the test years (@tbl-freq-state). Reporting Florida separately (RQ2) will show whether a model's apparent success or failure comes from a single state.
 
-These expectations will be tested once the models are fitted, and the results will be reported with the metrics above.
+**The two GLMs should look alike.** With the same structure for the mean, they should give close predictions (H2); the negative binomial model should mainly describe the uncertainty better, given how dispersed the counts are.

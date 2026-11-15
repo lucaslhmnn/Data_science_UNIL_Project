@@ -13,3 +13,6 @@ quarto_report/.quarto/
 quarto_report/*_files/
 quarto_report/data/
 quarto_report/*.html
+quarto_report/archive_v1_technical/*.html
+quarto_report/archive_v1_technical/*_files/
+quarto_report/archive_v1_technical/.quarto/

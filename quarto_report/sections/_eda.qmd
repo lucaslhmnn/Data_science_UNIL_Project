@@ -1,6 +1,6 @@
 # EDA {#sec-eda}
 
-The exploratory analysis is run on the analysis table `ds_clean` described in @sec-ds-clean: one row per county, flood zone and year from 2010 to 2024, with the number of paid claims and the exposure in policy-years. The figures are produced by `EDA/eda.py` and saved in `EDA/figures/`; every number quoted below is read from the file of key numbers written by the same script (`EDA/figures/eda_key_numbers.json`) or computed from `ds_clean` in this report. A "cell" is one county and flood zone, and frequencies are paid claims per 1,000 policy-years. Relations between features and frequency use the training years only, so that no information from the test years is used.
+The exploration follows four questions an insurer would ask: when do claims happen, how are they spread, where is the risk, and does the past predict the future. All figures come from `EDA/eda.py` applied to `ds_clean`, and frequencies are paid claims per 1,000 policy-years. Wherever features are compared with frequency, only the training years are used.
 
 ```{python}
 #| label: eda-stats
@@ -10,9 +10,9 @@ from scipy import stats
 
 fby = {int(y): f for y, f in kn["freq_by_year"].items()}
 min_year, max_year = min(fby, key=fby.get), max(fby, key=fby.get)
+second_year = sorted(fby, key=fby.get)[-2]
 by_year_ds = ds.groupby("year")[["n_claims", "exposure_years"]].sum()
 py_change = by_year_ds["exposure_years"].iloc[-1] / by_year_ds["exposure_years"].iloc[0] - 1
-second_year = sorted(fby, key=fby.get)[-2]
 
 # Pearson dispersion test, training years: expected count with one rate per year and zone
 tr = ds[ds["period"] == "train"].copy()
@@ -26,29 +26,35 @@ disp_p = stats.chi2.sf(pearson, df_disp)
 
 ## Univariate Analysis
 
-![Exposure, paid claims and frequency by year, 2010 to 2024. (a) Policy-years in force; (b) paid claims, with the largest events named; (c) paid claims (line) and all claims (dashed) per 1,000 policy-years, log scale. Test years shaded.](../EDA/figures/eda_1_exposure_claims.png){#fig-eda-years}
+### When do claims happen?
 
-@fig-eda-years separates the two parts of the frequency. Exposure changes slowly, by `{python} f"{py_change:+.0%}"` between 2010 and 2024 (panel a). Claims do not: the yearly frequency ranges from `{python} f"{fby[min_year]:.1f}"` paid claims per 1,000 policy-years in `{python} min_year` to `{python} f"{fby[max_year]:.1f}"` in `{python} max_year`, a factor of `{python} f"{kn['freq_max_min_ratio']:.0f}"` (panel c). The peaks are hurricane years (Matthew, Irma, Florence, Ian, Helene), and the two highest years, `{python} max_year` and `{python} second_year`, are both in the test window. The dashed line, which counts all claims, follows the same pattern, so the choice of claim definition does not change the picture.
+![Insured homes and claims per year, 2010 to 2024. (a) Policy-years in force; (b) paid claims, with the largest hurricanes named; (c) claims per 1,000 policy-years, log scale (dashed: all claims). Test years shaded.](../EDA/figures/eda_1_exposure_claims.png){#fig-eda-years}
 
-This matters for the models in two ways. Most of the variation from one year to the next comes from the hazard of the year, which no policy feature describes: the models can learn which places are more exposed when a flood occurs, not when it occurs. And the offset is essential, since the number of policies changes over the period.
+The number of insured homes barely moves from one year to the next, drifting down by `{python} f"{abs(py_change):.0%}"` over fifteen years (@fig-eda-years, panel a). Claims, on the other hand, come in waves. In a quiet year such as `{python} min_year`, about `{python} f"{fby[min_year]:.1f}"` insured homes in 1,000 file a paid claim; in `{python} max_year`, the year of Hurricanes Helene and Milton, it is `{python} f"{fby[max_year]:.1f}"`, `{python} f"{kn['freq_max_min_ratio']:.0f}"` times more. Every peak has a name: Matthew, Irma, Florence, Ian, Helene. The two worst years, `{python} max_year` and `{python} second_year`, both fall in the test period.
 
-![Distribution of paid claim counts per county-zone-year. (a) Share of county-zone-years by number of paid claims, 2010 to 2024; (b) variance against mean of the counts in 25 groups of expected count, training years, with the Poisson line (variance equal to the mean) and a negative binomial curve.](../EDA/figures/eda_2_overdispersion.png){#fig-eda-dispersion}
+The lesson for our models is humbling. What makes one year worse than another is the weather, which no insurance record can foresee. A model can hope to learn *where* claims are likely when a storm hits, not *when* a storm will hit.
 
-@fig-eda-dispersion shows the shape of the target. `{python} f"{kn['zero_share']:.0%}"` of the county-zone-years have no paid claim, while the largest count reaches `{python} f"{kn['max_count']:,}"` (panel a). The variance grows much faster than the mean (panel b): the observed points lie far above the Poisson line and close to a negative binomial curve with $\alpha \approx$ `{python} f"{kn['nb_alpha_moments']:.1f}"` (method of moments). The Pearson dispersion statistic, which equals 1 under a Poisson model, is `{python} f"{kn['dispersion_overall']:.0f}"` overall and still `{python} f"{pearson / df_disp:.0f}"` once the frequency is allowed to differ by year and flood zone; the test of equidispersion rejects the Poisson assumption ($\chi^2$ = `{python} f"{pearson:,.0f}"` on `{python} f"{df_disp:,}"` degrees of freedom, p `{python} "< 0.001" if disp_p < 0.001 else f"= {disp_p:.3f}"`). Counts are therefore strongly overdispersed, even within a year and a zone. A Poisson GLM would understate the uncertainty of its estimates, which motivates the negative binomial GLM, and LightGBM with a Poisson objective is compared on the same footing through the deviance.
+### Many quiet places, a few disasters
 
-![Concentration of paid claims, 2010 to 2024. (a) Cumulative share of paid claims against the share of county-zone-years ranked by claims, log scale; (b) the ten largest named events by paid claims, test-period events in orange.](../EDA/figures/eda_3_concentration.png){#fig-eda-concentration}
+![(a) Share of county-zone-years by number of paid claims; (b) variance against mean of the counts, training years, compared with a Poisson model (dotted) and a negative binomial model (orange).](../EDA/figures/eda_2_overdispersion.png){#fig-eda-dispersion}
 
-@fig-eda-concentration shows how concentrated the claims are: the top 1% of county-zone-years hold `{python} f"{kn['top1pct_unit_years_share']:.0%}"` of the paid claims and the top 5% hold `{python} f"{kn['top5pct_unit_years_share']:.0%}"` (panel a). The ten largest events account for `{python} f"{kn['top10_events_share']:.0%}"` of the claims, and the two largest, Helene and Ian, fall in the test window (panel b). Overall, the test years hold `{python} f"{kn['test_share_claims']:.0%}"` of the paid claims for only `{python} f"{kn['test_share_exposure']:.0%}"` of the exposure. A few observations will weigh heavily on the fit and on the test metrics, which is why the evaluation also looks at predicted versus observed totals per test year.
+Most places, most years, have no claim at all: this is the case for `{python} f"{kn['zero_share']:.0%}"` of the county-zone-years (@fig-eda-dispersion, panel a). At the other end, a single county and zone recorded `{python} f"{kn['max_count']:,}"` paid claims in one year. Such contrasts break a key assumption of the Poisson model, that the variance of the counts equals their mean. Panel (b) shows that the variance is far larger, even when comparing places in the same year and flood zone, where it is about `{python} f"{pearson / df_disp:.0f}"` times what a Poisson model expects (a dispersion test rejects the Poisson assumption, p `{python} "< 0.001" if disp_p < 0.001 else f"= {disp_p:.3f}"`). The negative binomial model, built for this situation, fits much better. This is the reason it is part of our comparison.
+
+![Concentration of paid claims, 2010 to 2024. (a) Cumulative share of claims held by the county-zone-years with the most claims; (b) the ten largest events, test-period events in orange.](../EDA/figures/eda_3_concentration.png){#fig-eda-concentration}
+
+The same story appears from another angle in @fig-eda-concentration. Just 1% of the county-zone-years hold `{python} f"{kn['top1pct_unit_years_share']:.0%}"` of all paid claims, and ten storms account for `{python} f"{kn['top10_events_share']:.0%}"` of them. The two largest, Helene and Ian, are in the test period, which as a result holds `{python} f"{kn['test_share_claims']:.0%}"` of the claims of 2010 to 2024 for only `{python} f"{kn['test_share_exposure']:.0%}"` of the insured homes.
 
 ## Bivariate Analysis
 
-![Paid claims per 1,000 policy-years by flood zone, training (2010 to 2019) and test (2020 to 2024) periods. The labels give the share of policy-years in each zone.](../EDA/figures/eda_4_zone.png){#fig-eda-zone}
+### Where is the risk?
 
-@fig-eda-zone shows that the flood zone separates the frequency clearly. Over the training years, the frequency is `{python} f"{kn['zone_freq']['train']['V*']:.1f}"` per 1,000 policy-years in the coastal V zones, `{python} f"{kn['zone_freq']['train']['A*']:.1f}"` in the A zones and `{python} f"{kn['zone_freq']['train']['X']:.1f}"` in the moderate to low risk X zones. The order V > A > X holds in the test years too, where the A and V zones are hit much harder by the hurricanes while the X zones stay at the same level. The V zones carry only `{python} f"{kn['zone_share_exposure']['V*']:.1%}"` of the policy-years, so their high risk is invisible in claim counts alone (@sec-ds-clean). The zone is the clearest risk factor in the data, which is why `ds_clean` keeps it as a dimension instead of averaging it per county.
+![Paid claims per 1,000 policy-years by flood zone, training and test periods. The labels give each zone's share of insured homes.](../EDA/figures/eda_4_zone.png){#fig-eda-zone}
+
+FEMA's flood map works. Over the training years, homes in the coastal V zones file about `{python} f"{kn['zone_freq']['train']['V*']:.0f}"` paid claims per 1,000 policy-years, those in the A floodplain about `{python} f"{kn['zone_freq']['train']['A*']:.0f}"`, and those in the low-risk X zones about `{python} f"{kn['zone_freq']['train']['X']:.1f}"` (@fig-eda-zone). The ranking holds in the test years, when the hurricanes hit the A and V zones much harder while the X zones barely change. The flood zone is the clearest risk factor in the data, which is why `ds_clean` keeps it as a separate dimension.
 
 ```{python}
 #| label: tbl-freq-state
-#| tbl-cap: "Paid claims, policy-years and frequency per 1,000 policy-years by state, training (2010 to 2019) and test (2020 to 2024) periods, computed from ds_clean."
+#| tbl-cap: "Paid claims, policy-years and claims per 1,000 policy-years by state, training (2010 to 2019) and test (2020 to 2024) periods."
 
 def state_table(period):
     part = ds[ds["period"] == period].groupby("state")[["n_claims", "exposure_years"]].sum()
@@ -70,20 +76,21 @@ display(by_state.round({("train", "exposure_years"): 0, ("test", "exposure_years
                         ("train", "per_1000"): 2, ("test", "per_1000"): 2}))
 ```
 
-@tbl-freq-state shows the weight of Florida, with `{python} f"{fl_share_py:.0%}"` of the policy-years of the training period. Over 2010 to 2019, Florida's frequency (`{python} f"{fl_freq_train:.2f}"` per 1,000 policy-years) is far below that of the other seven states together (`{python} f"{other_freq_train:.2f}"`): Florida has most claims because it has most policies, not because each policy is riskier. In the test years the order reverses, with `{python} f"{fl_freq_test:.2f}"` in Florida against `{python} f"{other_freq_test:.2f}"` elsewhere, because `{python} f"{ian_helene_fl_share:.0%}"` of the paid claims of Hurricanes Ian and Helene are in Florida. A model trained on 2010 to 2019 learns that Florida claims less often and is likely to under-predict it in the test years, which supports reporting results for Florida and the other seven states separately (RQ2).
+Florida tells a story of its own (@tbl-freq-state). It holds `{python} f"{fl_share_py:.0%}"` of the insured homes, yet from 2010 to 2019 its frequency (`{python} f"{fl_freq_train:.1f}"` per 1,000) was far below that of the other states (`{python} f"{other_freq_train:.1f}"`), which were hit by floods in the Carolinas and Tennessee. Then Ian and Helene, with `{python} f"{ian_helene_fl_share:.0%}"` of their paid claims in Florida, reversed the order: `{python} f"{fl_freq_test:.1f}"` in Florida against `{python} f"{other_freq_test:.1f}"` elsewhere. A model trained on the 2010s learns that Florida is relatively safe, just before the opposite happens. This is why we report results for Florida and the other states separately (RQ2).
 
-The candidate features built from information known before each year are compared with the frequency in @fig-eda-features (@sec-appendix-plots), over the training years. Past claims carry the clearest signal: the rank correlation between a cell's frequency and its paid claims of 1990 to 2008 per 1,000 policies is `{python} f"{kn['feature_spearman_train']['hist_per_1000']:.2f}"`, and `{python} f"{kn['feature_spearman_train']['county_hist_per_1000']:.2f}"` with the same measure for the whole county. Mean building coverage is weakly and negatively related to the frequency (`{python} f"{kn['feature_spearman_train']['mean_coverage']:.2f}"`).
+Among the other facts known in advance, past claims are the most informative: places with many claims from 1990 to 2008 also had more claims in the 2010s (rank correlation `{python} f"{kn['feature_spearman_train']['hist_per_1000']:.2f}"`), while the average coverage per policy matters little (@fig-eda-features in @sec-appendix-plots).
 
 ## Correlation Analysis
 
-![(a) Paid claims per 1,000 policy-years by state, training and test periods, with each state's share of exposure; (b) frequency of each county-zone cell in the test period against the training period, log scales, point size proportional to exposure, cells with at least 100 policy-years in each period.](../EDA/figures/eda_6_geography.png){#fig-eda-persistence}
+### Does the past predict the future?
 
-@fig-eda-persistence asks whether the places with many claims in the training years also have many claims in the test years. The answer is mostly no: across `{python} f"{kn['persistence_n_units']:,}"` county-zone cells, the rank correlation between the two periods is only `{python} f"{kn['persistence_spearman']:.2f}"` (panel b), and it stays at `{python} f"{kn['persistence_spearman_largest']:.2f}"` for the largest cells. Panel (a) shows the same reversal at the state level: North Carolina and Tennessee had the highest frequencies over 2010 to 2019, while Florida and Alabama lead in 2020 to 2024. The hurricanes of the test window hit other places than those of the training window. Out-of-time prediction will be difficult for every model, and the comparison must rely on metrics that measure ranking and calibration as well as the overall level.
+![(a) Claims per 1,000 policy-years by state, training and test periods; (b) frequency of each county and flood zone in the test period against the training period, log scales, point size proportional to the number of insured homes.](../EDA/figures/eda_6_geography.png){#fig-eda-persistence}
+
+If risky places stayed risky, predicting the test years would be easy. @fig-eda-persistence shows they do not. Comparing each county and flood zone between the two periods, the rank correlation of their frequencies is only `{python} f"{kn['persistence_spearman']:.2f}"` (panel b): the places hit hardest in the 2010s were mostly not those hit hardest in the 2020s. The states tell the same story (panel a): North Carolina and Tennessee led in the training years, Florida and Alabama in the test years. Each hurricane draws its own map, and that map cannot be read from the previous decade.
 
 ## Key Findings
 
-1. **Claim frequency is driven by catastrophes, not by the portfolio** (@fig-eda-years). Exposure is stable, while the yearly frequency varies by a factor of `{python} f"{kn['freq_max_min_ratio']:.0f}"`, with peaks in hurricane years. No feature describes the hazard of a year, so the models can only learn where claims are more likely when a flood occurs.
-2. **Counts have many zeros and are strongly overdispersed** (@fig-eda-dispersion). `{python} f"{kn['zero_share']:.0%}"` of county-zone-years have no claim and the dispersion is about `{python} f"{pearson / df_disp:.0f}"` times the Poisson level within a year and zone. This motivates the negative binomial GLM and supports the comparison with LightGBM.
-3. **Claims are concentrated in a few places and events** (@fig-eda-concentration). The top 1% of county-zone-years hold `{python} f"{kn['top1pct_unit_years_share']:.0%}"` of the claims. A few observations will weigh heavily on both the fit and the test metrics.
-4. **The flood zone is the clearest risk factor** (@fig-eda-zone). Frequency is about four times higher in V zones than in X zones, and the order holds in both periods. Past claims are the other informative feature (@fig-eda-features).
-5. **The test period differs from the training period** (@fig-eda-concentration, @tbl-freq-state, @fig-eda-persistence). It holds `{python} f"{kn['test_share_claims']:.0%}"` of the claims for `{python} f"{kn['test_share_exposure']:.0%}"` of the exposure, the frequency rises from `{python} f"{kn['freq_train']:.1f}"` to `{python} f"{kn['freq_test']:.1f}"`, and the places hit change. All models are likely to under-predict the test years, so they must be compared on ranking and calibration as well as on the deviance, overall and for Florida versus the other states.
+1. **Claims are driven by storms, not by the number of insured homes** (@fig-eda-years). Models can learn where claims are likely when a storm hits, but not which year a storm will hit.
+2. **Most places have no claim, a few have thousands** (@fig-eda-dispersion, @fig-eda-concentration). The counts vary far more than a Poisson model allows, which motivates the negative binomial model.
+3. **The flood zone is the clearest risk factor, past claims the second** (@fig-eda-zone, @fig-eda-features).
+4. **The test years are unusual** (@tbl-freq-state, @fig-eda-persistence). They hold most of the claims, and the places hit are not those of the training years, Florida above all. Every model will likely predict too few claims, so the comparison must also look at how well each model ranks places by risk.
