@@ -3,26 +3,32 @@
 ## Lancer
 
 ```bash
-python EDA/dsEDA.py   # crée data/claims_model.parquet à partir de claims_clean
-python EDA/EDA.py     # EDA sur claims_model -> figures_v2/
+python EDA/dsEDA.py   # crée data/data_clean.parquet à partir de claims_clean
+python EDA/EDA.py     # EDA sur data_clean + zone_year -> figures/
 ```
 
 ## L'EDA
 
-`EDA.py` produit des tableaux de statistiques et 10 figures : valeurs manquantes, évolution dans le temps,
-distribution des montants, taux de paiement par catégorie, géographie, corrélations et nouvelles
-variables.
+`EDA.py` suit le fil du rapport : 7 figures pour le corps (fig1 à fig7), 3 en annexe (fig8 à fig10),
+plus `summary_numeric.csv`, `summary_categorical.csv`, `tests.csv` (khi² et Kruskal-Wallis avec taille
+d'effet) et `key_numbers.json` (chiffres cités dans le rapport). La liste des figures est en tête du
+script.
 
-Principaux constats :
+Principaux constats (dossiers clos, hors 2025+) :
 
-- 72 % des sinistres sont payés.
-- Montant payé médian : 20 000 $ ; moyenne : 51 000 $. Quelques très gros sinistres tirent la moyenne.
-- 5,5 % des sinistres payés atteignent le plafond de couverture (14 % en 2005-2012, l'époque de Katrina).
-- Helene, Katrina et Ian font à eux seuls 44 % des montants payés.
+- Les sinistres arrivent par catastrophes : Helene, Katrina et Ian font 44 % des montants payés pour
+  17 % des sinistres.
+- Rapporté aux polices (2010-2024), la zone V a 30 sinistres pour 1 000 polices-années, la zone A 15 et
+  la zone X 5 ; coût par police-année : 1 392 $, 833 $ et 137 $.
+- 72 % des sinistres sont payés. Les variables du bâtiment influencent peu le paiement (V de Cramér
+  ≤ 0,10). Avant 2018, 92 % des « non payés » viennent du recodage des paiements NA.
+- Montant payé médian 20 000 $, moyenne 51 000 $, 5,5 % au plafond. Le montant dépend surtout de
+  l'événement (médiane 95 000 $ pour les trois grands ouragans contre 15 000 $) et de l'époque, très peu
+  de la zone (ε² = 0,007).
 
 ## Le nouveau dataset
 
-`dsEDA.py` crée `data/claims_model.parquet` à partir de `claims_clean`. L'original n'est pas modifié, et
+`dsEDA.py` crée `data/data_clean.parquet` à partir de `claims_clean`. L'original n'est pas modifié, et
 toutes les lignes sont gardées.
 
 **Supprimé** : `foundation_type`, qui disait exactement la même chose que `rating_system`.
@@ -55,7 +61,7 @@ temps passe par `loss_year`.
 **Variables du modèle** : couverture, franchise, zone, surélévation, âge, étages, résidence principale,
 comté, État et année, plus les indicatrices de valeur manquante. `water_depth` et `flood_duration` ne
 servent qu'à l'analyse, car on ne les connaît qu'après le sinistre. La liste exacte est dans
-`data/claims_model_roles.json`.
+`data/data_clean_roles.json`.
 
 ## Résultat
 

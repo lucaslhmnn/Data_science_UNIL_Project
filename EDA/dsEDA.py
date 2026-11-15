@@ -1,5 +1,5 @@
 """
-Construit claims_model.parquet à partir de claims_clean.parquet en appliquant
+Construit data_clean.parquet à partir de claims_clean.parquet en appliquant
 les corrections issues de l'EDA (v1), orientées vers l'objectif du projet :
 modèle en deux parties (P(paiement), puis montant | paiement), GLM vs gradient
 boosting + SHAP, variables de l'ensemble A uniquement pour la prédiction.
@@ -41,7 +41,7 @@ SRC = ROOT / "Data_cleaning" / "clean" / "claims_clean.parquet"
 RAW = ROOT / "Data_cleaning" / "NfipClaimsV3_SE.parquet"
 OUT_DIR = ROOT / "EDA" / "data"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
-OUT = OUT_DIR / "claims_model.parquet"
+OUT = OUT_DIR / "data_clean.parquet"
 
 TARGETS = ["paid_flag", "paid_building_real"]
 FEATURES_A = ["building_coverage_real", "deductible_amount_real", "flood_zone_group",
@@ -215,7 +215,7 @@ def main():
              "validation": {"principale": "fold (5 plis groupés par event_group)",
                             "robustesse": "split (train <= 2016, valid 2017-2020, test >= 2021)"},
              "grouping": ["event_group", "fold", "split", "major_event"]}
-    (OUT_DIR / "claims_model_roles.json").write_text(json.dumps(roles, indent=2, ensure_ascii=False))
+    (OUT_DIR / "data_clean_roles.json").write_text(json.dumps(roles, indent=2, ensure_ascii=False))
     split_tab = df.groupby("split", observed=True).agg(n=("id", "size"),
                                                        paid_rate=("paid_flag", "mean"))
     log.append("Découpage :\n" + split_tab.to_string())

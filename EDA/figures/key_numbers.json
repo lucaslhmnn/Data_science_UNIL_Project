@@ -1,0 +1,109 @@
+{
+ "n_claims": 621693,
+ "years": [
+  1978,
+  2026
+ ],
+ "n_closed": 617793,
+ "recent_from": 2025,
+ "n_counties": 707,
+ "top15_counties_share": 0.4946508968252819,
+ "paid_rate": 0.7234753388270828,
+ "paid_rate_train_test": {
+  "train": 0.6894906230870541,
+  "valid": 0.7372795233388554,
+  "test": 0.8426252092633929
+ },
+ "severity_median": 20283.145212980795,
+ "severity_mean": 50623.21065745716,
+ "severity_q95": 198510.249776552,
+ "skew_log_severity": -0.3821425862093606,
+ "at_cap": 0.05487540216306678,
+ "at_cap_by_era": {
+  "1978-1993": 0.0342,
+  "1994-2004": 0.0313,
+  "2005-2012": 0.1432,
+  "2013-2020": 0.0245,
+  "2021+": 0.0593
+ },
+ "top3_events": [
+  "Hurricane Helene",
+  "Hurricane Katrina",
+  "Hurricane Ian"
+ ],
+ "top3_share_amount": 0.43945080303480083,
+ "top3_share_claims": 0.170133812026193,
+ "top10_share_amount": 0.6526002035032418,
+ "top8_share_claims": 0.32844828556860056,
+ "zone_freq_per_1000": {
+  "V*": 29.76,
+  "A*": 15.19,
+  "X": 4.85
+ },
+ "zone_cost_per_policy_year": {
+  "V*": 1391.7,
+  "A*": 833.1,
+  "X": 137.5
+ },
+ "zone_share_policies": {
+  "V*": 0.0136,
+  "A*": 0.5761,
+  "X": 0.4103
+ },
+ "zone_share_claims": {
+  "A*": 0.7456,
+  "X": 0.1755,
+  "V*": 0.0557,
+  "inconnu": 0.022,
+  "D": 0.0012
+ },
+ "unpaid_from_recoding": {
+  "avant 2018": 0.9195734682812218,
+  "2018+": 0.4799644141305557
+ },
+ "severity_median_major_event": {
+  "autres": 15131.956590673115,
+  "Helene/Ian/Katrina": 94909.94955004449
+ },
+ "severity_median_by_era": {
+  "1978-1993": 12759.0,
+  "1994-2004": 11620.0,
+  "2005-2012": 24915.0,
+  "2013-2020": 20244.0,
+  "2021+": 76422.0
+ },
+ "epsilon2_major_event": 0.1418863297706513,
+ "spearman_paid": {
+  "building_coverage_real": 0.077,
+  "deductible_amount_real": 0.217,
+  "building_age": 0.275,
+  "loss_year": 0.314,
+  "water_depth": 0.295
+ },
+ "spearman_depth_paid_0_q99": 0.2630633847037657,
+ "missing_pct": {
+  "deductible_amount_real": 4.79,
+  "building_age": 6.09,
+  "water_depth": 9.81,
+  "flood_duration": 20.7,
+  "floodEvent": 22.87,
+  "building_value_real": 24.06,
+  "paid_building_real": 27.66,
+  "primary_residence": 35.69,
+  "foundation_rr2": 70.8
+ },
+ "effect_sizes": {
+  "paiement:flood_zone_group": 0.0495,
+  "montant:flood_zone_group": 0.0066,
+  "paiement:elevated_building": 0.0497,
+  "montant:elevated_building": 0.0238,
+  "paiement:primary_residence": 0.0945,
+  "montant:primary_residence": 0.0687,
+  "paiement:n_floors": 0.032,
+  "montant:n_floors": 0.0154,
+  "paiement:era": 0.1409,
+  "montant:era": 0.125,
+  "paiement:state": 0.0932,
+  "montant:state": 0.0266
+ }
+}
