@@ -1,11 +1,11 @@
 ---
-title: "**[TO FILL BY TEAM: final project title]**"
+title: "Predicting Flood Insurance Claim Frequency in FEMA Region 4: LightGBM versus Poisson and Negative Binomial GLMs"
 author:
  - Jondeau, Lucas
  - Lehmann, Lucas
  - Rohner, Nicolas
  - Villadoniga, Pablo
-institute: "[TO FILL BY TEAM: institute]"
+institute: "UNIL, Data Science Methods for Management"
 date: today
 title-block-banner: "#0095C8" # chosen for the university of lausanne
 toc-location: right
@@ -52,7 +52,7 @@ format:
 
 jupyter: python3
 abstract: |
-  **[TO FILL BY TEAM: abstract, written last, at most 250 words, summarizing the question, data, methods and results]**
+  This project update asks whether LightGBM with a Poisson objective predicts flood insurance claim frequency better than a Poisson GLM and a negative binomial GLM. We use the OpenFEMA NFIP v3 claims and policies for FEMA Region 4, eight states of the southeastern United States, a restriction of the national files that keeps the data practical to process and share. Because claims and policies are redacted and cannot be linked individually, the unit of analysis is the census tract by calendar year, with exposure in policy-years as an offset. Models are trained on 2010 to 2019 and tested on 2020 to 2024. So far, the raw files have been downloaded and verified, claims have been cleaned, policy exposure has been computed, and a first exploratory analysis has been carried out. It shows that claim frequency is driven by a few hurricane years, that the test window contains the two highest-frequency years of the period, and that Florida dominates the volume of claims while its frequency relative to the other states reverses between the training and test periods. The methods and evaluation metrics (Poisson deviance, calibration by decile, Gini index and predicted versus observed totals per year) are fixed in advance. The next steps are the tract-year table, the model fits and their evaluation, overall and for Florida versus the other seven states.
 execute: 
   warning: false
   # Note: echo setting is controlled per-format above (HTML, PDF, DOCX)
@@ -145,7 +145,9 @@ project_setup.configure_environment(project_root=project_root)
 
 # Use of AI Tools {.unnumbered}
 
-**[TO FILL BY TEAM: statement on the use of AI tools, written according to the course policy]**
+Generative AI was used in this project. Claude (Anthropic), through the Claude Code assistant, was used to draft the structure and text of this report from facts and decisions provided by the team, to write the code cells that compute the statistics shown in the report, and to check the repository for consistency. All numbers in the report are produced by code from the project data. The team reviewed the content and is responsible for it.
+
+**[TO FILL BY TEAM: any other use of AI tools during the project (for example for the cleaning and EDA scripts), and confirmation that this statement follows the course policy]**
 
 # References {.unnumbered}
 
@@ -156,12 +158,44 @@ project_setup.configure_environment(project_root=project_root)
 
 ### Appendix A: Additional Exploratory Plots {#sec-appendix-plots}
 
-**[TO FILL BY TEAM: additional exploratory plots, or remove this appendix]**
+These figures come from the claim-level exploratory analysis (`EDA/EDA.py`) and describe paid amounts rather than claim frequency. They are kept here because they document the data, but they do not enter the frequency models.
+
+![(a) Distribution of the paid amount on a log scale, (b) ratio of paid amount to coverage, (c) share of paid claims at the coverage cap by era.](../EDA/figures_v2/fig4_severity.png){#fig-eda-severity}
+
+![Paid amount (a) by flood zone group and (b) by elevation status.](../EDA/figures_v2/fig5_boxes.png){#fig-eda-boxes}
+
+![(a) Water depth against paid amount (hexbin density), (b) median paid amount by depth class. Water depth is known only after the loss and is not a model feature.](../EDA/figures_v2/fig7_depth.png){#fig-eda-depth}
+
+![Payment rate and median paid amount by (a) event-grouped fold, (b) time split and (c) major hurricane (Helene, Ian, Katrina) versus other claims. The folds and the time split belong to an earlier claim-level design, not to the 2010 to 2019 / 2020 to 2024 split used in this report.](../EDA/figures_v2/fig10_model_vars.png){#fig-eda-modelvars}
+
+The median paid amount is `{python} f"{eda_metrics['sev_median']:,.0f}"` USD and the mean `{python} f"{eda_metrics['sev_mean']:,.0f}"` USD (real dollars), and `{python} f"{eda_metrics['at_cap']:.1%}"` of paid claims reach the coverage limit (@fig-eda-severity). Amounts are strongly right-skewed and much larger in the major hurricanes (@fig-eda-modelvars). These patterns concern severity and are outside the scope of the frequency comparison.
 
 ### Appendix B: Complete Code Listings {#sec-appendix-code}
 
-**[TO FILL BY TEAM: code listings, or remove this appendix]**
+The code is in the project repository, <https://github.com/lucaslhmnn/Data_science_UNIL_Project>:
+
+- `Data_cleaning/clean/clean_data.py`: audit of the raw files, treatment of sentinel values, cleaning of the claims and computation of the policy exposure (`zone_year.parquet`);
+- `EDA/dsEDA.py` and `EDA/EDA.py`: claim-level dataset for the exploratory analysis, and the figures shown in @sec-eda and @sec-appendix-plots;
+- `quarto_report/`: this report, whose code cells compute all statistics from the cleaned files.
 
 ### Appendix C: Supplementary Tables {#sec-appendix-tables}
 
-**[TO FILL BY TEAM: supplementary tables, or remove this appendix]**
+```{python}
+#| label: tbl-anomalies
+#| tbl-cap: "Claims set aside as anomalies during cleaning, by reason (a claim can have several reasons)."
+
+reason_en = {
+    "âge négatif": "negative building age",
+    "doublon exact": "exact duplicate",
+    "paiement sans couverture": "payment without coverage",
+    "paiement négatif": "negative payment",
+}
+anomaly_table = (
+    anomalies["motif"]
+    .map(lambda m: "; ".join(reason_en.get(part.strip(), part.strip()) for part in m.split(";")))
+    .value_counts()
+    .rename_axis("reason")
+    .reset_index(name="claims")
+)
+display(anomaly_table)
+```

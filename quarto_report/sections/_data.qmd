@@ -8,66 +8,125 @@ The data come from OpenFEMA, the open data platform of the Federal Emergency Man
 - Policies, full-file download: <https://www.fema.gov/about/reports-and-data/openfema/v3/NfipPoliciesV3.parquet>
 - API documentation: <https://www.fema.gov/api/open/v3/NfipClaims> and <https://www.fema.gov/api/open/v3/NfipPolicies>
 
-The files are the full parquet downloads from fema.gov, not API pulls. They were downloaded on 2026-11-11, and the data are as of 2026-09-08. The national row counts match the OpenFEMA metadata (2,725,989 claims and 74,739,461 policy records), and the files are identical across the team's machines (SHA-256 checksums).
+The files are the full parquet downloads from fema.gov, not API pulls. They were downloaded on 2026-11-11, and the data are as of 2026-09-08. The national row counts match the OpenFEMA metadata (2,725,989 claims and 74,739,461 policy records), and the files are identical across the team's machines (SHA-256 checksums). Field names and code tables come from the OpenFEMA data dictionary (`OpenFemaDataSetFields.csv`, versioned in the repository).
 
 > *This product uses the Federal Emergency Management Agency's OpenFEMA API, but is not endorsed by FEMA.* The data used in this report were filtered and aggregated by the team and are not endorsed by FEMA.
 
 ## Description
 
-- **Number of observations**: the raw files for FEMA Region 4 contain 787,274 claims and 31,463,858 policy records. Florida alone accounts for 448,535 claims (about 57%) and 22,377,729 policy records (about 71%). **[TO FILL BY TEAM: number of tract-years in the modelling table, in total and per split]**
-- **Number of variables**: **[TO FILL BY TEAM: number of variables in the modelling table]**
+- **Number of observations**: the raw files for FEMA Region 4 contain 787,274 claims and 31,463,858 policy records. Florida alone accounts for 448,535 claims (about 57%) and 22,377,729 policy records (about 71%). **[TO FILL BY TEAM: number of tract-years in the modelling table, in total and per split, once `tract_year.parquet` is built]**
+- **Number of variables**: the planned tract-year table has 12 columns (listed under key variables below): three keys, the target, two exposure measures, five aggregated policy features and one historical claim count.
 - **Time period**: claims cover loss years from 1978; policy records have effective dates from 2009. The modelling period is 2010 to 2024 (training 2010 to 2019, test 2020 to 2024).
 - **Geographic coverage**: FEMA Region 4, eight states: Alabama (AL), Florida (FL), Georgia (GA), Kentucky (KY), Mississippi (MS), North Carolina (NC), South Carolina (SC) and Tennessee (TN).
-- **Key variables**:
-  - `n_claims`: number of claims with a positive paid amount in a tract-year (target);
-  - exposure in policy-years per tract-year (offset);
-  - tract identifier: the first 11 digits of `censusGeoid`, a 12-digit census block group code present in both datasets;
-  - policy characteristics aggregated per tract-year. **[TO FILL BY TEAM: final feature list, with the exact field names checked in the OpenFEMA data dictionary]**
+- **Key variables** of the planned tract-year table (`data/processed/tract_year.parquet`, defined in the team's data contract):
+  - `tract_id`: the first 11 digits of `censusGeoid`, a 12-digit census block group code present in both datasets;
+  - `year`, `state`: keys, never used as features;
+  - `n_claims`: number of claims with a positive paid amount in the tract-year (target);
+  - `exposure_years`: exposure in policy-years (offset), and `n_policies`;
+  - aggregated policy features, built from fields checked in the data dictionary: mean building coverage (`totalBuildingInsuranceCoverage`), mean deductible (`buildingDeductibleCode`, converted to dollars), share of policies in the Special Flood Hazard Area (A and V zones of `ratedFloodZone`), share of pre-FIRM buildings (`postFIRMConstructionIndicator`; the field `preFIRMConstructionIndicator` is misnamed in v3 and indicates eligibility for the pre-FIRM subsidy) and share of single-family homes (`occupancyType`);
+  - `hist_claims_1990_2008`: number of claims in the tract from 1990 to 2008, a measure of past flood experience that is known before the modelling period.
 
 Claims and policies are redacted and share no identifier, so a claim cannot be linked to the policy that covered it. The two datasets are therefore joined only in aggregate, at the tract-year level.
 
 ## Loading Data
 
+The cleaned files produced so far are versioned in the repository (`Data_cleaning/clean/`), so the report can be rendered without the raw files. They cover single-family homes (`occupancyType` 1 and 11): one row per claim (`claims_clean.parquet`), the excluded claims with the reason (`claims_anomalies.parquet`), and the policy exposure aggregated by flood zone, county and year (`zone_year.parquet`).
+
 ```{python}
 #| label: load-data
-#| eval: false
 #| output: true
 
+import json
+
 import pandas as pd
+from IPython.display import display
 from quarto_runtime import project_root
 
-# TO CONFIRM BY TEAM: project_root points to quarto_report/, and the data live at the
-# repository root, one level above. Expected location of the tract-year table:
-tract_year_path = project_root.parent / "data" / "processed" / "tract_year.parquet"
+# project_root points to quarto_report/; the data live at the repository root, one level above.
+repo_root = project_root.parent
+clean_dir = repo_root / "Data_cleaning" / "clean"
 
+claims = pd.read_parquet(
+    clean_dir / "claims_clean.parquet",
+    columns=["loss_year", "state", "paid_flag", "paid_na_to_zero", "floodEvent"],
+)
+claims["loss_year"] = claims["loss_year"].astype(int)
+zone_year = pd.read_parquet(clean_dir / "zone_year.parquet")
+anomalies = pd.read_parquet(clean_dir / "claims_anomalies.parquet", columns=["motif"])
+eda_metrics = json.loads((repo_root / "EDA" / "figures_v2" / "metrics.json").read_text())
+
+print(f"claims_clean:     {claims.shape[0]:,} rows")
+print(f"claims_anomalies: {anomalies.shape[0]:,} rows")
+print(f"zone_year:        {zone_year.shape[0]:,} rows x {zone_year.shape[1]} columns")
+display(zone_year.head())
+```
+
+The tract-year table is not built yet. Once it exists, it will be loaded as follows:
+
+```{python}
+#| label: load-tract-year
+#| eval: false
+
+# To confirm by the team: expected location of the tract-year table at the repository root.
+tract_year_path = project_root.parent / "data" / "processed" / "tract_year.parquet"
 tract_year = pd.read_parquet(tract_year_path)
 print(f"Dataset shape: {tract_year.shape[0]} rows x {tract_year.shape[1]} columns")
 print(tract_year.dtypes)
 ```
 
-**[TO FILL BY TEAM: confirm the path of the tract-year table and enable this cell (remove `eval: false`) once the file exists]**
-
 ## Wrangling
+
+```{python}
+#| label: wrangling-stats
+#| echo: false
+
+N_RAW_CLAIMS = 787_274  # raw Region 4 claims (verified count; raw file not versioned)
+
+n_clean = len(claims)
+n_anomalies = len(anomalies)
+n_single_family = n_clean + n_anomalies
+n_not_single_family = N_RAW_CLAIMS - n_single_family
+n_unpaid = int((~claims["paid_flag"]).sum())
+n_recoded = int(claims["paid_na_to_zero"].sum())
+
+py_total = zone_year["policy_years"].sum()
+py_no_tract = zone_year.loc[zone_year["county_fips"].isna(), "policy_years"].sum()
+share_py_no_tract = py_no_tract / py_total
+partial_years = ", ".join(str(y) for y in sorted(zone_year.loc[zone_year["partial_year"], "year"].unique()))
+
+# Missing tract among raw claims: computed only if the raw file is present locally.
+raw_candidates = [
+    repo_root / "data" / "raw_se" / "NfipClaimsV3_SE.parquet",
+    repo_root / "Data_cleaning" / "NfipClaimsV3_SE.parquet",
+]
+raw_claims_path = next((p for p in raw_candidates if p.exists()), None)
+if raw_claims_path is not None:
+    geoid = pd.read_parquet(raw_claims_path, columns=["censusGeoid"])["censusGeoid"]
+    n_claims_no_tract = int(geoid.isna().sum())
+    claims_no_tract_txt = f"{n_claims_no_tract:,} of {len(geoid):,} raw claims ({n_claims_no_tract / len(geoid):.2%})"
+else:
+    claims_no_tract_txt = "not computed (raw claims file not available on this machine)"
+```
 
 ### General Transformations
 
-- **Geographic filter.** Rows from states outside FEMA Region 4 were removed from both datasets.
+- **Geographic filter.** Rows from states outside FEMA Region 4 were removed from both national files.
+- **Claim cleaning.** Of the `{python} f"{N_RAW_CLAIMS:,}"` raw claims, `{python} f"{n_not_single_family:,}"` are not single-family homes and `{python} f"{n_anomalies:,}"` were set aside as anomalies (negative building age, exact duplicates, payment without coverage, negative payment; see @sec-appendix-tables), which leaves `{python} f"{n_clean:,}"` cleaned claims. Amounts are converted to real dollars with the BLS consumer price index.
+- **Exposure.** Each policy record is spread over the calendar years it covers, in proportion to the number of days (`policy_years` = `policyCount` x days / 365.25). Single-family policies give `{python} f"{py_total:,.0f}"` policy-years in total.
 - **Tract identifier.** The tract is the first 11 digits of the 12-digit block group code `censusGeoid`.
-- **Aggregation.** Since claims and policies cannot be linked individually, claims are counted and policy records are aggregated per tract and calendar year. Exposure is measured in policy-years and enters the models through the offset $\log e_{it}$.
-- **Years kept.** 2009 is excluded because policy records start in 2009, so the exposure of that year is understated. 2025 and later are excluded because claims for these years are incomplete.
-- **Claim definition.** The target counts claims with a positive paid amount. Counting all claims is kept as a sensitivity check. **[TO FILL BY TEAM: our justification of the claim definition]**
+- **Aggregation.** Since claims and policies cannot be linked individually, claims are counted and policy records are aggregated per tract and calendar year. Exposure enters the models through the offset $\log e_{it}$.
+- **Years kept.** The cleaning code flags the following exposure years as partial: `{python} partial_years`. 2009 is excluded because policy records start in 2009, so policies that began earlier and were still running are missing and the exposure of that year is understated. 2025 and later are excluded because claims for these years are incomplete.
+- **Claim definition.** The target counts claims with a positive paid amount. These are the losses the insurer actually covers, which is the frequency that matters for pricing. Claims closed without payment mix losses below the deductible, uncovered losses and recording issues: among the `{python} f"{n_unpaid:,}"` unpaid cleaned claims, `{python} f"{n_recoded:,}"` come from a missing payment recoded as zero, so their count is less reliable. Counting all claims is kept as a sensitivity check.
 - **Features.** The year is never a feature: a year effect estimated on 2010 to 2019 cannot be carried over to the test years. Variables not known at policy inception (current flood zone, cancellation information) are excluded because using them would leak information from after the start of the policy. Risk Rating 2.0 pricing variables (premiums, rates, surcharges) are excluded because they reflect the insurer's own rating rather than characteristics of the insured risk.
-
-**[TO FILL BY TEAM: rows dropped at each step, exposure per year and counts per state, produced by code]**
 
 ### Spotting Mistakes and Missing Data
 
-- **Missing tract.** `censusGeoid` is missing for some records, which then cannot be assigned to a tract. **[TO FILL BY TEAM: share of claims and policy records without tract, and how they are handled]**
-- **Tract vintage.** Tract boundaries can change between census vintages, which would break a 2010 to 2024 tract panel. A national check shows that 99.97% of claims from 1990 to 2008 have a tract that is also present in the policies, and that the number of tracts per year is stable, with no break in 2020 (to reconfirm on Region 4). **[TO FILL BY TEAM: result of the tract vintage check on Region 4]**
-
-**[TO FILL BY TEAM: other preprocessing outcomes and challenges, quantified]**
+- **Missing tract.** `censusGeoid` is missing for `{python} claims_no_tract_txt`, and for `{python} f"{share_py_no_tract:.2%}"` of single-family policy-years. These records cannot be assigned to a tract and are left out of the tract-year table; the small shares make this loss minor.
+- **Tract vintage.** Tract boundaries can change between census vintages, which would break a 2010 to 2024 tract panel. A national check shows that 99.97% of claims from 1990 to 2008 have a tract that is also present in the policies, and that the number of tracts per year is stable, with no break in 2020 (to reconfirm on Region 4). **[TO FILL BY TEAM: result of the tract vintage check on Region 4, once the tract-year table is built]**
+- **Recoded payments.** Missing payments with a zero net payment were recoded as unpaid in the cleaned claims and flagged (`paid_na_to_zero`). This affects the all-claims sensitivity check but not the main target, which only counts positive payments.
+- **Post-loss variables.** Water depth, flood duration and the adjuster's building value are recorded after the loss. They are kept for description only and never used as features.
 
 ### Listing Anomalies and Outliers
 
-- **Event years.** Claims are concentrated in a few event years. The test window contains Hurricane Ian (2022) and Hurricane Helene (2024), so tract-year counts in these years can be far above those of a typical year. **[TO FILL BY TEAM: how event years are treated, and their share of claims]**
-- **Zero counts.** **[TO FILL BY TEAM: share of tract-years with zero claims]**
+- **Event years.** Claims are concentrated in a few hurricane years (@sec-eda). The test window contains Hurricane Ian (2022) and Hurricane Helene (2024). These years are real losses, not errors, so they are kept without capping: excluding them would remove exactly the situations a flood frequency model must handle. Their effect is monitored through predicted versus observed totals per test year.
+- **Zero counts.** Most tract-years are expected to have no claim outside event years. **[TO FILL BY TEAM: share of tract-years with zero claims, once the tract-year table is built]**

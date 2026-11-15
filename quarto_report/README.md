@@ -60,5 +60,9 @@ You can also double-click `report.html` in your file manager, or drag it into a 
   `src/`. That is `quarto_report/` itself, not the repo root. Data at the repo root is therefore
   reached with `project_root.parent`, e.g. `project_root.parent / "data" / "processed" / ...`.
 - Rendering creates an empty `quarto_report/data/processed/` folder (done by `src/project_setup.py`).
-- Code cells that need data not yet built use `#| eval: false`, so the report renders without data.
+- The code cells read only versioned files (`Data_cleaning/clean/*.parquet`, `EDA/figures_v2/`), so
+  the report renders after a plain `git pull`, without the raw files. They need `pandas`, `pyarrow`
+  and `matplotlib`. Cells that need data not yet built (`tract_year.parquet`) use `#| eval: false`.
+- One statistic (missing tract among raw claims) is computed only if `NfipClaimsV3_SE.parquet` is
+  present locally; otherwise the text says it was not computed.
 - Cite with `@key`, where `key` is an entry of `references.bib`. The list is generated under References.
