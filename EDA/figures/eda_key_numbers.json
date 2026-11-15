@@ -27,6 +27,12 @@
   "2023": 5.98,
   "2024": 42.93
  },
+ "freq_ex_major_train": 2.31678735874255,
+ "freq_ex_major_test": 2.862344005166097,
+ "major_share_train": 0.5860536794978515,
+ "major_share_test": 0.8202865983938702,
+ "coverage_nominal_change": 0.18858061051578034,
+ "coverage_real_change": -0.16313345230084497,
  "freq_max_min_ratio": 28.357777834656968,
  "zero_share": 0.7283522348232154,
  "zero_share_train": 0.7320488032535503,
@@ -70,7 +76,7 @@
   "X": 0.4105
  },
  "feature_spearman_train": {
-  "mean_coverage": -0.183,
+  "coverage_real": -0.185,
   "hist_per_1000": 0.353,
   "county_hist_per_1000": 0.33
  },

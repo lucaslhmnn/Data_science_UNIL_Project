@@ -10,8 +10,8 @@ Poisson et qu'un GLM binomial négatif, avec l'exposition en polices-années com
 2010-2019, test sur 2020-2024.
 
 État au 15/11/2026 : données nettoyées, table d'analyse par comté × zone d'inondation × année
-(`EDA/ds_clean.csv`), analyse exploratoire et rapport d'update. La table par secteur de recensement et
-les modèles restent à faire. Les règles de travail du groupe sont dans [`CLAUDE.md`](CLAUDE.md).
+(`EDA/ds_clean.csv`), analyse exploratoire, premiers modèles sur cette table (`Modeles/`, résultats
+préliminaires) et rapport d'update. La table par secteur de recensement reste à faire. Les règles de travail du groupe sont dans [`CLAUDE.md`](CLAUDE.md).
 
 ## Structure du dépôt
 

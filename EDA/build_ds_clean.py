@@ -28,6 +28,10 @@ Definitions
                   Zone D and unknown zones are dropped (well below 1% of claims and exposure).
   n_claims        claims with a positive building paid amount (target)
   exposure_years  policy-years in force (offset: log(exposure_years))
+  coverage_real   mean building coverage in constant 2024 USD. The nominal coverage rises
+                  every year with prices, so a model could use it to guess the year, which
+                  is not allowed. It is deflated with the CPI of the previous year, known
+                  before the year starts.
   Features are known at the start of the year and contain no year effect. Premiums are
   left out: they reflect the insurer's rating, not the insured risk.
   Controls are for description and checks only, never model inputs.
@@ -41,11 +45,14 @@ import json
 from pathlib import Path
 
 import numpy as np
+import openpyxl
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 CLAIMS = ROOT / "Data_cleaning" / "clean" / "claims_clean.parquet"
 EXPO = ROOT / "Data_cleaning" / "clean" / "zone_year.parquet"
+CPI = ROOT / "Data_cleaning" / "CPI_1978_2026.xlsx"     # BLS CPI-U, also used by clean_data.py
+CPI_BASE = 2024                     # coverage_real is in USD of this year
 OUT_DIR = ROOT / "EDA"
 CSV = OUT_DIR / "ds_clean.csv"
 ROLES = OUT_DIR / "ds_clean_roles.json"
@@ -64,6 +71,23 @@ KEY = ["county", "zone", "year"]
 
 def num(s):
     return pd.to_numeric(s, errors="coerce").astype("float64")
+
+
+def cpi_annual(path):
+    """Annual average of the monthly CPI-U (years with 12 months only)."""
+    rows = list(openpyxl.load_workbook(path, read_only=True, data_only=True)
+                .worksheets[0].iter_rows(values_only=True))
+    h = next(i for i, r in enumerate(rows) if r[0] == "Year")
+    hdr = list(rows[h])
+    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    out = {}
+    for r in rows[h + 1:]:
+        if r[0] is None:
+            continue
+        v = [r[hdr.index(m)] for m in months]
+        if all(isinstance(x, (int, float)) for x in v):
+            out[int(r[0])] = float(np.mean(v))
+    return out
 
 
 pd.set_option("future.no_silent_downcasting", True)
@@ -136,6 +160,10 @@ d["hist_claims_1990_2008"] = hist_cz.reindex(cz).fillna(0).astype(int).to_numpy(
 d["hist_per_1000"] = 1000 * d["hist_claims_1990_2008"] / avg_cz.reindex(cz).to_numpy()
 d["county_hist_per_1000"] = 1000 * d["county"].map(hist_c).fillna(0) / d["county"].map(avg_c)
 
+# Coverage in constant dollars: deflated by the CPI of the previous year (known in advance)
+cpi = cpi_annual(CPI)
+d["coverage_real"] = d["mean_coverage"] * cpi[CPI_BASE] / d["year"].map(lambda y: cpi[y - 1])
+
 d["period"] = np.where(train, "train", "test")
 d["freq_per_1000"] = 1000 * d["n_claims"] / d["exposure_years"]
 d["major_event_share"] = np.where(d["n_claims"] > 0, d["n_major"] / d["n_claims"], 0.0)
@@ -145,7 +173,7 @@ ROLE = {
     "id": ["county_id", "zone", "year", "state"],
     "target": ["n_claims"],
     "offset": ["exposure_years"],
-    "features": ["zone", "mean_coverage", "hist_claims_1990_2008", "hist_per_1000",
+    "features": ["zone", "mean_coverage", "coverage_real", "hist_claims_1990_2008", "hist_per_1000",
                  "county_hist_per_1000"],
     "controls": ["period", "n_all", "n_major", "major_event_share", "freq_per_1000",
                  "low_exposure", "partial_year", "n_policy_rows"],
@@ -179,7 +207,10 @@ roles = {
         "year": "calendar year (claims: yearOfLoss; policies: days covered in the year)",
         "n_claims": "claims with a positive building paid amount (real USD > 0)",
         "exposure_years": "policy-years in force: sum of policyCount x days covered / 365.25",
-        "mean_coverage": "building coverage-years / policy-years, nominal USD",
+        "mean_coverage": "building coverage-years / policy-years, nominal USD (rises with "
+                         "prices, so it carries a time trend: prefer coverage_real in models)",
+        "coverage_real": f"mean_coverage in constant {CPI_BASE} USD, deflated by the annual "
+                         "average CPI-U of the previous year",
         "hist_claims_1990_2008": "paid claims of this county and zone, loss years 1990-2008",
         "hist_per_1000": "hist_claims_1990_2008 per 1,000 average policy-years of the county "
                          "and zone over 2010-2019",

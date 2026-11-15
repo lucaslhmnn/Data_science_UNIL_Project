@@ -71,7 +71,7 @@ C'est la version comté × zone de la table par secteur de recensement prévue p
 | Identifiants | `county_id` (FIPS, 5 caractères, à lire comme texte), `zone` (V*, A*, X), `year`, `state` |
 | Cible | `n_claims` : sinistres avec montant bâtiment payé > 0 |
 | Offset | `exposure_years` : polices-années en vigueur |
-| Variables du modèle | `zone`, `mean_coverage` (USD nominaux), `hist_claims_1990_2008`, `hist_per_1000`, `county_hist_per_1000` |
+| Variables du modèle | `zone`, `coverage_real` (couverture moyenne en USD constants de 2024, à utiliser dans les modèles), `mean_coverage` (USD nominaux, monte avec les prix : sert d'année déguisée, à éviter), `hist_claims_1990_2008`, `hist_per_1000`, `county_hist_per_1000` |
 | Contrôles (jamais en entrée du modèle) | `period`, `n_all`, `n_major`, `major_event_share`, `freq_per_1000`, `low_exposure`, `partial_year`, `n_policy_rows` |
 
 Ni l'année ni les primes ne sont des variables du modèle (règles du CLAUDE.md). Lire le CSV en
@@ -148,6 +148,9 @@ modèle), et les chiffres du texte doivent venir du code (`eda_key_numbers.json`
   zone moyennée à l'intérieur du comté pour les autres variables.
 - Population assurée uniquement (le NFIP n'est obligatoire qu'en zone à risque).
 - Exposition disponible seulement depuis 2009.
-- `mean_coverage` en dollars nominaux.
+- `mean_coverage` est en dollars nominaux (+19 % de 2010 à 2024). `coverage_real` la déflate avec
+  le CPI de l'année précédente (−16 % sur la même période) : c'est elle qu'il faut donner aux modèles.
+- Hors des dix plus grands événements, la fréquence est stable (2,3 pour 1 000 en entraînement,
+  2,9 en test) : voir la ligne orange du panneau (c) de la figure 1.
 - Avant 2018, la plupart des sinistres « non payés » viennent d'un montant vide recodé en 0 au
   nettoyage ; la cible (montant payé > 0) n'en dépend pas, le compte `n_all` si.

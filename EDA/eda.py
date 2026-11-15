@@ -147,10 +147,19 @@ top_ev = pd.DataFrame(roles["major_events"]).set_index("name") \
 # 2. TABLES
 # -------------------------------------------------------------------------
 by_year = uy.groupby("year").agg(n_claims=("n_claims", "sum"), n_all=("n_all", "sum"),
+                                 n_major=("n_major", "sum"),
                                  exposure=("exposure_years", "sum"),
                                  zero_share=("n_claims", lambda s: (s == 0).mean()))
 by_year["freq"] = freq(by_year["n_claims"], by_year["exposure"])
 by_year["freq_all"] = freq(by_year["n_all"], by_year["exposure"])
+# "Ordinary" floods: paid claims outside the ten largest named events
+by_year["freq_ex_major"] = freq(by_year["n_claims"] - by_year["n_major"], by_year["exposure"])
+# Mean coverage per policy, nominal and in constant dollars (exposure-weighted)
+cov = uy.assign(w_nom=uy["mean_coverage"] * uy["exposure_years"],
+                w_real=uy["coverage_real"] * uy["exposure_years"]).groupby("year")[
+                    ["w_nom", "w_real"]].sum()
+by_year["mean_coverage"] = cov["w_nom"] / by_year["exposure"]
+by_year["coverage_real"] = cov["w_real"] / by_year["exposure"]
 by_year.round(4).to_csv(OUT / "eda_by_year.csv")
 
 by_state = uy.groupby(["state", "period"], observed=True).agg(n=("n_claims", "sum"),
@@ -161,7 +170,7 @@ by_state_f["share_exposure"] = by_state["e"].sum(axis=1) / by_state["e"].sum().s
 by_state_f = by_state_f.sort_values("share_exposure", ascending=False)
 by_state_f.round(4).to_csv(OUT / "eda_by_state.csv")
 
-summary_cols = ["n_claims", "exposure_years", "mean_coverage", "hist_per_1000",
+summary_cols = ["n_claims", "exposure_years", "mean_coverage", "coverage_real", "hist_per_1000",
                 "county_hist_per_1000"]
 uy[[c for c in summary_cols if c in uy]].describe(
     percentiles=[.1, .25, .5, .75, .9, .99]).T.round(3).to_csv(OUT / "eda_unit_year_summary.csv")
@@ -189,6 +198,8 @@ b.set_title("(b) Paid claims per year")
 c.plot(by_year.index, by_year["freq"], "-o", color=BLUE, lw=2, ms=4, mec="white",
        label="paid claims (target)")
 c.plot(by_year.index, by_year["freq_all"], "--", color=INK2, lw=1.2, label="all claims")
+c.plot(by_year.index, by_year["freq_ex_major"], "-s", color=ORANGE, lw=1.6, ms=3.5, mec="white",
+       label="paid claims outside the ten largest events")
 log_axis(c, "y")
 c.legend(loc="upper left")
 c.set_title("(c) Claims per 1,000 policy-years (log scale)")
@@ -328,7 +339,7 @@ export(fig, "eda_4_zone")
 # -------------------------------------------------------------------------
 # FIGURE 5: candidate features against frequency (training years only)
 # -------------------------------------------------------------------------
-FEATURES = {"mean_coverage": ("Mean building coverage per policy (nominal USD)",
+FEATURES = {"coverage_real": ("Mean building coverage per policy (constant 2024 USD)",
                               FuncFormatter(lambda v, _: f"${v / 1000:,.0f}k"), 1),
             "hist_per_1000": ("Paid claims 1990-2008 per 1,000 policies, same cell", plain, 1),
             "county_hist_per_1000": ("Paid claims 1990-2008 per 1,000 policies, county",
@@ -414,6 +425,16 @@ key = {
     "freq_train": float(freq(tr["n_claims"].sum(), tr["exposure_years"].sum())),
     "freq_test": float(freq(te["n_claims"].sum(), te["exposure_years"].sum())),
     "freq_by_year": {int(k): v for k, v in by_year["freq"].round(2).items()},
+    "freq_ex_major_train": float(freq((tr["n_claims"] - tr["n_major"]).sum(),
+                                      tr["exposure_years"].sum())),
+    "freq_ex_major_test": float(freq((te["n_claims"] - te["n_major"]).sum(),
+                                     te["exposure_years"].sum())),
+    "major_share_train": float(tr["n_major"].sum() / tr["n_claims"].sum()),
+    "major_share_test": float(te["n_major"].sum() / te["n_claims"].sum()),
+    "coverage_nominal_change": float(by_year["mean_coverage"].iloc[-1]
+                                     / by_year["mean_coverage"].iloc[0] - 1),
+    "coverage_real_change": float(by_year["coverage_real"].iloc[-1]
+                                  / by_year["coverage_real"].iloc[0] - 1),
     "freq_max_min_ratio": float(ratio_years),
     "zero_share": float(zero_share),
     "zero_share_train": float((tr["n_claims"] == 0).mean()),
@@ -437,6 +458,10 @@ print("\n========== Key numbers ==========")
 print(f" Level                 : {LEVEL} ({len(uy):,} unit-years, {uy['unit'].nunique()} units)")
 print(f" Frequency /1000 PY    : overall {key['freq_overall']:.1f}, train {key['freq_train']:.1f},"
       f" test {key['freq_test']:.1f}")
+print(f" Outside top 10 events : train {key['freq_ex_major_train']:.1f}, "
+      f"test {key['freq_ex_major_test']:.1f} per 1,000 PY")
+print(f" Mean coverage 2010-24 : nominal {key['coverage_nominal_change']:+.0%}, "
+      f"constant dollars {key['coverage_real_change']:+.0%}")
 print(f" Zero unit-years       : {zero_share:.1%}")
 print(f" Dispersion            : {disp0:,.0f} overall, {disp1:,.0f} within year, "
       f"{disp2:,.0f} within year x zone, "

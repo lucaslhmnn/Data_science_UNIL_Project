@@ -28,9 +28,11 @@ disp_p = stats.chi2.sf(pearson, df_disp)
 
 ### When do claims happen?
 
-![Insured homes and claims per year, 2010 to 2024. (a) Policy-years in force; (b) paid claims, with the largest hurricanes named; (c) claims per 1,000 policy-years, log scale (dashed: all claims). Test years shaded.](../EDA/figures/eda_1_exposure_claims.png){#fig-eda-years}
+![Insured homes and claims per year, 2010 to 2024. (a) Policy-years in force; (b) paid claims, with the largest hurricanes named; (c) claims per 1,000 policy-years, log scale (dashed: all claims; orange: paid claims outside the ten largest events). Test years shaded.](../EDA/figures/eda_1_exposure_claims.png){#fig-eda-years}
 
 The number of insured homes barely moves from one year to the next, drifting down by `{python} f"{abs(py_change):.0%}"` over fifteen years (@fig-eda-years, panel a). Claims, on the other hand, come in waves. In a quiet year such as `{python} min_year`, about `{python} f"{fby[min_year]:.1f}"` insured homes in 1,000 file a paid claim; in `{python} max_year`, the year of Hurricanes Helene and Milton, it is `{python} f"{fby[max_year]:.1f}"`, `{python} f"{kn['freq_max_min_ratio']:.0f}"` times more. Every peak has a name: Matthew, Irma, Florence, Ian, Helene. The two worst years, `{python} max_year` and `{python} second_year`, both fall in the test period.
+
+Without the ten largest events, the picture is calm: `{python} f"{kn['freq_ex_major_train']:.1f}"` paid claims per 1,000 policy-years in the training years and `{python} f"{kn['freq_ex_major_test']:.1f}"` in the test years (orange line in panel c). Ordinary floods are stable; the waves come from a few storms.
 
 The lesson for our models is humbling. What makes one year worse than another is the weather, which no insurance record can foresee. A model can hope to learn *where* claims are likely when a storm hits, not *when* a storm will hit.
 
@@ -78,7 +80,7 @@ display(by_state.round({("train", "exposure_years"): 0, ("test", "exposure_years
 
 Florida tells a story of its own (@tbl-freq-state). It holds `{python} f"{fl_share_py:.0%}"` of the insured homes, yet from 2010 to 2019 its frequency (`{python} f"{fl_freq_train:.1f}"` per 1,000) was far below that of the other states (`{python} f"{other_freq_train:.1f}"`), which were hit by floods in the Carolinas and Tennessee. Then Ian and Helene, with `{python} f"{ian_helene_fl_share:.0%}"` of their paid claims in Florida, reversed the order: `{python} f"{fl_freq_test:.1f}"` in Florida against `{python} f"{other_freq_test:.1f}"` elsewhere. A model trained on the 2010s learns that Florida is relatively safe, just before the opposite happens. This is why we report results for Florida and the other states separately (RQ2).
 
-Among the other facts known in advance, past claims are the most informative: places with many claims from 1990 to 2008 also had more claims in the 2010s (rank correlation `{python} f"{kn['feature_spearman_train']['hist_per_1000']:.2f}"`), while the average coverage per policy matters little (@fig-eda-features in @sec-appendix-plots).
+Among the other facts known in advance, past claims are the most informative: places with many claims from 1990 to 2008 also had more claims in the 2010s (rank correlation `{python} f"{kn['feature_spearman_train']['hist_per_1000']:.2f}"`), while the average coverage per policy, in constant dollars, matters little (@fig-eda-features in @sec-appendix-plots).
 
 ## Correlation Analysis
 

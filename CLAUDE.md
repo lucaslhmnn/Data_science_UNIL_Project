@@ -4,6 +4,9 @@ Train 2010-2019, test 2020-2024 (2009 and 2025+ dropped: incomplete exposure or 
 Offset = exposure in policy-years. Target = claims with a positive BUILDING paid amount.
 Status (15 Nov): tract table not built yet. The update uses EDA/ds_clean.csv, the same kind of table
 at county x flood zone x year (built by EDA/build_ds_clean.py, columns in EDA/ds_clean_roles.json).
+First models on that table are in Modeles/ (run: bash Modeles/run_all.sh). The report reads
+Modeles/resultats/glissant_*.csv (rolling-origin evaluation 2016-2024, scripts/04_evaluation_glissante.py).
+Use coverage_real (constant dollars) in models, not mean_coverage (nominal, leaks the year).
 
 ## Rules
 - Course template (in repo) defines report structure. Never change its section order.

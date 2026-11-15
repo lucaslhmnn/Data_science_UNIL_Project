@@ -1,0 +1,302 @@
+0. Reproduction du premier jet (ajustement unique 2010-2019, test 2020-2024, jeu P)
+modele  gain_brut  gain_recale  gini  predit_sur_observe
+    M0      0.000        0.000   NaN               0.351
+    M1      0.071        0.106 0.248               0.344
+    M2     -0.034       -0.005 0.224               0.319
+    M3      0.137        0.031 0.224               0.629
+    M4      0.159        0.117 0.348               0.441
+
+Cible : payes | gain_brut (origine glissante)
+periode           validation 2016-2019  test 2020-2024
+variables modele                                      
+P         M0                     0.000           0.000
+          M1                     0.033           0.089
+          M2                     0.006           0.019
+          M3                     0.140           0.090
+          M4                     0.034          -0.031
+A         M0                     0.000           0.000
+          M1                     0.033           0.089
+          M2                     0.032           0.075
+          M3                     0.146           0.136
+          M4                     0.057          -0.042
+B         M0                     0.000           0.000
+          M1                     0.033           0.089
+          M2                     0.035           0.079
+          M3                     0.144           0.145
+          M4                     0.046          -0.036
+C         M0                     0.000           0.000
+          M1                     0.033           0.089
+          M2                     0.043           0.040
+          M3                     0.138           0.179
+          M4                     0.093          -0.051
+D         M0                     0.000           0.000
+          M1                     0.033           0.089
+          M2                     0.069           0.093
+          M3                     0.135           0.144
+          M4                     0.068          -0.058
+
+Cible : payes | gain_recale (origine glissante)
+periode           validation 2016-2019  test 2020-2024
+variables modele                                      
+P         M0                     0.000           0.000
+          M1                     0.045           0.126
+          M2                     0.039           0.039
+          M3                     0.064           0.036
+          M4                     0.046          -0.028
+A         M0                     0.000           0.000
+          M1                     0.045           0.126
+          M2                     0.036           0.044
+          M3                     0.063           0.036
+          M4                     0.072          -0.086
+B         M0                     0.000           0.000
+          M1                     0.045           0.126
+          M2                     0.040           0.049
+          M3                     0.061           0.046
+          M4                     0.060          -0.091
+C         M0                     0.000           0.000
+          M1                     0.045           0.126
+          M2                     0.052           0.047
+          M3                     0.066           0.073
+          M4                     0.109          -0.077
+D         M0                     0.000           0.000
+          M1                     0.045           0.126
+          M2                     0.064           0.036
+          M3                     0.051           0.044
+          M4                     0.060          -0.100
+
+Cible : payes | gini (origine glissante)
+periode           validation 2016-2019  test 2020-2024
+variables modele                                      
+P         M0                       NaN             NaN
+          M1                     0.241           0.233
+          M2                     0.269           0.274
+          M3                     0.273           0.237
+          M4                     0.229           0.215
+A         M0                       NaN             NaN
+          M1                     0.241           0.233
+          M2                     0.267           0.274
+          M3                     0.271           0.236
+          M4                     0.310           0.033
+B         M0                       NaN             NaN
+          M1                     0.241           0.233
+          M2                     0.272           0.275
+          M3                     0.278           0.263
+          M4                     0.254           0.062
+C         M0                       NaN             NaN
+          M1                     0.241           0.233
+          M2                     0.285           0.275
+          M3                     0.319           0.317
+          M4                     0.395           0.124
+D         M0                       NaN             NaN
+          M1                     0.241           0.233
+          M2                     0.313           0.281
+          M3                     0.239           0.257
+          M4                     0.282           0.066
+
+Cible : payes | predit_sur_observe (origine glissante)
+periode           validation 2016-2019  test 2020-2024
+variables modele                                      
+P         M0                     0.505           0.379
+          M1                     0.489           0.373
+          M2                     0.464           0.364
+          M3                     0.919           0.610
+          M4                     0.543           0.494
+A         M0                     0.505           0.379
+          M1                     0.489           0.373
+          M2                     0.516           0.428
+          M3                     0.978           0.696
+          M4                     0.527           0.417
+B         M0                     0.505           0.379
+          M1                     0.489           0.373
+          M2                     0.516           0.428
+          M3                     0.970           0.695
+          M4                     0.521           0.427
+C         M0                     0.505           0.379
+          M1                     0.489           0.373
+          M2                     0.501           0.385
+          M3                     1.402           0.879
+          M4                     0.516           0.386
+D         M0                     0.505           0.379
+          M1                     0.489           0.373
+          M2                     0.600           0.490
+          M3                     0.967           0.696
+          M4                     0.619           0.406
+
+Cible : payes_hors_grands_evenements | gain_brut (origine glissante)
+periode           validation 2016-2019  test 2020-2024
+variables modele                                      
+P         M0                     0.000           0.000
+          M1                     0.021           0.037
+          M2                     0.187           0.033
+          M3                    -0.036          -0.026
+          M4                     0.196          -0.015
+A         M0                     0.000           0.000
+          M1                     0.021           0.037
+          M2                     0.193           0.089
+          M3                    -0.109          -0.167
+          M4                     0.174           0.031
+B         M0                     0.000           0.000
+          M1                     0.021           0.037
+          M2                     0.199           0.089
+          M3                    -0.109          -0.164
+          M4                     0.186           0.039
+C         M0                     0.000           0.000
+          M1                     0.021           0.037
+          M2                     0.147           0.020
+          M3                    -0.624          -0.592
+          M4                     0.210          -0.001
+D         M0                     0.000           0.000
+          M1                     0.021           0.037
+          M2                     0.198           0.090
+          M3                    -0.116          -0.167
+          M4                     0.168           0.041
+
+Cible : payes_hors_grands_evenements | gain_recale (origine glissante)
+periode           validation 2016-2019  test 2020-2024
+variables modele                                      
+P         M0                     0.000           0.000
+          M1                     0.021           0.040
+          M2                     0.198           0.085
+          M3                     0.121           0.083
+          M4                     0.201           0.000
+A         M0                     0.000           0.000
+          M1                     0.021           0.040
+          M2                     0.196           0.094
+          M3                     0.115           0.082
+          M4                     0.178           0.047
+B         M0                     0.000           0.000
+          M1                     0.021           0.040
+          M2                     0.201           0.094
+          M3                     0.113           0.083
+          M4                     0.189           0.066
+C         M0                     0.000           0.000
+          M1                     0.021           0.040
+          M2                     0.149           0.019
+          M3                     0.041           0.056
+          M4                     0.214          -0.002
+D         M0                     0.000           0.000
+          M1                     0.021           0.040
+          M2                     0.201           0.097
+          M3                     0.090           0.077
+          M4                     0.171           0.059
+
+Cible : payes_hors_grands_evenements | gini (origine glissante)
+periode           validation 2016-2019  test 2020-2024
+variables modele                                      
+P         M0                       NaN             NaN
+          M1                     0.251           0.186
+          M2                     0.570           0.274
+          M3                     0.533           0.294
+          M4                     0.605           0.302
+A         M0                       NaN             NaN
+          M1                     0.251           0.186
+          M2                     0.565           0.273
+          M3                     0.528           0.283
+          M4                     0.564           0.249
+B         M0                       NaN             NaN
+          M1                     0.251           0.186
+          M2                     0.583           0.277
+          M3                     0.521           0.288
+          M4                     0.571           0.283
+C         M0                       NaN             NaN
+          M1                     0.251           0.186
+          M2                     0.540           0.231
+          M3                     0.351           0.281
+          M4                     0.592           0.297
+D         M0                       NaN             NaN
+          M1                     0.251           0.186
+          M2                     0.582           0.280
+          M3                     0.417           0.272
+          M4                     0.549           0.254
+
+Cible : payes_hors_grands_evenements | predit_sur_observe (origine glissante)
+periode           validation 2016-2019  test 2020-2024
+variables modele                                      
+P         M0                     1.007           0.853
+          M1                     1.000           0.847
+          M2                     0.830           0.617
+          M3                     2.135           1.754
+          M4                     0.948           0.791
+A         M0                     1.007           0.853
+          M1                     1.000           0.847
+          M2                     1.047           1.035
+          M3                     2.448           2.261
+          M4                     1.068           1.098
+B         M0                     1.007           0.853
+          M1                     1.000           0.847
+          M2                     1.047           1.033
+          M3                     2.438           2.257
+          M4                     1.046           1.114
+C         M0                     1.007           0.853
+          M1                     1.000           0.847
+          M2                     1.013           0.870
+          M3                     4.065           3.385
+          M4                     1.029           0.864
+D         M0                     1.007           0.853
+          M1                     1.000           0.847
+          M2                     1.041           1.069
+          M3                     2.369           2.241
+          M4                     1.005           1.082
+
+Intervalles de confiance à 95 % (bootstrap des comtés), écart de gain recalé
+                       cible variables              periode   ecart  ecart_gain_recale  ic95_bas  ic95_haut
+                       payes         P validation 2016-2019 M4 - M2              0.008    -0.078      0.105
+                       payes         P validation 2016-2019 M4 - M1              0.001    -0.045      0.050
+                       payes         P validation 2016-2019 M2 - M1             -0.007    -0.127      0.092
+                       payes         P       test 2020-2024 M4 - M2             -0.067    -0.142      0.043
+                       payes         P       test 2020-2024 M4 - M1             -0.154    -0.244     -0.045
+                       payes         P       test 2020-2024 M2 - M1             -0.087    -0.176      0.008
+                       payes         A validation 2016-2019 M4 - M2              0.036    -0.034      0.120
+                       payes         A validation 2016-2019 M4 - M1              0.027    -0.023      0.078
+                       payes         A validation 2016-2019 M2 - M1             -0.009    -0.130      0.087
+                       payes         A       test 2020-2024 M4 - M2             -0.130    -0.222     -0.016
+                       payes         A       test 2020-2024 M4 - M1             -0.213    -0.370     -0.057
+                       payes         A       test 2020-2024 M2 - M1             -0.083    -0.170      0.004
+                       payes         B validation 2016-2019 M4 - M2              0.020    -0.046      0.104
+                       payes         B validation 2016-2019 M4 - M1              0.015    -0.032      0.062
+                       payes         B validation 2016-2019 M2 - M1             -0.005    -0.113      0.083
+                       payes         B       test 2020-2024 M4 - M2             -0.140    -0.239     -0.029
+                       payes         B       test 2020-2024 M4 - M1             -0.218    -0.392     -0.051
+                       payes         B       test 2020-2024 M2 - M1             -0.078    -0.157      0.006
+                       payes         C validation 2016-2019 M4 - M2              0.057    -0.045      0.161
+                       payes         C validation 2016-2019 M4 - M1              0.064     0.009      0.122
+                       payes         C validation 2016-2019 M2 - M1              0.007    -0.105      0.100
+                       payes         C       test 2020-2024 M4 - M2             -0.124    -0.208      0.022
+                       payes         C       test 2020-2024 M4 - M1             -0.203    -0.337     -0.049
+                       payes         C       test 2020-2024 M2 - M1             -0.079    -0.169      0.011
+                       payes         D validation 2016-2019 M4 - M2             -0.004    -0.068      0.072
+                       payes         D validation 2016-2019 M4 - M1              0.015    -0.043      0.074
+                       payes         D validation 2016-2019 M2 - M1              0.019    -0.090      0.107
+                       payes         D       test 2020-2024 M4 - M2             -0.137    -0.227     -0.032
+                       payes         D       test 2020-2024 M4 - M1             -0.227    -0.388     -0.060
+                       payes         D       test 2020-2024 M2 - M1             -0.090    -0.189      0.011
+payes_hors_grands_evenements         P validation 2016-2019 M4 - M2              0.004    -0.050      0.069
+payes_hors_grands_evenements         P validation 2016-2019 M4 - M1              0.180     0.117      0.255
+payes_hors_grands_evenements         P validation 2016-2019 M2 - M1              0.176     0.120      0.242
+payes_hors_grands_evenements         P       test 2020-2024 M4 - M2             -0.085    -0.149     -0.030
+payes_hors_grands_evenements         P       test 2020-2024 M4 - M1             -0.040    -0.155      0.091
+payes_hors_grands_evenements         P       test 2020-2024 M2 - M1              0.045    -0.060      0.163
+payes_hors_grands_evenements         A validation 2016-2019 M4 - M2             -0.017    -0.066      0.043
+payes_hors_grands_evenements         A validation 2016-2019 M4 - M1              0.157     0.097      0.232
+payes_hors_grands_evenements         A validation 2016-2019 M2 - M1              0.174     0.125      0.240
+payes_hors_grands_evenements         A       test 2020-2024 M4 - M2             -0.047    -0.125      0.013
+payes_hors_grands_evenements         A       test 2020-2024 M4 - M1              0.007    -0.100      0.137
+payes_hors_grands_evenements         A       test 2020-2024 M2 - M1              0.054    -0.044      0.160
+payes_hors_grands_evenements         B validation 2016-2019 M4 - M2             -0.013    -0.060      0.043
+payes_hors_grands_evenements         B validation 2016-2019 M4 - M1              0.167     0.108      0.236
+payes_hors_grands_evenements         B validation 2016-2019 M2 - M1              0.180     0.131      0.242
+payes_hors_grands_evenements         B       test 2020-2024 M4 - M2             -0.028    -0.084      0.028
+payes_hors_grands_evenements         B       test 2020-2024 M4 - M1              0.026    -0.095      0.160
+payes_hors_grands_evenements         B       test 2020-2024 M2 - M1              0.054    -0.043      0.156
+payes_hors_grands_evenements         C validation 2016-2019 M4 - M2              0.064     0.003      0.136
+payes_hors_grands_evenements         C validation 2016-2019 M4 - M1              0.192     0.136      0.243
+payes_hors_grands_evenements         C validation 2016-2019 M2 - M1              0.128     0.078      0.173
+payes_hors_grands_evenements         C       test 2020-2024 M4 - M2             -0.021    -0.107      0.079
+payes_hors_grands_evenements         C       test 2020-2024 M4 - M1             -0.042    -0.196      0.119
+payes_hors_grands_evenements         C       test 2020-2024 M2 - M1             -0.020    -0.111      0.077
+payes_hors_grands_evenements         D validation 2016-2019 M4 - M2             -0.031    -0.068      0.013
+payes_hors_grands_evenements         D validation 2016-2019 M4 - M1              0.149     0.090      0.214
+payes_hors_grands_evenements         D validation 2016-2019 M2 - M1              0.180     0.129      0.242
+payes_hors_grands_evenements         D       test 2020-2024 M4 - M2             -0.039    -0.077      0.008
+payes_hors_grands_evenements         D       test 2020-2024 M4 - M1              0.019    -0.116      0.156
+payes_hors_grands_evenements         D       test 2020-2024 M2 - M1              0.057    -0.048      0.168

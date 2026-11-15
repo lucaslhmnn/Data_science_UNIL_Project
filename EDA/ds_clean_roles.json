@@ -14,6 +14,7 @@
   "features": [
     "zone",
     "mean_coverage",
+    "coverage_real",
     "hist_claims_1990_2008",
     "hist_per_1000",
     "county_hist_per_1000"
@@ -34,7 +35,8 @@
     "year": "calendar year (claims: yearOfLoss; policies: days covered in the year)",
     "n_claims": "claims with a positive building paid amount (real USD > 0)",
     "exposure_years": "policy-years in force: sum of policyCount x days covered / 365.25",
-    "mean_coverage": "building coverage-years / policy-years, nominal USD",
+    "mean_coverage": "building coverage-years / policy-years, nominal USD (rises with prices, so it carries a time trend: prefer coverage_real in models)",
+    "coverage_real": "mean_coverage in constant 2024 USD, deflated by the annual average CPI-U of the previous year",
     "hist_claims_1990_2008": "paid claims of this county and zone, loss years 1990-2008",
     "hist_per_1000": "hist_claims_1990_2008 per 1,000 average policy-years of the county and zone over 2010-2019",
     "county_hist_per_1000": "paid claims of the county (all zones), 1990-2008, per 1,000 average yearly policy-years of the county over 2010-2019",

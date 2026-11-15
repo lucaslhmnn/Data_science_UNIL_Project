@@ -51,6 +51,7 @@ installable tel quel.
 | `scripts/01_verifications.py` | Phase 1 ; écrit `VERIFICATIONS.md`, et `BLOCAGE.md` en cas de blocage |
 | `scripts/02_modeles.py` | Phase 2 : M0, M1, M_oracle, M2, M3, M4, pour les cibles « payés » et « tous » |
 | `scripts/03_evaluation.py` | Phase 3 : déviances, calibration, bootstrap, importances, figures |
+| `scripts/04_evaluation_glissante.py` | Phase 4 (ajoutée après le premier jet, non pré-enregistrée) : évaluation à origine glissante 2016–2024, voir ci-dessous |
 | `resultats/` | Prédictions par ligne, déviances, calibration, bootstrap, coefficients, grille et modèles LightGBM (`m4_*.txt`), diagnostic recalé |
 | `figures/` | Prédit contre observé par année, calibration par zone, gain de déviance par année (pour chaque cible) |
 | `logs/` | Sortie de chaque script, environnement, durées |
@@ -70,3 +71,33 @@ Détail et réserves dans `RAPPORT_MODELES.md`.
   d'entraînement.
 - **Une fois le niveau retiré** (diagnostic non pré-enregistré), M4 (+11,7 %) dépasse à peine le GLM
   « zone seule » (+10,6 %).
+
+## Phase 4 : évaluation à origine glissante (ajout du 15/11/2026, Lucas J.)
+
+Analyse complémentaire, **non pré-enregistrée**, ajoutée après lecture du premier jet. Les scripts 01 à 03
+et leurs résultats ne sont pas modifiés. `scripts/04_evaluation_glissante.py` reprend les modèles M0 à M4
+à l'identique (formules, grille, offset de l'avenant n° 1) et change quatre choses :
+
+1. **Évaluation** : ajuster sur 2010..t−1 et prédire t, pour t = 2016 à 2024. 2016–2019 sert de
+   validation, 2020–2024 reste le test. La grille LightGBM est réglée à chaque origine sur les deux
+   dernières années d'entraînement.
+2. **Variables** : le jeu principal (A) remplace la couverture nominale par `coverage_real` (nouvelle
+   colonne de `ds_clean`, dollars constants de 2024). Jeux de sensibilité : P (premier jet), B (sans
+   historique du comté), C (sans couverture), D (avec historique récent de la cellule).
+3. **Mesures** : gain de déviance brut et recalé par année, Gini, prédit sur observé, intervalles à 95 %
+   par rééchantillonnage des comtés, et détail Floride contre les sept autres États.
+4. **Sensibilité** : même évaluation sur les sinistres payés hors des dix plus grands événements.
+
+Sorties : `resultats/glissant_*.csv`, `figures/glissant_gain.png`, `logs/04_evaluation_glissante.log`.
+Le rapport Quarto lit ces fichiers. Durée : environ 3 minutes.
+
+Résultat principal (cible « payés », jeu A, gain recalé par rapport à M0) : sur le test, M1 (zone seule)
++12,6 %, M2 +4,4 %, M3 +3,6 %, M4 −8,6 % ; l'écart M4 − M1 a un intervalle à 95 % qui exclut zéro.
+Le gain de M4 dans le premier jet (+15,9 %) ne résiste pas : le nombre d'arbres retenu varie de 1 à 272
+selon l'origine. Hors grands événements, les totaux prédits sont proches des observés et M2 gagne
++8,9 % sur le test.
+
+Contrôles : le script reproduit d'abord le premier jet (`glissant_reproduction_premier_jet.csv`, mêmes
+gains à trois décimales). `ds_clean.csv` a gagné la colonne `coverage_real` ; ses 18 autres colonnes sont
+identiques, et une réexécution de 01 à 03 redonne les résultats commités à 1e-12 près (les fichiers
+commités du premier jet ont donc été laissés tels quels, `ENTREES.txt` compris).

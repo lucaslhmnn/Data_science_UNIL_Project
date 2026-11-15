@@ -6,7 +6,7 @@ Every hurricane season, thousands of homeowners in the southeastern United State
 
 Insurers have long answered this question with generalized linear models (GLMs), which are transparent and easy to explain. Machine learning methods such as gradient boosting promise better predictions by finding patterns that a GLM does not look for. Our project tests this promise on real flood data. We compare LightGBM, a gradient boosting method, with two classical count models, a Poisson GLM and a negative binomial GLM, on the claims and policies that FEMA publishes through its OpenFEMA platform.
 
-We study FEMA Region 4, the eight states of the Southeast (Alabama, Florida, Georgia, Kentucky, Mississippi, North Carolina, South Carolina and Tennessee), from the coast of Florida to the hills of Kentucky. The models learn from 2010 to 2019 and are tested on 2020 to 2024, the way an insurer would use past years to predict future ones.
+We study FEMA Region 4, the eight states of the Southeast (Alabama, Florida, Georgia, Kentucky, Mississippi, North Carolina, South Carolina and Tennessee), from the coast of Florida to the hills of Kentucky. The data cover 2010 to 2024. Each year from 2016 on is predicted from the years before it, the way an insurer would use the past to predict the future, and the years 2020 to 2024 are kept as the final test.
 
 ### Adjustments to the Proposal
 
