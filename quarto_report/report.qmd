@@ -158,7 +158,7 @@ Generative AI was used in this project. Claude (Anthropic), through the Claude C
 
 ### Appendix A: Additional Exploratory Plots {#sec-appendix-plots}
 
-![Candidate features against the frequency, training years 2010 to 2019. County-zone cells with at least 100 policy-years are grouped in deciles of each feature: (left) mean building coverage per policy, (middle) paid claims of 1990 to 2008 per 1,000 policies in the same cell, (right) the same measure for the whole county. Log scale for the frequency.](../figures/eda_5_features.png){#fig-eda-features}
+![Candidate features against the frequency, training years 2010 to 2019. County-zone cells with at least 100 policy-years are grouped in deciles of each feature: (left) mean building coverage per policy, (middle) paid claims of 1990 to 2008 per 1,000 policies in the same cell, (right) the same measure for the whole county. Log scale for the frequency.](../EDA/figures/eda_5_features.png){#fig-eda-features}
 
 @fig-eda-features shows the relation between the candidate features and the frequency over the training years. Past claims, for the cell (rank correlation `{python} f"{kn['feature_spearman_train']['hist_per_1000']:.2f}"`) and for the county (`{python} f"{kn['feature_spearman_train']['county_hist_per_1000']:.2f}"`), are associated with a higher frequency, with a clear step for the most exposed deciles. Mean coverage is weakly and negatively related (`{python} f"{kn['feature_spearman_train']['mean_coverage']:.2f}"`), which may reflect that higher-value homes are located away from the most exposed areas. The curves are irregular, which suggests that the relations are not linear and supports comparing the GLMs with a tree-based model.
 
@@ -168,7 +168,7 @@ The code is in the project repository, <https://github.com/lucaslhmnn/Data_scien
 
 - `Data_cleaning/clean/clean_data.py`: audit of the raw files, treatment of sentinel values, cleaning of the claims and computation of the policy exposure (`zone_year.parquet`);
 - `EDA/build_ds_clean.py`: joins the paid claims and the exposure per county, flood zone and year into the analysis table `EDA/ds_clean.csv`, with the definition of each column in `EDA/ds_clean_roles.json`;
-- `EDA/eda.py`: exploratory analysis of `ds_clean`, which writes the figures of @sec-eda and @sec-appendix-plots and the key numbers (`figures/eda_key_numbers.json`) used in the text;
+- `EDA/eda.py`: exploratory analysis of `ds_clean`, which writes the figures of @sec-eda and @sec-appendix-plots and the key numbers (`EDA/figures/eda_key_numbers.json`) used in the text;
 - `quarto_report/`: this report, whose code cells compute all statistics from the cleaned files.
 
 ### Appendix C: Supplementary Tables {#sec-appendix-tables}

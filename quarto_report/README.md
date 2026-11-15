@@ -61,10 +61,10 @@ You can also double-click `report.html` in your file manager, or drag it into a 
   reached with `project_root.parent`, e.g. `project_root.parent / "data" / "processed" / ...`.
 - Rendering creates an empty `quarto_report/data/processed/` folder (done by `src/project_setup.py`).
 - The code cells read only versioned files (`Data_cleaning/clean/*.parquet`, `EDA/ds_clean.csv`,
-  `EDA/ds_clean_roles.json`, and the figures and key numbers in `figures/`), so the report renders
+  `EDA/ds_clean_roles.json`, and the figures and key numbers in `EDA/figures/`), so the report renders
   after a plain `git pull`, without the raw files. They need `pandas`, `pyarrow` and `scipy`. If
   `EDA/ds_clean.csv` changes, run `python3 EDA/eda.py` before rendering so that the figures and
-  `figures/eda_key_numbers.json` match. Cells that need data not yet built (`tract_year.parquet`)
+  `EDA/figures/eda_key_numbers.json` match. Cells that need data not yet built (`tract_year.parquet`)
   use `#| eval: false`.
 - One statistic (missing tract among raw claims) is computed only if `NfipClaimsV3_SE.parquet` is
   present locally; otherwise the text says it was not computed.

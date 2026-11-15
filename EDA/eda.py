@@ -14,7 +14,7 @@ EDA/ds_clean_roles.json. Both files are made by EDA/build_ds_clean.py
 from the cleaned claims and policies, and are versioned, so this script runs on its own.
 A "unit" below is one county x zone cell.
 
-Story told by the figures (figures/eda_*.png and .pdf)
+Story told by the figures (EDA/figures/eda_*.png and .pdf)
 ------------------------------------------------------
   eda_1_exposure_claims  Exposure is stable; claims and frequency jump in hurricane years.
   eda_2_overdispersion   Counts are mostly small with a long tail: variance far above
@@ -26,7 +26,7 @@ Story told by the figures (figures/eda_*.png and .pdf)
   eda_6_geography        Frequency by state, and persistence of the frequency of each
                          county x zone cell between training and test periods.
 
-Tables (figures/):
+Tables (EDA/figures/):
   eda_by_year.csv, eda_by_state.csv, eda_unit_year_summary.csv, eda_key_numbers.json
 
 Conventions: a claim counts if its building paid amount is positive (the target);
@@ -51,7 +51,7 @@ from matplotlib.ticker import FuncFormatter, MaxNLocator, NullFormatter
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "EDA" / "ds_clean.csv"            # made by EDA/build_ds_clean.py
 ROLES = ROOT / "EDA" / "ds_clean_roles.json"
-OUT = ROOT / "figures"
+OUT = ROOT / "EDA" / "figures"
 OUT.mkdir(parents=True, exist_ok=True)
 
 TRAIN = (2010, 2019)

@@ -11,7 +11,7 @@ La fréquence est le nombre de sinistres payés rapporté au nombre de polices e
 |---|---|
 | `ds_clean.csv` | Le dataset d'analyse : une ligne par comté × zone d'inondation × année, 2010-2024 |
 | `ds_clean_roles.json` | Rôle et définition de chaque colonne, sinistres écartés, 10 plus gros événements |
-| `eda.py` | L'EDA : lit `ds_clean.csv`, écrit les figures et les tableaux dans `figures/` |
+| `eda.py` | L'EDA : lit `ds_clean.csv`, écrit les figures et les tableaux dans `EDA/figures/` |
 | `build_ds_clean.py` | Construit `ds_clean.csv` à partir des données nettoyées |
 
 ## Lancer
@@ -21,7 +21,7 @@ python3 EDA/eda.py              # l'EDA (le CSV est versionné, rien à reconstr
 python3 EDA/build_ds_clean.py   # seulement si les données nettoyées changent
 ```
 
-Sorties dans `figures/` : `eda_1` à `eda_6` (PNG et PDF), `eda_key_numbers.json` (tous les
+Sorties dans `EDA/figures/` : `eda_1` à `eda_6` (PNG et PDF), `eda_key_numbers.json` (tous les
 chiffres cités dans le rapport), `eda_by_year.csv`, `eda_by_state.csv`,
 `eda_unit_year_summary.csv`.
 
@@ -82,7 +82,7 @@ Effectifs : 22 485 lignes, 734 comtés, 1 533 cellules comté × zone, 197 482 s
 
 ## Conclusions de l'EDA
 
-Chiffres issus de `figures/eda_key_numbers.json`.
+Chiffres issus de `EDA/figures/eda_key_numbers.json`.
 
 **C1. Le risque est piloté par des catastrophes, pas par le portefeuille** (`eda_1`). L'exposition
 est stable (de 1,69 M à 1,28 M de polices-années, −24 %), mais la fréquence annuelle varie d'un

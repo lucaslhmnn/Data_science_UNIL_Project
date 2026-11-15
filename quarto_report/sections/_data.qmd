@@ -58,7 +58,7 @@ anomalies = pd.read_parquet(clean_dir / "claims_anomalies.parquet", columns=["mo
 ds = pd.read_csv(repo_root / "EDA" / "ds_clean.csv", dtype={"county_id": str, "zone": str, "state": str})
 ds_roles = json.loads((repo_root / "EDA" / "ds_clean_roles.json").read_text())
 # Key numbers written by the EDA script (EDA/eda.py)
-kn = json.loads((repo_root / "figures" / "eda_key_numbers.json").read_text())
+kn = json.loads((repo_root / "EDA" / "figures" / "eda_key_numbers.json").read_text())
 
 print(f"claims_clean:     {claims.shape[0]:,} rows")
 print(f"claims_anomalies: {anomalies.shape[0]:,} rows")
