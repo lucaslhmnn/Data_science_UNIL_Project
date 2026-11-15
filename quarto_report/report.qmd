@@ -1,7 +1,10 @@
 ---
 title: "**[TO FILL BY TEAM: final project title]**"
 author:
- - "[TO FILL BY TEAM: authors, one entry per member, as Name, First Name]"
+ - Jondeau, Lucas
+ - Lehmann, Lucas
+ - Rohner, Nicolas
+ - Villadoniga, Pablo
 institute: "[TO FILL BY TEAM: institute]"
 date: today
 title-block-banner: "#0095C8" # chosen for the university of lausanne
