@@ -1,0 +1,111 @@
+== 1. Chiffres relus dans leur source
+  OK  raw_claims                   source=787274 json=787274 affichage=787,274
+  OK  single_family                source=624268 json=624268 affichage=624,268
+  OK  anomalies                    source=2575 json=2575 affichage=2,575
+  OK  clean_claims                 source=621693 json=621693 affichage=621,693
+  OK  anom_neg_age                 source=1378 json=1378 affichage=1,378
+  OK  anom_duplicate               source=888 json=888 affichage=888
+  OK  anom_paid_nocov              source=277 json=277 affichage=277
+  OK  anom_neg_paid                source=34 json=34 affichage=34
+  OK  anom_two_reasons             source=2 json=2 affichage=2
+  OK  ds_rows                      source=22485 json=22485 affichage=22,485
+  OK  ds_counties                  source=734 json=734 affichage=734
+  OK  policy_years                 source=22701122.37 json=22701122.37 affichage=22.7 million
+  OK  rows_used                    source=22472 json=22472 affichage=22,472
+  OK  rows_excluded                source=13 json=13 affichage=13
+  OK  rows_train                   source=14999 json=14999 affichage=14,999
+  OK  rows_test                    source=7473 json=7473 affichage=7,473
+  OK  claims_train_paid            source=88898 json=88898 affichage=88,898
+  OK  claims_test_paid             source=108584 json=108584 affichage=108,584
+  OK  claims_train_all             source=123082 json=123082 affichage=123,082
+  OK  claims_test_all              source=130316 json=130316 affichage=130,316
+  OK  freq_train                   source=5.59683042 json=5.59683042 affichage=5.60
+  OK  freq_test                    source=15.92727075 json=15.92727075 affichage=15.93
+  OK  share_2024_test              source=0.5077727842 json=0.5077727842 affichage=50.8%
+  OK  excl13_dev_effect            source=3.791424881e-07 json=3.791424881e-07 affichage=3.8e-07
+  OK  m2_pearson_disp              source=109.2362626 json=109.2362626 affichage=109.2
+  OK  m2_aic                       source=388487.4439 json=388487.4439 affichage=388,487
+  OK  m3_aic                       source=36689.84682 json=36689.84682 affichage=36,690
+  OK  m3_alpha                     source=6.126863402 json=6.126863402 affichage=6.13
+  OK  m3_train_ratio               source=1.943603777 json=1.943603777 affichage=1.94
+  OK  nb_const_ratio               source=2.636632387 json=2.636632387 affichage=2.64
+  OK  vc2_coef_diff                source=1.446498598e-06 json=1.446498598e-06 affichage=1.4e-06
+  OK  vc1_metric_diff              source=5.86197757e-14 json=5.86197757e-14 affichage=5.9e-14
+  OK  m4_iters                     source=122 json=122 affichage=122
+  OK  m4_nonreg                    source=1.001300799 json=1.001300799 affichage=1.0013
+  OK  se_ratio_vzone               source=12.62392171 json=12.62392171 affichage=13
+  OK  boot_distinct                source=118 json=118 affichage=118
+  OK  gain_test_M1_payes           source=0.07094932873 json=0.07094932873 affichage=+7.1%
+  OK  gain_test_M1_tous            source=0.06903849625 json=0.06903849625 affichage=+6.9%
+  OK  gain_test_M2_payes           source=-0.03397678017 json=-0.03397678017 affichage=-3.4%
+  OK  gain_test_M2_tous            source=-0.01904116498 json=-0.01904116498 affichage=-1.9%
+  OK  gain_test_M3_payes           source=0.1374645466 json=0.1374645466 affichage=+13.7%
+  OK  gain_test_M3_tous            source=0.1303178179 json=0.1303178179 affichage=+13.0%
+  OK  gain_test_M4_payes           source=0.1586846503 json=0.1586846503 affichage=+15.9%
+  OK  gain_test_M4_tous            source=0.1755906938 json=0.1755906938 affichage=+17.6%
+  OK  gain_test_M_oracle_payes     source=0.4312185851 json=0.4312185851 affichage=+43.1%
+  OK  gain_test_M_oracle_tous      source=0.4103916801 json=0.4103916801 affichage=+41.0%
+  OK  gain_recal_M1_payes          source=0.1060559204 json=0.1060559204 affichage=+10.6%
+  OK  gain_recal_M1_tous           source=0.1002135615 json=0.1002135615 affichage=+10.0%
+  OK  gain_recal_M2_payes          source=-0.004609890229 json=-0.004609890229 affichage=-0.5%
+  OK  gain_recal_M2_tous           source=0.006210851504 json=0.006210851504 affichage=+0.6%
+  OK  gain_recal_M3_payes          source=0.03135469213 json=0.03135469213 affichage=+3.1%
+  OK  gain_recal_M3_tous           source=0.03452272784 json=0.03452272784 affichage=+3.5%
+  OK  gain_recal_M4_payes          source=0.1169540545 json=0.1169540545 affichage=+11.7%
+  OK  gain_recal_M4_tous           source=0.1247703457 json=0.1247703457 affichage=+12.5%
+  OK  zone_share_m4                source=0.9068169619 json=0.9068169619 affichage=91%
+  OK  zone_share_l2                source=0.6449414694 json=0.6449414694 affichage=64%
+  OK  ratio_test_M0                source=0.3513986504 json=0.3513986504 affichage=0.35
+  OK  ratio_test_M2                source=0.3189907156 json=0.3189907156 affichage=0.32
+  OK  ratio_test_M3                source=0.6289943707 json=0.6289943707 affichage=0.63
+  OK  ratio_test_M4                source=0.4412246056 json=0.4412246056 affichage=0.44
+  OK  ratio_2021_M4                source=2.710402166 json=2.710402166 affichage=2.71
+  OK  ratio_2022_M4                source=0.300935259 json=0.300935259 affichage=0.30
+  OK  ratio_2024_M4                source=0.1928542544 json=0.1928542544 affichage=0.19
+  OK  abl_G1_raw                   source=0.001539113477 json=0.001539113477 affichage=+0.2%
+  OK  abl_G1_rec                   source=-0.009817028892 json=-0.009817028892 affichage=-1.0%
+  OK  abl_G3_raw                   source=-0.03191357503 json=-0.03191357503 affichage=-3.2%
+  OK  abl_G3_rec                   source=0.07894252885 json=0.07894252885 affichage=+7.9%
+  OK  abl_G5_hp_raw                source=0.0007615243613 json=0.0007615243613 affichage=+0.1%
+  OK  abl_G5_hp_rec                source=0.06890274798 json=0.06890274798 affichage=+6.9%
+  OK  abl_L1_raw                   source=-0.05399942545 json=-0.05399942545 affichage=-5.4%
+  OK  abl_L1_rec                   source=-0.0895399317 json=-0.0895399317 affichage=-9.0%
+  OK  abl_L2_raw                   source=0.2179875379 json=0.2179875379 affichage=+21.8%
+  OK  abl_L2_rec                   source=0.1644427059 json=0.1644427059 affichage=+16.4%
+  OK  abl_L3_raw                   source=0.1563184969 json=0.1563184969 affichage=+15.6%
+  OK  abl_L3_rec                   source=0.1372560248 json=0.1372560248 affichage=+13.7%
+  OK  abl_L5_raw                   source=0.05331907053 json=0.05331907053 affichage=+5.3%
+  OK  abl_L5_rec                   source=0.07952243314 json=0.07952243314 affichage=+8.0%
+  OK  abl_L6_raw                   source=-0.08696655602 json=-0.08696655602 affichage=-8.7%
+  OK  abl_L6_rec                   source=-0.1283734081 json=-0.1283734081 affichage=-12.8%
+  OK  abl_L5_train                 source=0.02221449954 json=0.02221449954 affichage=+2.2%
+  OK  abl_M1_train                 source=0.02446967907 json=0.02446967907 affichage=+2.4%
+  OK  mult_A                       source=3.723410457 json=3.723410457 affichage=x3.72
+  OK  mult_V                       source=2.921527355 json=2.921527355 affichage=x2.92
+  OK  mult_X                       source=0.8685525105 json=0.8685525105 affichage=x0.87
+  OK  x_claims_share_2021          source=0.3488862131 json=0.3488862131 affichage=34.9%
+  OK  x_claims_share_2022          source=0.06854164618 json=0.06854164618 affichage=6.9%
+  OK  x_expo_share_min             source=0.4015611265 json=0.4015611265 affichage=40.2%
+  OK  x_expo_share_max             source=0.4644664089 json=0.4644664089 affichage=46.4%
+  OK  t5_expo_train                source=0.8101731358 json=0.8101731358 affichage=81.0%
+  OK  t5_expo_test                 source=0.9294110483 json=0.9294110483 affichage=92.9%
+  OK  t5_rate_train                source=4.334617992 json=4.334617992 affichage=4.33
+  OK  t5_rate_test                 source=16.28836701 json=16.28836701 affichage=16.29
+  OK  t5_rows_test                 source=0.437 json=0.437 affichage=43.7%
+  OK  perm_zone                    source=78522.81402 json=78522.81402 affichage=+78,523
+  OK  perm_cov                     source=65557.99642 json=65557.99642 affichage=+65,558
+  OK  perm_chist                   source=-13783.51887 json=-13783.51887 affichage=-13,784
+  OK  gain_share_chist             source=0.4882611051 json=0.4882611051 affichage=49%
+== 2. Clés citées dans la section : 71 distinctes ; inconnues : aucune
+== 3. Chiffres écrits à la main dans la prose : 0
+== 5. Registre : 23 résultats ; marqués dans la section : 23
+  figure ../Analyse_preliminaire/figures/fig_ap_gains.png : existe
+  figure ../Analyse_preliminaire/figures/fig_ap_calibration.png : existe
+  figure ../Analyse_preliminaire/figures/fig_ap_ablation.png : existe
+  figure ../Analyse_preliminaire/figures/fig_ap_zone_rates.png : existe
+== 6. Figures : 4 ; tableaux : 14
+== 7. Mots interdits : aucun ; « demonstrated » hors étiquette : 0 ; tiret cadratin : non
+== 4. Rendu Quarto (gfm) : OK ; valeurs citées absentes du rendu : aucune
+
+AVERTISSEMENT : phrase causale à relire : The current work addresses claim frequency, because the redacted OpenFEMA claims and policies share no identifier: a claim cannot be linked 
+RÉSULTAT : OK, aucun écart ; 1 avertissement(s)

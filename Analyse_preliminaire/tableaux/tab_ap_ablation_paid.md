@@ -1,0 +1,18 @@
+<!-- tab_ap_ablation_paid | Ablation, paid claims: gain relative to M0 (%) and predicted / observed | sources : Modeles/complements/resultats/ablation_deviance.csv, Modeles/complements/resultats/ablation_calibration_annee.csv | statut : [Provisoire, exploratoire] | v0.1, 15/11/2026 ; résultats provisoires et exploratoires, voir STATUT_RESULTATS.md -->
+**Ablation, paid claims: gain relative to M0 (%) and predicted / observed** [Provisoire, exploratoire]
+
+Sources : `Modeles/complements/resultats/ablation_deviance.csv`, `Modeles/complements/resultats/ablation_calibration_annee.csv`
+
+| Model | Features | Test | Test excl. 2024 | Rescaled | Pred./obs. |
+|---|---|---|---|---|---|
+| M1 | GLM: zone | 7.09 | 7.29 | 10.61 | 0.34 |
+| M2 | GLM: zone + coverage + histories | -3.4 | -2.65 | -0.46 | 0.32 |
+| G1 | GLM: zone + histories | 0.15 | -0.99 | -0.98 | 0.36 |
+| G3 | GLM: zone + coverage | -3.19 | 0.67 | 7.89 | 0.27 |
+| G5_hp | GLM: zone + coverage bands (outside protocol) | 0.08 | 2.23 | 6.89 | 0.3 |
+| M4 | LightGBM: zone + coverage + histories | 15.87 | 13.98 | 11.7 | 0.44 |
+| L1 | LightGBM: zone + histories | -5.4 | -5.07 | -8.95 | 0.36 |
+| L2 | LightGBM: zone + coverage + cell history | 21.8 | 18.95 | 16.44 | 0.49 |
+| L3 | LightGBM: zone + coverage | 15.63 | 12.63 | 13.73 | 0.42 |
+| L5 | LightGBM: zone | 5.33 | 5.53 | 7.95 | 0.35 |
+| L6 | LightGBM: zone + coverage rank in year + histories | -8.7 | -5.82 | -12.84 | 0.35 |

@@ -1,0 +1,37 @@
+<!-- tab_ap_annexe_ablation_complete | Appendix: full ablation, gain relative to M0 (%) | sources : Modeles/complements/resultats/ablation_deviance.csv | statut : [Provisoire, exploratoire] | v0.1, 15/11/2026 ; résultats provisoires et exploratoires, voir STATUT_RESULTATS.md -->
+**Appendix: full ablation, gain relative to M0 (%)** [Provisoire, exploratoire]
+
+Sources : `Modeles/complements/resultats/ablation_deviance.csv`
+
+| Target | Model | Train | Test | Test excl. 2024 | Rescaled | Rescaled excl. 2024 |
+|---|---|---|---|---|---|---|
+| payes | G1 | 10.1 | 0.15 | -0.99 | -0.98 | -1.68 |
+| payes | G2 | 11.31 | -2.13 | -1.81 | -0.11 | -0.55 |
+| payes | G3 | 5.65 | -3.19 | 0.67 | 7.89 | 7.08 |
+| payes | G4 | 11.37 | 0.69 | -0.83 | -1.42 | -2.06 |
+| payes | G5_hp | 6.91 | 0.08 | 2.23 | 6.89 | 6.6 |
+| payes | L1 | 20.77 | -5.4 | -5.07 | -8.95 | -6.85 |
+| payes | L2 | 21.7 | 21.8 | 18.95 | 16.44 | 18.36 |
+| payes | L3 | 12.4 | 15.63 | 12.63 | 13.73 | 13.24 |
+| payes | L4 | 18.72 | -2.74 | -2.59 | -4.92 | -3.7 |
+| payes | L5 | 2.22 | 5.33 | 5.53 | 7.95 | 7.08 |
+| payes | L6 | 24.53 | -8.7 | -5.82 | -12.84 | -7.45 |
+| payes | M0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |
+| payes | M1 | 2.45 | 7.09 | 7.29 | 10.61 | 9.37 |
+| payes | M2 | 10.61 | -3.4 | -2.65 | -0.46 | -1.13 |
+| payes | M4 | 23.87 | 15.87 | 13.98 | 11.7 | 13.68 |
+| tous | G1 | 9.33 | 0.85 | -0.14 | 0.21 | -0.52 |
+| tous | G2 | 10.31 | -0.97 | -0.67 | 0.87 | 0.43 |
+| tous | G3 | 5.15 | -1.87 | 1.61 | 7.94 | 7.15 |
+| tous | G4 | 10.37 | 1.39 | 0.01 | -0.08 | -0.82 |
+| tous | G5_hp | 6.29 | 1.13 | 3.03 | 7.07 | 6.78 |
+| tous | L1 | 18.52 | -4.03 | -3.9 | -6.64 | -5.28 |
+| tous | L2 | 19.64 | 19.71 | 15.74 | 14.72 | 15.45 |
+| tous | L3 | 11.51 | 14.61 | 11.38 | 13.08 | 12.15 |
+| tous | L4 | 16.51 | -1.81 | -1.5 | -3.34 | -2.25 |
+| tous | L5 | 2.32 | 5.05 | 5.19 | 7.31 | 6.59 |
+| tous | L6 | 22.05 | -6.97 | -4.24 | -10.03 | -5.44 |
+| tous | M0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |
+| tous | M1 | 2.59 | 6.9 | 7.01 | 10.02 | 8.95 |
+| tous | M2 | 9.67 | -1.9 | -1.32 | 0.62 | -0.08 |
+| tous | M4 | 21.64 | 17.56 | 14.66 | 12.48 | 14.62 |
