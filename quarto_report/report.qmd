@@ -15,6 +15,7 @@ format:
   ##############################################################################
   # Use the code below if you want to render html, otherwise just comment it out#
   html:
+    output-file: update_Groupe_L.html   # name required for the Moodle upload
     # if you want to remove the table of contents, set this to false
     toc: true
     number-sections: true
@@ -52,7 +53,7 @@ format:
 
 jupyter: python3
 abstract: |
-  Flood insurance claims in the southeastern United States come in waves, with each hurricane season bringing its own map of damage. This project asks whether a machine learning method, LightGBM, predicts how many flood claims to expect per insured home better than the classical models insurers use, a Poisson GLM and a negative binomial GLM. We use FEMA's public records of the National Flood Insurance Program for the eight states of FEMA Region 4. Because claims and policies are anonymized and cannot be linked one by one, we count both in the same area and year, and join them into a single table by county, flood zone and year. Each year from 2016 to 2024 is predicted from the years before it, with 2020 to 2024 kept as the test. A first exploration shows that claims are driven by a few hurricanes rather than by the number of insured homes; that most places have no claim in a year while a few have thousands, far more variation than a Poisson model allows; that the flood zone and past claims are the clearest signals of risk; and that the test years are unusual, holding most of the claims and hitting places, Florida above all, that the previous decade had spared. First models on this table confirm that every model predicts too few claims in the hurricane years. They also show that LightGBM does not beat the GLMs: once the yearly level is set aside, a GLM with the flood zone alone is the most robust, and LightGBM falls behind it on the test years, mostly because of Florida. The features known in advance help to predict ordinary floods, not hurricanes. These results are preliminary and will be revisited on a finer table with more features.
+  Flood insurance claims in the southeastern United States come in waves, each hurricane season bringing its own map of damage. This project asks whether LightGBM, a machine learning method, predicts flood claim frequency better than the models insurers use, a Poisson GLM and a negative binomial GLM. We use FEMA's public records of the National Flood Insurance Program for the eight states of FEMA Region 4. Claims and policies are anonymized and cannot be linked one by one, so we count both in the same area and year and join them in a table by county, flood zone and year. Each year from 2016 to 2024 is predicted from the years before it, with 2020 to 2024 kept as the test. The exploration shows that a few hurricanes drive the claims, that counts vary far more than a Poisson model allows, that the flood zone and past claims are the clearest signals of risk, and that the test years hit places, Florida above all, that the previous decade had spared. The first models predict too few claims in the hurricane years. LightGBM does not beat the GLMs: once the yearly level is set aside, a GLM with the flood zone alone is the most robust, and LightGBM falls behind it on the test years, mostly because of Florida. These results are preliminary and will be revisited on a finer table with more features.
 execute: 
   warning: false
   # Note: echo setting is controlled per-format above (HTML, PDF, DOCX)
@@ -145,9 +146,12 @@ project_setup.configure_environment(project_root=project_root)
 
 # Use of AI Tools {.unnumbered}
 
-Generative AI was used in this project. Claude (Anthropic), through the Claude Code assistant, was used to draft the structure and text of this report from facts and decisions provided by the team, to write the code cells that compute the statistics shown in the report, and to check the repository for consistency. All numbers in the report are produced by code from the project data. The team reviewed the content and is responsible for it.
+Generative AI (Claude Code, Anthropic) was used in this project as an assistant, in two ways:
 
-**[TO FILL BY TEAM: any other use of AI tools during the project (for example for the cleaning and EDA scripts), and confirmation that this statement follows the course policy]**
+- **Code**: help with writing and debugging the scripts for data cleaning, exploratory analysis, models and report.
+- **Report**: help with writing, proofreading and correcting the text of the final report.
+
+The research questions, the choice of data and scope, the modelling design, the interpretation of the results and all final decisions are the team's own. We reviewed and tested all AI-assisted text and code, and we take full responsibility for the content of this report. The numbers in the report are computed by code from the project data, except the raw counts of Region 4 and of the whole United States given in the Introduction and Data sections, which come from the cleaning report because the raw files are not stored in the repository.
 
 # References {.unnumbered}
 
@@ -156,23 +160,23 @@ Generative AI was used in this project. Claude (Anthropic), through the Claude C
 
 # Appendices {.unnumbered}
 
-### Appendix A: Additional Exploratory Plots {#sec-appendix-plots}
+## Appendix A: Additional Exploratory Plots {#sec-appendix-plots .unnumbered}
 
-![Candidate features against the frequency, training years 2010 to 2019. County-zone cells with at least 100 policy-years are grouped in deciles of each feature: (left) mean building coverage per policy in constant dollars, (middle) paid claims of 1990 to 2008 per 1,000 policies in the same cell, (right) the same measure for the whole county. Log scale for the frequency.](../EDA/figures/eda_5_features.png){#fig-eda-features}
+![Candidate features against the frequency, training years 2010 to 2019. County-zone cells with at least 100 policy-years are grouped in deciles of each feature: (left) mean building coverage per policy in constant dollars, (middle) paid claims of 1990 to 2008 per 1,000 policy-years in the same cell, (right) the same measure for the whole county. Log scale for the frequency.](../EDA/figures/eda_5_features.png){#fig-eda-features}
 
 @fig-eda-features compares the facts known in advance with the frequency over the training years. Places with many claims from 1990 to 2008 also have more claims in the 2010s, both for the same county and zone (rank correlation `{python} f"{kn['feature_spearman_train']['hist_per_1000']:.2f}"`) and for the county as a whole (`{python} f"{kn['feature_spearman_train']['county_hist_per_1000']:.2f}"`). The average coverage per policy is only weakly related (`{python} f"{kn['feature_spearman_train']['coverage_real']:.2f}"`). The curves are irregular rather than straight lines, which is why a flexible model such as LightGBM was worth testing.
 
-### Appendix B: Complete Code Listings {#sec-appendix-code}
+## Appendix B: Complete Code Listings {#sec-appendix-code .unnumbered}
 
 The code is in the project repository, <https://github.com/lucaslhmnn/Data_science_UNIL_Project>:
 
 - `Data_cleaning/clean/clean_data.py`: audit of the raw files, treatment of sentinel values, cleaning of the claims and computation of the policy exposure (`zone_year.parquet`);
 - `EDA/build_ds_clean.py`: joins the paid claims and the exposure per county, flood zone and year into the analysis table `EDA/ds_clean.csv`, with the definition of each column in `EDA/ds_clean_roles.json`;
-- `EDA/eda.py`: exploratory analysis of `ds_clean`, which writes the figures of @sec-eda and @sec-appendix-plots and the key numbers (`EDA/figures/eda_key_numbers.json`) used in the text;
+- `EDA/eda.py`: exploratory analysis of `ds_clean`, which writes the figures of @sec-eda and [Appendix A](#sec-appendix-plots) and the key numbers (`EDA/figures/eda_key_numbers.json`) used in the text;
 - `Modeles/`: the models (`scripts/02_modeles.py` for a first single fit, `scripts/04_evaluation_glissante.py` for the year-by-year evaluation used in this report) and their results;
 - `quarto_report/`: this report, whose code cells compute all statistics from the cleaned files.
 
-### Appendix C: Supplementary Tables {#sec-appendix-tables}
+## Appendix C: Supplementary Tables {#sec-appendix-tables .unnumbered}
 
 ```{python}
 #| label: tbl-freq-year

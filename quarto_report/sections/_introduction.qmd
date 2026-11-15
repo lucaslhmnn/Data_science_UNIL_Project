@@ -23,7 +23,7 @@ We study FEMA Region 4, the eight states of the Southeast (Alabama, Florida, Geo
 We expect that:
 
 - **H1.** LightGBM predicts better than both GLMs, because flood risk likely depends on combinations of factors, such as flood zone and location, that a simple GLM does not capture.
-- **H2.** The two GLMs give similar predictions on average; the negative binomial model mainly describes the uncertainty better.
+- **H2.** It is an open question whether the two GLMs give similar predictions. The negative binomial model gives less weight to the very large hurricane cells, so its coefficients and its average predictions can differ from those of the Poisson GLM; we check whether it predicts better or mainly describes the uncertainty better.
 - **H3.** All models predict too few claims in the hurricane years of the test period, because nothing in the data tells them in advance which year a hurricane will strike.
 
 ## Related Work

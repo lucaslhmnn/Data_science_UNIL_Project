@@ -14,7 +14,7 @@ The full files were downloaded on 2026-11-11 (data as of 2026-09-08). Their nati
 
 ## Description
 
-- **Observations**: 787,274 claims and 31,463,858 policy records in Region 4. Florida alone holds about 57% of the claims and 71% of the policy records.
+- **Observations**: 787,274 claims and 31,463,858 policy records in Region 4. Florida alone holds about 57% of these raw claims (all years since 1978, all types of buildings) and 71% of the policy records. Its share is lower once the scope is narrowed to paid claims of single-family homes over 2010 to 2019 (see below).
 - **Time period**: claims from 1978, policies from 2009. The analysis covers 2010 to 2024.
 - **Geographic coverage**: the eight states of FEMA Region 4.
 - **Key variables**: for each claim, the year, the county, the flood zone and the amount paid; for each policy, its dates, location, flood zone and coverage. The flood zone is FEMA's official risk map: V zones on the coast, exposed to waves; A zones in the 100-year floodplain; X zones at moderate or low risk. V and A zones together form the Special Flood Hazard Area, where flood insurance is mandatory for homes with a federally backed mortgage.
@@ -57,17 +57,7 @@ print(f"claims_clean:     {claims.shape[0]:,} rows")
 print(f"claims_anomalies: {anomalies.shape[0]:,} rows")
 print(f"zone_year:        {zone_year.shape[0]:,} rows x {zone_year.shape[1]} columns")
 print(f"ds_clean:         {ds.shape[0]:,} rows x {ds.shape[1]} columns")
-display(ds.head())
-```
-
-The final table by census tract will be loaded the same way once it is built:
-
-```{python}
-#| label: load-tract-year
-#| eval: false
-
-tract_year = pd.read_parquet(project_root.parent / "data" / "processed" / "tract_year.parquet")
-print(f"Dataset shape: {tract_year.shape[0]} rows x {tract_year.shape[1]} columns")
+display(ds.sample(6, random_state=42).sort_values(["state", "county_id", "year"]))
 ```
 
 ## Wrangling
@@ -83,7 +73,6 @@ n_anomalies = len(anomalies)
 n_not_single_family = N_RAW_CLAIMS - n_clean - n_anomalies
 n_unpaid = int((~claims["paid_flag"]).sum())
 n_recoded = int(claims["paid_na_to_zero"].sum())
-py_total = zone_year["policy_years"].sum()
 
 # Analysis table: share of the source data kept, and what claim counts alone would suggest
 drop = ds_roles["dropped"]
@@ -104,11 +93,11 @@ fl_rank = int(state_tr["per_1000"].rank(ascending=False)["FL"])
 
 ### General Transformations
 
-- **Cleaning the claims.** Of the `{python} f"{N_RAW_CLAIMS:,}"` claims of Region 4, we keep single-family homes and set aside `{python} f"{n_anomalies:,}"` inconsistent records, such as duplicates or negative payments (listed in @sec-appendix-tables). This leaves `{python} f"{n_clean:,}"` claims. Amounts are converted to today's dollars with the consumer price index.
-- **Measuring exposure.** A policy that runs for six months counts as half a policy-year. Spreading each policy over the days it covers gives `{python} f"{py_total:,.0f}"` policy-years of single-family homes. Exposure is what turns a number of claims into a frequency: ten claims among a hundred homes is not the same risk as ten claims among ten thousand.
+- **Cleaning the claims.** Of the `{python} f"{N_RAW_CLAIMS:,}"` claims of Region 4, we keep single-family homes and set aside `{python} f"{n_anomalies:,}"` inconsistent records, such as duplicates or negative payments (listed in [Appendix C](#sec-appendix-tables)). This leaves `{python} f"{n_clean:,}"` claims. Amounts are converted to today's dollars with the consumer price index.
+- **Measuring exposure.** A policy that runs for six months counts as half a policy-year. Each policy is spread over the calendar years it covers, in proportion to its days (days divided by 365.25), from its start date to its end date; the end date recorded by FEMA already accounts for cancelled or lapsed policies. This gives `{python} f"{py_window:,.0f}"` policy-years of single-family homes from 2010 to 2024. Exposure is what turns a number of claims into a frequency: ten claims among a hundred homes is not the same risk as ten claims among ten thousand.
 - **Years kept.** 2009 is dropped because policies that started before 2009 are missing from the file, and 2025 onward because many recent claims are still open.
 - **What counts as a claim.** We count claims with a payment for damage to the building, the losses an insurer actually covers. Claims that only paid for contents are not counted, since the cleaned data cover the building guarantee. Unpaid claims mix small losses, uncovered damage and recording issues: `{python} f"{n_recoded:,}"` of the `{python} f"{n_unpaid:,}"` unpaid claims have no recorded amount at all. Counting all claims is kept as a check.
-- **What the models may use.** The models only use information known before the year starts. The year itself is excluded, since a model cannot know in advance whether a year will bring a hurricane, and so are insurance premiums, which reflect the insurer's pricing rather than the risk itself.
+- **What the models may use.** The models only use information known before the year starts. The year itself is excluded, since a model cannot know in advance whether a year will bring a hurricane, and so are insurance premiums, which reflect the insurer's pricing rather than the risk itself. The state is not used either: location already enters through the past claims of the county and of its flood zone, and Florida is evaluated separately from the other seven states (RQ2).
 - **Coverage in constant dollars.** The average coverage per policy (`coverage_real` in @tbl-variables) rises with prices: by `{python} f"{kn['coverage_nominal_change']:.0%}"` in current dollars between 2010 and 2024, while it falls by `{python} f"{abs(kn['coverage_real_change']):.0%}"` once inflation is removed. Left in current dollars, it would let a model guess the year. We therefore express it in 2024 dollars, using the consumer price index of the previous year, which is known in advance.
 
 ### From Two Files to One Table: `ds_clean` {#sec-ds-clean}
@@ -149,7 +138,7 @@ variables = [
     ("Exposure", "`exposure_years`", "Policy-years: number of homes insured, counted over the year", f"{ex22['exposure_years']:,.0f}"),
     ("Known in advance", "`zone`", "The flood zone is also the main risk factor", "A"),
     ("Known in advance", "`coverage_real`", "Average insured amount per policy, in 2024 dollars", f"${ex22['coverage_real']:,.0f}"),
-    ("Known in advance", "`hist_per_1000`", "Paid claims of the same cell from 1990 to 2008, per 1,000 policies", f"{ex22['hist_per_1000']:.1f}"),
+    ("Known in advance", "`hist_per_1000`", "Paid claims of the same cell from 1990 to 2008, per 1,000 policy-years (yearly average of 2010 to 2019)", f"{ex22['hist_per_1000']:.1f}"),
     ("Known in advance", "`county_hist_per_1000`", "The same measure for the whole county, all zones together", f"{ex22['county_hist_per_1000']:.1f}"),
     ("Checks only", "`n_all`", "All claims, paid or not", f"{int(ex22['n_all']):,}"),
     ("Checks only", "`n_major`", "Paid claims caused by one of the ten largest events", f"{int(ex22['n_major']):,}"),

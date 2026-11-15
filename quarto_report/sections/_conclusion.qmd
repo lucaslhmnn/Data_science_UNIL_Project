@@ -28,11 +28,17 @@ These results are preliminary: they rest on a county table with few features.
 - **A changing system.** The NFIP changed its pricing in 2021, inside the test period, which may have changed who is insured.
 - **Exploratory results.** The evaluation was refined after a first look at the test years, so the comparison is not a clean, one-time test.
 - **Few features.** The models only know the flood zone, the coverage and past claims. A flexible model such as LightGBM has little to work with.
+- **A slight look ahead in one feature.** Past claims per 1,000 homes (`hist_per_1000`, `county_hist_per_1000`) are scaled by the average number of insured homes over 2010 to 2019. When predicting 2016 to 2018, this average includes a few later years. Only the number of homes is affected, not the claims, so the effect should be small; the final table will compute it from earlier years only.
 - **Anonymized records.** Claims and policies cannot be linked one by one, so the features describe areas, not individual homes.
 
 ## Future Work
 
-1. **Build the table by census tract**, with the same structure as `ds_clean`, and check that tract boundaries are stable over 2010 to 2024.
-2. **Add features from the policy file**, such as the share of homes built before the flood maps or the deductible, to give the models more to learn from.
-3. **Run the exploration and the models again on that table**, with the evaluation fixed in advance this time, so that the test years are used only once.
-4. **Make the tuning of LightGBM more stable**, since its settings change a lot from one training window to the next.
+The plan up to the final report (21 December):
+
+| Deadline | Step |
+|---|---|
+| 27 November | **Build the table by census tract**, with the same structure as `ds_clean`, and check that tract boundaries are stable over 2010 to 2024. |
+| 4 December | **Add features from the policy file**, such as the share of homes built before the flood maps or the deductible, computed from past years only, and run the exploration again on the new table. |
+| 11 December | **Fix the evaluation in advance** (years, metrics, settings), make the tuning of LightGBM more stable, since its settings change a lot from one training window to the next, and then run the models, using the test years only once. |
+| 18 December | **Write and proofread the final report**, with every number produced by code. |
+| 21 December | **Submit the final report.** |

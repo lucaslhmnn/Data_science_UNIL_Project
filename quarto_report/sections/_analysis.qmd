@@ -23,11 +23,11 @@ $$
 \text{Var}(N_{it})=\mu_{it}+\alpha\mu_{it}^2
 $$ {#eq-nb}
 
-The negative binomial GLM keeps the same structure as @eq-poisson but lets the variance grow faster than the mean, through an extra parameter $\alpha$. This is exactly what the data show: counts vary about `{python} f"{pearson / df_disp:.0f}"` times more than a Poisson model expects (@fig-eda-dispersion). We expect it to give similar average predictions to the Poisson model, but a more honest picture of their uncertainty (H2).
+The negative binomial GLM keeps the same structure as @eq-poisson but lets the variance grow faster than the mean, through an extra parameter $\alpha$. This is exactly what the data show: counts vary about `{python} f"{pearson / df_disp:.0f}"` times more than a Poisson model expects (@fig-eda-dispersion). Because it gives less weight to the cells with very large counts, its predictions can differ from those of the Poisson model (H2).
 
 ## LightGBM with Poisson Objective
 
-LightGBM builds hundreds of small decision trees, each one correcting the errors of the previous ones. Compared with the GLMs:
+LightGBM builds many small decision trees, each one correcting the errors of the previous ones. Compared with the GLMs:
 
 - **Same target.** It uses the same Poisson loss, so it predicts the same quantity.
 - **Same exposure.** The number of insured homes enters as a starting point for the trees: the logarithm of the policy-years plus the logarithm of the average claim rate of the training years. Without the second term, the first trees must learn the overall level by themselves and the predictions come out far too high.
@@ -42,7 +42,7 @@ We mimic what an insurer does every year: use all past years to predict the next
 - **One prediction per year.** For each year from 2016 to 2024, the models are fitted on all earlier years, starting in 2010, and predict that year.
 - **Validation and test.** The years 2016 to 2019 serve as validation, the years 2020 to 2024 as test.
 - **Tuning.** The settings of LightGBM (size of the trees, learning speed, number of trees) are chosen each time on the last two years of the training window, never on the year to predict.
-- **Same inputs.** All models receive the facts known in advance listed in @tbl-variables.
+- **Same inputs.** The Poisson GLM, the negative binomial GLM and LightGBM receive the facts known in advance listed in @tbl-variables.
 - **Two benchmarks.** A null model applies the same rate everywhere, and a simple Poisson GLM uses the flood zone only.
 
 Predicting nine years instead of fitting once gives a result that does not hang on one particular split.
@@ -55,7 +55,7 @@ Each metric answers a different question:
 - **Gain after yearly recalibration**: the same gain once every model is rescaled to the observed total of each year. No model can know when a hurricane will strike; this version removes that error and only judges *where* the model places the claims.
 - **Gini index**: does the model rank areas in the right order, from safe to risky?
 - **Predicted over observed totals**: how far off is the overall level?
-- **Calibration by decile**: grouping areas from least to most risky according to the model, does each group get roughly the number of claims predicted? (@sec-appendix-tables)
+- **Calibration by decile**: grouping areas from least to most risky according to the model, does each group get roughly the number of claims predicted? ([Appendix C](#sec-appendix-tables))
 
 Differences between models come with 95% confidence intervals, obtained by resampling the counties. Results are reported overall and separately for Florida and the other seven states (RQ2). Three checks complete the picture:
 
@@ -140,7 +140,7 @@ The safe reading is that LightGBM is not better, and probably worse. The simples
 - **A variable that revealed the year.** That fit used the coverage in current dollars, which rises every year and let the trees guess the year.
 - **Fragile settings.** Across the nine training windows, the number of trees retained ranges from `{python} int(hp_main['iterations'].min())` to `{python} int(hp_main['iterations'].max())`. A flexible model has little stable signal to hold on to.
 
-**The negative binomial model wins for the wrong reason.** It has the best raw gain on the test years (`{python} pct(score('M3', 'gain_brut'))`), but only because it predicts a higher level everywhere (`{python} f"{score('M3', 'predit_sur_observe'):.0%}"` of the observed claims), which happens to help when claims surge. After recalibration its gain (`{python} pct(score('M3', 'gain_recale'))`) is close to that of the Poisson GLM (`{python} pct(score('M2', 'gain_recale'))`). H2 holds for where the claims are placed, not for their level.
+**The negative binomial model wins for the wrong reason.** It has the best raw gain on the test years (`{python} pct(score('M3', 'gain_brut'))`), but only because it predicts a higher level everywhere (`{python} f"{score('M3', 'predit_sur_observe'):.0%}"` of the observed claims), which happens to help when claims surge. After recalibration its gain (`{python} pct(score('M3', 'gain_recale'))`) is close to that of the Poisson GLM (`{python} pct(score('M2', 'gain_recale'))`). The answer to H2 is mixed: the two GLMs place the claims in similar areas, but not at the same level.
 
 **Florida drives the result.** In Florida, LightGBM does worse than the null model on the test years (`{python} pct(score('M4', 'gain_recale', table=reg, region='Floride'))` after recalibration), while in the other seven states it stays positive (`{python} pct(score('M4', 'gain_recale', table=reg, region='sept autres États'))`) but behind the Poisson GLM (`{python} pct(score('M2', 'gain_recale', table=reg, region='sept autres États'))`). The answer to RQ2 is that the ranking of the models differs between the two groups, and that the failure of LightGBM comes mostly from Florida.
 

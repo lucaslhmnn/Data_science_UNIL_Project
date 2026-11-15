@@ -6,7 +6,6 @@ The exploration follows four questions an insurer would ask: when do claims happ
 #| label: eda-stats
 #| echo: false
 
-from scipy import stats
 
 fby = {int(y): f for y, f in kn["freq_by_year"].items()}
 min_year, max_year = min(fby, key=fby.get), max(fby, key=fby.get)
@@ -21,7 +20,6 @@ tr["mu"] = tr["exposure_years"] * grp["n_claims"].transform("sum") / grp["exposu
 tr = tr[tr["mu"] > 0]
 pearson = (((tr["n_claims"] - tr["mu"]) ** 2) / tr["mu"]).sum()
 df_disp = len(tr) - grp.ngroups
-disp_p = stats.chi2.sf(pearson, df_disp)
 ```
 
 ## Univariate Analysis
@@ -40,7 +38,7 @@ The lesson for our models is humbling. What makes one year worse than another is
 
 ![(a) Share of county-zone-years by number of paid claims; (b) variance against mean of the counts, training years, compared with a Poisson model (dotted) and a negative binomial model (orange).](../EDA/figures/eda_2_overdispersion.png){#fig-eda-dispersion}
 
-Most places, most years, have no claim at all: this is the case for `{python} f"{kn['zero_share']:.0%}"` of the county-zone-years (@fig-eda-dispersion, panel a). At the other end, a single county and zone recorded `{python} f"{kn['max_count']:,}"` paid claims in one year. Such contrasts break a key assumption of the Poisson model, that the variance of the counts equals their mean. Panel (b) shows that the variance is far larger, even when comparing places in the same year and flood zone, where it is about `{python} f"{pearson / df_disp:.0f}"` times what a Poisson model expects (a dispersion test rejects the Poisson assumption, p `{python} "< 0.001" if disp_p < 0.001 else f"= {disp_p:.3f}"`). The negative binomial model, built for this situation, fits much better. This is the reason it is part of our comparison.
+Most places, most years, have no claim at all: this is the case for `{python} f"{kn['zero_share']:.0%}"` of the county-zone-years (@fig-eda-dispersion, panel a). At the other end, a single county and zone recorded `{python} f"{kn['max_count']:,}"` paid claims in one year. Such contrasts break a key assumption of the Poisson model, that the variance of the counts equals their mean. Panel (b) shows that the variance is far larger, even when comparing places in the same year and flood zone, where it is about `{python} f"{pearson / df_disp:.0f}"` times what a Poisson model expects. The negative binomial model, built for this situation, fits much better. This is the reason it is part of our comparison.
 
 ![Concentration of paid claims, 2010 to 2024. (a) Cumulative share of claims held by the county-zone-years with the most claims; (b) the ten largest events, test-period events in orange.](../EDA/figures/eda_3_concentration.png){#fig-eda-concentration}
 
@@ -80,7 +78,7 @@ display(by_state.round({("train", "exposure_years"): 0, ("test", "exposure_years
 
 Florida tells a story of its own (@tbl-freq-state). It holds `{python} f"{fl_share_py:.0%}"` of the insured homes, yet from 2010 to 2019 its frequency (`{python} f"{fl_freq_train:.1f}"` per 1,000) was far below that of the other states (`{python} f"{other_freq_train:.1f}"`), which were hit by floods in the Carolinas and Tennessee. Then Ian and Helene, with `{python} f"{ian_helene_fl_share:.0%}"` of their paid claims in Florida, reversed the order: `{python} f"{fl_freq_test:.1f}"` in Florida against `{python} f"{other_freq_test:.1f}"` elsewhere. A model trained on the 2010s learns that Florida is relatively safe, just before the opposite happens. This is why we report results for Florida and the other states separately (RQ2).
 
-Among the other facts known in advance, past claims are the most informative: places with many claims from 1990 to 2008 also had more claims in the 2010s (rank correlation `{python} f"{kn['feature_spearman_train']['hist_per_1000']:.2f}"`), while the average coverage per policy, in constant dollars, matters little (@fig-eda-features in @sec-appendix-plots).
+Among the other facts known in advance, past claims are the most informative: places with many claims from 1990 to 2008 also had more claims in the 2010s (rank correlation `{python} f"{kn['feature_spearman_train']['hist_per_1000']:.2f}"`), while the average coverage per policy, in constant dollars, matters little (@fig-eda-features in [Appendix A](#sec-appendix-plots)).
 
 ## Correlation Analysis
 
