@@ -28,4 +28,10 @@ We expect that:
 
 ## Related Work
 
-@kousky2017flood describe more than one million NFIP claims from 1978 to 2012 and show how concentrated flood losses are in time and space. We use the same program, but we count claims per area and year, which also requires the policies to know how many homes were insured. GLMs, introduced by @nelder1972glm, are the standard tool for claim counts: a Poisson or negative binomial distribution, and an adjustment for the number of insured homes. @henckaerts2021boosting build full insurance tariffs with tree-based methods and find that boosted trees beat a GLM benchmark. LightGBM [@ke2017lightgbm] is a fast implementation of boosted trees that suits a dataset of our size. Our project asks whether this advantage carries over to flood claims, where the data are anonymized and the test years contain some of the most destructive hurricanes on record.
+Three strands of work frame the project:
+
+- **Flood claims.** @kousky2017flood describe more than one million NFIP claims from 1978 to 2012 and show how concentrated flood losses are in time and space. We use the same program, but we count claims per area and year, which also requires the policies to know how many homes were insured.
+- **The classical model.** GLMs, introduced by @nelder1972glm, are the standard tool for claim counts: a Poisson or negative binomial distribution, and an adjustment for the number of insured homes.
+- **The challenger.** @henckaerts2021boosting build full insurance tariffs with tree-based methods and find that boosted trees beat a GLM benchmark. LightGBM [@ke2017lightgbm] is a fast implementation of boosted trees that suits a dataset of our size.
+
+Our project asks whether this advantage carries over to flood claims, where the data are anonymized and the test years contain some of the most destructive hurricanes on record.

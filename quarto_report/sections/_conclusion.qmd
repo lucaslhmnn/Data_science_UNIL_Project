@@ -4,9 +4,21 @@
 
 We set out to test whether a machine learning method, LightGBM, predicts flood insurance claims better than the classical GLMs that insurers rely on, using FEMA's records for the eight states of the Southeast. So far, we have downloaded and verified the data, cleaned the claims, measured how many homes were insured each year, and joined the two in a single table by county, flood zone and year.
 
-The exploration of this table tells a clear story. Flood claims are driven by a few hurricanes, not by the size of the insured portfolio. Most places have no claim in a given year while a few have thousands, far more variation than a Poisson model allows. The flood zone and past claims are the clearest signals of risk. And the test years are unusual: they hold most of the claims, and the storms struck places, Florida above all, that had been relatively spared in the previous decade.
+**What the data show:**
 
-First models on this table give a sober answer to our question. Every model predicts too few claims in the hurricane years, as expected. LightGBM does not beat the GLMs: once the yearly level is set aside, it is no better than a GLM with the flood zone alone on the validation years, and behind it on the test years, mostly because of Florida. Its apparent advantage in a first attempt came from a variable that revealed the year and from fragile settings. The facts known in advance do help, but for ordinary floods rather than for hurricanes. These results are preliminary: they rest on a county table with few features.
+- Flood claims are driven by a few hurricanes, not by the size of the insured portfolio.
+- Most places have no claim in a given year while a few have thousands, far more variation than a Poisson model allows.
+- The flood zone and past claims are the clearest signals of risk.
+- The test years are unusual: they hold most of the claims, and the storms struck places, Florida above all, that had been relatively spared in the previous decade.
+
+**What the first models show:**
+
+- Every model predicts too few claims in the hurricane years, as expected.
+- LightGBM does not beat the GLMs. Once the yearly level is set aside, it is no better than a GLM with the flood zone alone on the validation years, and behind it on the test years, mostly because of Florida.
+- Its apparent advantage in a first attempt came from a variable that revealed the year and from fragile settings.
+- The facts known in advance do help, but for ordinary floods rather than for hurricanes.
+
+These results are preliminary: they rest on a county table with few features.
 
 ## Limitations
 

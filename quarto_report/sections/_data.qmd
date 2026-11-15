@@ -109,15 +109,66 @@ fl_rank = int(state_tr["per_1000"].rank(ascending=False)["FL"])
 - **Years kept.** 2009 is dropped because policies that started before 2009 are missing from the file, and 2025 onward because many recent claims are still open.
 - **What counts as a claim.** We count claims with a payment for damage to the building, the losses an insurer actually covers. Claims that only paid for contents are not counted, since the cleaned data cover the building guarantee. Unpaid claims mix small losses, uncovered damage and recording issues: `{python} f"{n_recoded:,}"` of the `{python} f"{n_unpaid:,}"` unpaid claims have no recorded amount at all. Counting all claims is kept as a check.
 - **What the models may use.** The models only use information known before the year starts. The year itself is excluded, since a model cannot know in advance whether a year will bring a hurricane, and so are insurance premiums, which reflect the insurer's pricing rather than the risk itself.
-- **Coverage in constant dollars.** The average coverage per policy rises with prices: by `{python} f"{kn['coverage_nominal_change']:.0%}"` in current dollars between 2010 and 2024, while it falls by `{python} f"{abs(kn['coverage_real_change']):.0%}"` once inflation is removed. Left in current dollars, it would let a model guess the year. We therefore express it in 2024 dollars, using the consumer price index of the previous year, which is known in advance.
+- **Coverage in constant dollars.** The average coverage per policy (`coverage_real` in @tbl-variables) rises with prices: by `{python} f"{kn['coverage_nominal_change']:.0%}"` in current dollars between 2010 and 2024, while it falls by `{python} f"{abs(kn['coverage_real_change']):.0%}"` once inflation is removed. Left in current dollars, it would let a model guess the year. We therefore express it in 2024 dollars, using the consumer price index of the previous year, which is known in advance.
 
 ### From Two Files to One Table: `ds_clean` {#sec-ds-clean}
 
-A frequency needs two numbers: how many claims, and how many homes were insured. The first number lives in the claims file, the second in the policy file, and the two cannot be linked record by record. We therefore count both in the same county, flood zone and year, and put the counts side by side. The result, `ds_clean` (built by `EDA/build_ds_clean.py`), has one row per county, flood zone and year from 2010 to 2024: `{python} f"{len(ds):,}"` rows over `{python} ds_roles["counties"]` counties. A row with insured homes but no claim gets a count of zero, a real zero rather than a missing value. Nothing is imputed; the table keeps `{python} f"{kept_claims:.1%}"` of the paid claims and `{python} f"{kept_py:.1%}"` of the policy-years, the rest being claims without county or flood zone.
+A frequency needs two numbers: how many claims, and how many homes were insured. The first lives in the claims file, the second in the policy file, and the two cannot be linked record by record. We therefore count both in the same county, flood zone and year, and put the counts side by side in one table, `ds_clean` (built by `EDA/build_ds_clean.py`).
 
-Each row holds the number of paid claims (what we predict), the policy-years (the exposure), and a few facts known in advance: the flood zone, the average coverage per policy in constant dollars, and the number of claims the same place had from 1990 to 2008.
+```{python}
+#| label: ds-structure
+#| echo: false
 
-Bringing the two files together changes the picture. Counted alone, claims suggest that the coastal V zones are a minor issue: they hold only `{python} f"{zone_tr.loc['V*', 'claim_share']:.1%}"` of the paid claims of 2010 to 2019. Per insured home, they are in fact the riskiest, with `{python} f"{zone_tr.loc['V*', 'per_1000']:.1f}"` claims per 1,000 policy-years against `{python} f"{zone_tr.loc['X', 'per_1000']:.1f}"` in the X zones. Likewise, Florida files the most claims (`{python} f"{state_tr.loc['FL', 'claim_share']:.0%}"`) simply because it has the most policies; its frequency over these years is the lowest of the eight states (rank `{python} fl_rank` of 8). Counting claims without counting homes would have pointed us to the wrong places.
+n_cells = ds.groupby(["county_id", "zone"]).ngroups
+ex = ds[(ds["county_id"] == "12071") & (ds["zone"] == "A*")].set_index("year")   # Lee County, Florida
+ex21, ex22 = ex.loc[2021], ex.loc[2022]
+```
+
+**How to read the table.** One row describes one county, in one flood zone, during one year. The table has three dimensions:
+
+- **Where**: `{python} ds_roles["counties"]` counties in the eight states.
+- **Which flood zone**: V, A or X, inside each county.
+- **When**: the `{python} ds["year"].nunique()` years from 2010 to 2024.
+
+A county and a flood zone together form a *cell*: for example, the homes of Lee County, Florida, that lie in an A zone. There are `{python} f"{n_cells:,}"` cells, since not every county has homes in every zone. Each cell is followed year after year, which gives `{python} f"{len(ds):,}"` rows, called county-zone-years in the rest of the report.
+
+**An example.** In 2021, the A zone of Lee County had `{python} f"{ex21['exposure_years']:,.0f}"` policy-years and `{python} int(ex21['n_claims'])` paid claims. In 2022, the year of Hurricane Ian, the same cell had `{python} f"{ex22['exposure_years']:,.0f}"` policy-years and `{python} f"{int(ex22['n_claims']):,}"` paid claims. These are two rows of the table, and @tbl-variables lists what each row contains, with the values of the second one.
+
+```{python}
+#| label: tbl-variables
+#| tbl-cap: "Variables of ds_clean. The example is the A zone of Lee County, Florida, in 2022."
+#| echo: false
+
+from IPython.display import Markdown
+
+variables = [
+    ("Identifies the row", "`county_id`, `state`", "County (5-digit code) and its state", f"{ex22['county_id']}, {ex22['state']}"),
+    ("Identifies the row", "`zone`", "Flood zone: V (coast), A (100-year floodplain) or X (lower risk)", "A"),
+    ("Identifies the row", "`year`", "Calendar year", "2022"),
+    ("What we predict", "`n_claims`", "Number of claims with a payment for building damage", f"{int(ex22['n_claims']):,}"),
+    ("Exposure", "`exposure_years`", "Policy-years: number of homes insured, counted over the year", f"{ex22['exposure_years']:,.0f}"),
+    ("Known in advance", "`zone`", "The flood zone is also the main risk factor", "A"),
+    ("Known in advance", "`coverage_real`", "Average insured amount per policy, in 2024 dollars", f"${ex22['coverage_real']:,.0f}"),
+    ("Known in advance", "`hist_per_1000`", "Paid claims of the same cell from 1990 to 2008, per 1,000 policies", f"{ex22['hist_per_1000']:.1f}"),
+    ("Known in advance", "`county_hist_per_1000`", "The same measure for the whole county, all zones together", f"{ex22['county_hist_per_1000']:.1f}"),
+    ("Checks only", "`n_all`", "All claims, paid or not", f"{int(ex22['n_all']):,}"),
+    ("Checks only", "`n_major`", "Paid claims caused by one of the ten largest events", f"{int(ex22['n_major']):,}"),
+]
+lines = ["| Role | Variable | Meaning | Example |", "|---|---|---|---|"]
+lines += [f"| {r} | {v} | {m} | {e} |" for r, v, m, e in variables]
+Markdown("\n".join(lines))
+```
+
+Three points help to read this table:
+
+- **The frequency is not stored, it is computed**: paid claims divided by policy-years, times 1,000. In the example, `{python} f"{1000 * ex22['n_claims'] / ex22['exposure_years']:.0f}"` paid claims per 1,000 policy-years in 2022, against `{python} f"{1000 * ex21['n_claims'] / ex21['exposure_years']:.2f}"` in 2021.
+- **The facts known in advance are the only inputs of the models.** They describe the cell before the year starts. The year itself is not an input.
+- **Zeros are real.** A row with insured homes but no claim gets a count of zero, not a missing value. Nothing is imputed. The table keeps `{python} f"{kept_claims:.1%}"` of the paid claims and `{python} f"{kept_py:.1%}"` of the policy-years; the rest are claims without county or flood zone.
+
+**Why joining the two files matters.** Counting claims without counting homes would have pointed us to the wrong places:
+
+- **Coastal V zones** hold only `{python} f"{zone_tr.loc['V*', 'claim_share']:.1%}"` of the paid claims of 2010 to 2019, which makes them look minor. Per insured home, they are the riskiest: `{python} f"{zone_tr.loc['V*', 'per_1000']:.1f}"` claims per 1,000 policy-years, against `{python} f"{zone_tr.loc['X', 'per_1000']:.1f}"` in the X zones.
+- **Florida** files the most claims (`{python} f"{state_tr.loc['FL', 'claim_share']:.0%}"`) simply because it has the most policies. Its frequency over these years is the lowest of the eight states (rank `{python} fl_rank` of 8).
 
 ### Spotting Mistakes and Missing Data
 

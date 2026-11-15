@@ -1,6 +1,13 @@
 # Methods
 
-All three models answer the same question: given what we know about a place before the year starts, how many paid claims should we expect there, per insured home? Let $N_{it}$ be the number of claims in area $i$ and year $t$, $e_{it}$ the number of policy-years, and $\mathbf{x}_{it}$ the facts known in advance (flood zone, coverage, past claims). Each model predicts the expected count $\mu_{it}$, and each takes the number of insured homes into account in the same way, through an offset $\log e_{it}$: twice as many homes means twice as many expected claims, all else equal. The three models receive the same information, so differences in performance come from the models themselves.
+All three models answer the same question: given what we know about a place before the year starts, how many paid claims should we expect there, per insured home? The notation follows the table of @sec-ds-clean:
+
+- $N_{it}$: the number of paid claims in cell $i$ (a county and flood zone) and year $t$;
+- $e_{it}$: the policy-years of that cell and year;
+- $\mathbf{x}_{it}$: the facts known in advance (flood zone, coverage, past claims);
+- $\mu_{it}$: the expected number of claims, which each model predicts.
+
+Every model takes the number of insured homes into account in the same way, through an offset $\log e_{it}$: twice as many homes means twice as many expected claims, all else equal. The three models receive the same information, so differences in performance come from the models themselves.
 
 ## Poisson GLM
 
@@ -20,13 +27,25 @@ The negative binomial GLM keeps the same structure as @eq-poisson but lets the v
 
 ## LightGBM with Poisson Objective
 
-LightGBM builds hundreds of small decision trees, each one correcting the errors of the previous ones. It uses the same Poisson loss as the GLMs, so it predicts the same quantity. The number of insured homes enters as a starting point for the trees: the logarithm of the policy-years plus the logarithm of the average claim rate of the training years. Without the second term, the first trees must learn the overall level by themselves and the predictions come out far too high. The difference with a GLM is flexibility: the trees can discover on their own that, say, the effect of the flood zone depends on the location, where a GLM would need us to specify this in advance. RQ1 asks whether this flexibility pays off on years the model has never seen. A fixed random seed makes the results reproducible.
+LightGBM builds hundreds of small decision trees, each one correcting the errors of the previous ones. Compared with the GLMs:
+
+- **Same target.** It uses the same Poisson loss, so it predicts the same quantity.
+- **Same exposure.** The number of insured homes enters as a starting point for the trees: the logarithm of the policy-years plus the logarithm of the average claim rate of the training years. Without the second term, the first trees must learn the overall level by themselves and the predictions come out far too high.
+- **More flexibility.** The trees can discover on their own that, say, the effect of the flood zone depends on the location, where a GLM would need us to specify this in advance.
+
+RQ1 asks whether this flexibility pays off on years the model has never seen. A fixed random seed makes the results reproducible.
 
 ## Validation
 
-We mimic what an insurer does every year: use all past years to predict the next one. For each year from 2016 to 2024, the models are fitted on all earlier years, starting in 2010, and predict that year. The years 2016 to 2019 serve as validation, the years 2020 to 2024 as test. The settings of LightGBM (size of the trees, learning speed, number of trees) are chosen each time on the last two years of the training window, never on the year to predict. Predicting nine years instead of fitting once gives a result that does not hang on one particular split.
+We mimic what an insurer does every year: use all past years to predict the next one.
 
-All models receive the same facts: the flood zone, the average coverage in constant dollars, and the past claims of the cell and of the county. We also keep two simple benchmarks: a null model that applies the same rate everywhere, and a Poisson GLM with the flood zone only.
+- **One prediction per year.** For each year from 2016 to 2024, the models are fitted on all earlier years, starting in 2010, and predict that year.
+- **Validation and test.** The years 2016 to 2019 serve as validation, the years 2020 to 2024 as test.
+- **Tuning.** The settings of LightGBM (size of the trees, learning speed, number of trees) are chosen each time on the last two years of the training window, never on the year to predict.
+- **Same inputs.** All models receive the facts known in advance listed in @tbl-variables.
+- **Two benchmarks.** A null model applies the same rate everywhere, and a simple Poisson GLM uses the flood zone only.
+
+Predicting nine years instead of fitting once gives a result that does not hang on one particular split.
 
 ## Metrics
 
@@ -38,9 +57,13 @@ Each metric answers a different question:
 - **Predicted over observed totals**: how far off is the overall level?
 - **Calibration by decile**: grouping areas from least to most risky according to the model, does each group get roughly the number of claims predicted? (@sec-appendix-tables)
 
-Differences between models come with 95% confidence intervals, obtained by resampling the counties. Results are reported overall and separately for Florida and the other seven states (RQ2). Three checks complete the picture: the same evaluation on the claims outside the ten largest events, on all claims rather than paid claims only, and with LightGBM kept at fixed settings instead of being tuned again every year.
+Differences between models come with 95% confidence intervals, obtained by resampling the counties. Results are reported overall and separately for Florida and the other seven states (RQ2). Three checks complete the picture:
 
-One caveat on the method. The models were first fitted once on 2010 to 2019 and evaluated on 2020 to 2024. The evaluation described here, and the choice of coverage in constant dollars, came after seeing those first results. The test years are therefore no longer untouched, and the results below should be read as exploratory.
+- the same evaluation on the claims outside the ten largest events;
+- the same evaluation on all claims rather than paid claims only;
+- LightGBM kept at fixed settings instead of being tuned again every year.
+
+**A caveat on the method.** The models were first fitted once on 2010 to 2019 and evaluated on 2020 to 2024. The evaluation described here, and the choice of coverage in constant dollars, came after seeing those first results. The test years are therefore no longer untouched, and the results below should be read as exploratory.
 
 # Findings and Discussion
 
@@ -103,9 +126,19 @@ ORD = "payes_hors_grands_evenements"
 
 **Every model predicts too few claims.** On the test years, the Poisson GLM predicts `{python} f"{score('M2', 'predit_sur_observe'):.0%}"` of the paid claims that occurred and LightGBM `{python} f"{score('M4', 'predit_sur_observe'):.0%}"` (@tbl-model-results). This confirms H3: no model fitted on past years can anticipate Ian or Helene.
 
-**LightGBM does not beat the GLMs.** Once the yearly level is set aside, LightGBM is slightly ahead on the validation years (`{python} pct(score('M4', 'gain_recale', VAL))` against `{python} pct(score('M1', 'gain_recale', VAL))` for the GLM with the zone only), a difference that is not significant (95% interval from `{python} f"{100 * g41_val['ic95_bas']:+.1f}"` to `{python} f"{100 * g41_val['ic95_haut']:+.1f}"` points). On the test years it falls behind (`{python} pct(score('M4', 'gain_recale'))` against `{python} pct(score('M1', 'gain_recale'))`, @fig-model-gain), and this time the interval excludes zero (`{python} f"{100 * g41['ic95_bas']:+.1f}"` to `{python} f"{100 * g41['ic95_haut']:+.1f}"` points). How far behind depends on the settings: kept at fixed settings, LightGBM reaches `{python} pct(score('M4_fixe', 'gain_recale'))`, still below the GLM with the zone only, but the difference is no longer significant (`{python} f"{100 * g41_fixed['ic95_bas']:+.1f}"` to `{python} f"{100 * g41_fixed['ic95_haut']:+.1f}"` points). The safe reading is that LightGBM is not better, and probably worse. H1 is not supported. The simplest model, the flood zone alone, is the most robust when the storms change place. Counting all claims instead of paid claims gives the same picture (`{python} pct(score('M4', 'gain_recale', target='tous'))` for LightGBM against `{python} pct(score('M1', 'gain_recale', target='tous'))` for the GLM with the zone only).
+**LightGBM does not beat the GLMs.** H1 is not supported. Once the yearly level is set aside (@fig-model-gain):
 
-**Why a first attempt looked better.** A single fit on 2010 to 2019 gave LightGBM a gain of `{python} pct(first_lgb)` on the test years. Two things explain it. That fit used the coverage in current dollars, which rises every year and let the trees guess the year. And the result depended on the settings: across the nine training windows, the number of trees retained ranges from `{python} int(hp_main['iterations'].min())` to `{python} int(hp_main['iterations'].max())`. A flexible model has little stable signal to hold on to.
+- **Validation years**: LightGBM is slightly ahead, `{python} pct(score('M4', 'gain_recale', VAL))` against `{python} pct(score('M1', 'gain_recale', VAL))` for the GLM with the zone only. The difference is not significant (95% interval from `{python} f"{100 * g41_val['ic95_bas']:+.1f}"` to `{python} f"{100 * g41_val['ic95_haut']:+.1f}"` points).
+- **Test years**: it falls behind, `{python} pct(score('M4', 'gain_recale'))` against `{python} pct(score('M1', 'gain_recale'))`, and this time the interval excludes zero (`{python} f"{100 * g41['ic95_bas']:+.1f}"` to `{python} f"{100 * g41['ic95_haut']:+.1f}"` points).
+- **With fixed settings**: LightGBM reaches `{python} pct(score('M4_fixe', 'gain_recale'))` on the test years, still below the GLM with the zone only, but the difference is no longer significant (`{python} f"{100 * g41_fixed['ic95_bas']:+.1f}"` to `{python} f"{100 * g41_fixed['ic95_haut']:+.1f}"` points).
+- **With all claims** instead of paid claims: same picture, `{python} pct(score('M4', 'gain_recale', target='tous'))` for LightGBM against `{python} pct(score('M1', 'gain_recale', target='tous'))` for the GLM with the zone only.
+
+The safe reading is that LightGBM is not better, and probably worse. The simplest model, the flood zone alone, is the most robust when the storms change place.
+
+**Why a first attempt looked better.** A single fit on 2010 to 2019 gave LightGBM a gain of `{python} pct(first_lgb)` on the test years. Two things explain it:
+
+- **A variable that revealed the year.** That fit used the coverage in current dollars, which rises every year and let the trees guess the year.
+- **Fragile settings.** Across the nine training windows, the number of trees retained ranges from `{python} int(hp_main['iterations'].min())` to `{python} int(hp_main['iterations'].max())`. A flexible model has little stable signal to hold on to.
 
 **The negative binomial model wins for the wrong reason.** It has the best raw gain on the test years (`{python} pct(score('M3', 'gain_brut'))`), but only because it predicts a higher level everywhere (`{python} f"{score('M3', 'predit_sur_observe'):.0%}"` of the observed claims), which happens to help when claims surge. After recalibration its gain (`{python} pct(score('M3', 'gain_recale'))`) is close to that of the Poisson GLM (`{python} pct(score('M2', 'gain_recale'))`). H2 holds for where the claims are placed, not for their level.
 
