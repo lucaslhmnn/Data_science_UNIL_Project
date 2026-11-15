@@ -1,0 +1,66 @@
+{
+  "id": [
+    "county_id",
+    "year",
+    "state"
+  ],
+  "target": [
+    "n_claims"
+  ],
+  "offset": [
+    "exposure_years"
+  ],
+  "features": [
+    "share_sfha",
+    "share_v",
+    "share_x",
+    "mean_coverage",
+    "hist_claims_1990_2008",
+    "hist_per_1000"
+  ],
+  "controls": [
+    "period",
+    "n_all",
+    "n_major",
+    "major_event_share",
+    "freq_per_1000",
+    "low_exposure",
+    "share_zone_unknown",
+    "partial_year",
+    "n_policy_rows"
+  ],
+  "description": {
+    "n_claims": "claims with a positive building paid amount (real USD > 0)",
+    "exposure_years": "policy-years in force, single-family homes (zone_year.parquet)",
+    "share_sfha": "share of known-zone policy-years in zones A* or V*",
+    "share_v": "share of known-zone policy-years in zone V*",
+    "share_x": "share of known-zone policy-years in zone X",
+    "mean_coverage": "building coverage-years / policy-years, nominal USD",
+    "hist_claims_1990_2008": "paid claims in the county, loss years 1990-2008",
+    "hist_per_1000": "hist_claims_1990_2008 per 1,000 average policy-years of 2010-2019",
+    "period": "train 2010-2019, test 2020-2024",
+    "n_all": "all claims, paid or not (sensitivity count)",
+    "n_major": "paid claims from the 10 largest named events of 2010-2024",
+    "major_event_share": "n_major / n_claims (0 when no claim)",
+    "freq_per_1000": "1000 * n_claims / exposure_years",
+    "low_exposure": "exposure_years < 100",
+    "share_zone_unknown": "share of policy-years without flood zone",
+    "partial_year": "exposure year flagged partial in zone_year (none in 2010-2024)",
+    "n_policy_rows": "number of policy records (not a policy count)"
+  },
+  "major_events": [
+    "Hurricane Helene",
+    "Hurricane Ian",
+    "Hurricane Irma",
+    "Hurricane Florence",
+    "Hurricane Matthew",
+    "Hurricane Milton",
+    "Hurricane Irene",
+    "Hurricane Sally",
+    "Hurricane Idalia",
+    "Mid-spring storms"
+  ],
+  "claims_without_county_share": 0.0008406992732272638,
+  "rows": 10922,
+  "counties": 734
+}
