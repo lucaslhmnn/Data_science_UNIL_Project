@@ -7,3 +7,5 @@ openpyxl==3.1.5
 numpy==2.5.4
 matplotlib==3.10.1
 scipy==1.15.2
+# Pour compiler le rapport Quarto (ajouté le 15/11/2026).
+jupyter==1.1.1

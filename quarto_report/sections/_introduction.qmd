@@ -12,7 +12,7 @@ We study FEMA Region 4, the eight states of the Southeast (Alabama, Florida, Geo
 
 - **From the whole United States to Region 4.** The national files hold 2,725,989 claims and 74,739,461 policy records, too heavy to process and share comfortably. Region 4 (787,274 claims and 31,463,858 policy records) remains large and varied, with coastal and inland states.
 - **Training starts in 2010 instead of 2009**, because the policy records start during 2009 and that year is incomplete.
-- **A claim counts when it is paid.** Counting all claims is kept as a check.
+- **A claim counts when it is paid.** We count claims with a payment for building damage; counting all claims is kept as a check.
 - **A county-level table for this update.** The final analysis will be at the level of the census tract, a neighborhood of a few thousand people. Building that table requires the raw files and is still in progress, so this update works with the same kind of table at the level of the county and flood zone (@sec-ds-clean).
 
 ## Research Questions

@@ -5,6 +5,12 @@ qu'il faut savoir avant de modéliser. Tous les chiffres viennent de `audit_repo
 `sentinel_report.md` et `cleaning_report.md`. Rôle et transformation de chaque colonne :
 `data_dictionary.csv`.
 
+**Note du 15/11/2026.** Le projet modélise désormais la *fréquence* des sinistres (nombre de sinistres
+payés par police-année), et non plus le paiement puis le montant de chaque sinistre. Les rôles « cible »
+et « ensembles A et B » décrits ici datent de ce premier cadrage ; ils restent valables pour décrire les
+sinistres. La table utilisée pour la fréquence est `EDA/ds_clean.csv`, construite à partir de
+`claims_clean.parquet` et `zone_year.parquet` (voir `EDA/README.md`).
+
 > Source : OpenFEMA. *This product uses the Federal Emergency Management Agency's OpenFEMA API, but is
 > not endorsed by FEMA.* Les données de ce dossier sont **modifiées par le groupe et non approuvées par
 > FEMA**.
