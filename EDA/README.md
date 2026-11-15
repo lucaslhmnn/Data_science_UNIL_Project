@@ -1,100 +1,153 @@
-# EDA et dataset de modélisation
+# EDA : fréquence des sinistres inondation (NFIP, Région IV de FEMA)
+
+Analyse exploratoire au service de la question de recherche du projet : **un modèle LightGBM
+(Poisson) prédit-il mieux la fréquence des sinistres qu'un GLM de Poisson ou binomial négatif ?**
+La fréquence est le nombre de sinistres payés rapporté au nombre de polices en vigueur
+(polices-années). Entraînement 2010-2019, test 2020-2024.
+
+## Contenu du dossier
+
+| Fichier | Rôle |
+|---|---|
+| `ds_clean.csv` | Le dataset d'analyse : une ligne par comté × zone d'inondation × année, 2010-2024 |
+| `ds_clean_roles.json` | Rôle et définition de chaque colonne, sinistres écartés, 10 plus gros événements |
+| `eda.py` | L'EDA : lit `ds_clean.csv`, écrit les figures et les tableaux dans `figures/` |
+| `build_ds_clean.py` | Construit `ds_clean.csv` à partir des données nettoyées |
 
 ## Lancer
 
 ```bash
-python EDA/dsEDA.py   # crée data/data_clean.parquet à partir de claims_clean
-python EDA/EDA.py     # EDA sur data_clean + zone_year -> figures/
+python3 EDA/eda.py              # l'EDA (le CSV est versionné, rien à reconstruire)
+python3 EDA/build_ds_clean.py   # seulement si les données nettoyées changent
 ```
 
-## L'EDA
+Sorties dans `figures/` : `eda_1` à `eda_6` (PNG et PDF), `eda_key_numbers.json` (tous les
+chiffres cités dans le rapport), `eda_by_year.csv`, `eda_by_state.csv`,
+`eda_unit_year_summary.csv`.
 
-`EDA.py` suit le fil du rapport : 7 figures pour le corps (fig1 à fig7), 3 en annexe (fig8 à fig10),
-plus `summary_numeric.csv`, `summary_categorical.csv`, `tests.csv` (khi² et Kruskal-Wallis avec taille
-d'effet) et `key_numbers.json` (chiffres cités dans le rapport). La liste des figures est en tête du
-script.
+## Le dataset `ds_clean`
 
-Principaux constats (dossiers clos, hors 2025+) :
+### Construction
 
-- Les sinistres arrivent par catastrophes : Helene, Katrina et Ian font 44 % des montants payés pour
-  17 % des sinistres.
-- Rapporté aux polices (2010-2024), la zone V a 30 sinistres pour 1 000 polices-années, la zone A 15 et
-  la zone X 5 ; coût par police-année : 1 392 $, 833 $ et 137 $.
-- 72 % des sinistres sont payés. Les variables du bâtiment influencent peu le paiement (V de Cramér
-  ≤ 0,10). Avant 2018, 92 % des « non payés » viennent du recodage des paiements NA.
-- Montant payé médian 20 000 $, moyenne 51 000 $, 5,5 % au plafond. Le montant dépend surtout de
-  l'événement (médiane 95 000 $ pour les trois grands ouragans contre 15 000 $) et de l'époque, très peu
-  de la zone (ε² = 0,007).
+`build_ds_clean.py` part de deux fichiers déjà nettoyés et versionnés (maisons individuelles,
+Région IV) :
 
-## Le nouveau dataset
+- `Data_cleaning/clean/claims_clean.parquet` : une ligne par sinistre ;
+- `Data_cleaning/clean/zone_year.parquet` : exposition des polices par zone × comté × année.
 
-`dsEDA.py` crée `data/data_clean.parquet` à partir de `claims_clean`. L'original n'est pas modifié, et
-toutes les lignes sont gardées.
+Sinistres et polices sont anonymisés et n'ont aucun identifiant commun : on ne peut pas relier un
+sinistre à sa police. Le script fait donc deux comptages indépendants, ramenés au même niveau
+(comté × zone × année), puis les met côte à côte :
 
-**Supprimé** : `foundation_type`, qui disait exactement la même chose que `rating_system`.
+1. **Exposition** : somme des polices-années par comté, zone et année, et couverture moyenne.
+2. **Sinistres** : nombre de sinistres avec un montant bâtiment payé > 0 (la cible), nombre total
+   de sinistres, sinistres des 10 plus gros événements.
+3. **Jointure** : une cellule avec des polices mais sans sinistre reçoit 0 (c'est un vrai zéro).
+4. **Historique** : sinistres payés 1990-2008, par cellule et par comté, rapportés aux polices
+   moyennes de 2010-2019 (aucune information de la période de test).
+5. **Contrôles et vérifications** : période, fréquence brute, faible exposition ; ni doublon, ni
+   comté hors Région IV.
 
-**Modifié** :
+Aucune valeur n'est imputée ni modifiée : on compte et on additionne. Les totaux sont conservés à
+99,5 % pour les sinistres payés et 99,7 % pour l'exposition. L'écart correspond aux sinistres sans
+comté (0,08 %) ou en zone D ou sans zone (0,37 %), exclus volontairement.
 
-- les valeurs impossibles deviennent NA (valeur de bâtiment à 0, âge au-delà de 150 ans) ;
-- `water_depth` = 99 devient NA (code de remplissage) ;
-- `primary_residence` devient NA avant 2000, car l'information n'était pas saisie avant ;
-- la valeur du bâtiment est revalorisée (`building_value_real`), comme les autres montants ;
-- les NA des catégories (zone, comté, étages) deviennent « inconnu ».
+### Pourquoi comté × zone × année
 
-**Signalé, sans retirer de lignes** :
+- Une fréquence demande le numérateur (sinistres, seulement dans `claims_clean`) et le
+  dénominateur (polices, seulement dans `zone_year`) sur la même ligne.
+- C'est le niveau le plus fin commun aux deux fichiers disponibles.
+- Garder la zone comme dimension conserve le facteur de risque le plus net. Moyennée par comté,
+  la zone n'est presque plus liée à la fréquence (ρ = 0,07 contre un écart de 1 à 4 entre zones).
+- Il n'y a pas d'exposition avant 2009 : pas de fréquence calculable avant.
 
-- `recent_claim` : sinistres de 2025 et après, dont les dossiers peuvent être encore ouverts ;
-- `paid_gt_cov` : 1 334 sinistres avec un montant payé supérieur à la couverture.
+C'est la version comté × zone de la table par secteur de recensement prévue par le CLAUDE.md
+(`tract_year.parquet`), qui demande les fichiers bruts.
 
-**Ajouté** :
+### Colonnes
 
-- `coverage_ratio`, `at_cap` : part du plafond payée, et sinistre au plafond ;
-- `event_group`, `major_event` : événement du sinistre, et grand ouragan ;
-- `fold` : 5 groupes pour valider les modèles, sans jamais couper un même événement en deux ;
-- `split` : découpage dans le temps (avant 2017 / 2017-2020 / après 2020) ;
-- `building_age_missing`, `deductible_missing`, `primary_residence_missing` : valeur manquante ;
-- `era`, `foundation_rr2` : variables de contrôle.
+| Rôle | Colonnes |
+|---|---|
+| Identifiants | `county_id` (FIPS, 5 caractères, à lire comme texte), `zone` (V*, A*, X), `year`, `state` |
+| Cible | `n_claims` : sinistres avec montant bâtiment payé > 0 |
+| Offset | `exposure_years` : polices-années en vigueur |
+| Variables du modèle | `zone`, `mean_coverage` (USD nominaux), `hist_claims_1990_2008`, `hist_per_1000`, `county_hist_per_1000` |
+| Contrôles (jamais en entrée du modèle) | `period`, `n_all`, `n_major`, `major_event_share`, `freq_per_1000`, `low_exposure`, `partial_year`, `n_policy_rows` |
 
-**Retiré du modèle** : `rating_system`. Il mesure surtout l'époque du sinistre et non le risque. L'effet du
-temps passe par `loss_year`.
+Ni l'année ni les primes ne sont des variables du modèle (règles du CLAUDE.md). Lire le CSV en
+Python : `pd.read_csv("EDA/ds_clean.csv", dtype={"county_id": str})`.
 
-**Variables du modèle** : couverture, franchise, zone, surélévation, âge, étages, résidence principale,
-comté, État et année, plus les indicatrices de valeur manquante. `water_depth` et `flood_duration` ne
-servent qu'à l'analyse, car on ne les connaît qu'après le sinistre. La liste exacte est dans
-`data/data_clean_roles.json`.
+Effectifs : 22 485 lignes, 734 comtés, 1 533 cellules comté × zone, 197 482 sinistres payés,
+22,7 M de polices-années (14 999 lignes en entraînement, 7 486 en test).
 
-## Résultat
+## Conclusions de l'EDA
 
-Les statistiques sont les mêmes qu'avant. La différence est qu'un GLM peut maintenant être estimé : il n'y
-a plus de variables redondantes. On ne sait pas encore si les prédictions sont meilleures.
+Chiffres issus de `figures/eda_key_numbers.json`.
 
-Les corrélations trompeuses ont disparu : valeur du bâtiment × année passe de 0,63 à 0,27 (c'était
-l'inflation), résidence principale × année de 0,44 à 0,06 (c'était un changement de saisie).
+**C1. Le risque est piloté par des catastrophes, pas par le portefeuille** (`eda_1`). L'exposition
+est stable (de 1,69 M à 1,28 M de polices-années, −24 %), mais la fréquence annuelle varie d'un
+facteur 28 : de 1,5 sinistre pour 1 000 polices en 2013 à 42,9 en 2024. Les pics correspondent aux
+ouragans (Matthew, Irma, Florence, Ian, Helene).
 
-Pour valider les modèles, utiliser `fold` en priorité, et `split` comme vérification.
+**C2. Les sinistres sont extrêmement concentrés** (`eda_3`). 1 % des comtés-zones-années
+concentrent 78 % des sinistres payés, et les 10 plus gros événements 71 %.
 
-## Points à surveiller
+**C3. Les comptes sont fortement surdispersés** (`eda_2`). 73 % des comtés-zones-années n'ont aucun
+sinistre, le maximum atteint 17 701. La dispersion vaut 126 à année et zone fixées (1 sous
+Poisson), α du binomial négatif ≈ 2,3. Le Poisson simple est inadapté : cela justifie la
+comparaison avec le binomial négatif et LightGBM.
 
-1. **Recodage des paiements manquants.** Avant 2018 environ, la plupart des sinistres non payés viennent
-   de paiements NA recodés en « non payé » dans `claims_clean` (`paid_na_to_zero`). Les creux du taux de
-   paiement en 1992 et 2007 viennent entièrement de ce recodage. La règle est probablement juste (dossier
-   clos sans paiement), mais elle est à vérifier sur le fichier brut.
-2. **Unité de `water_depth`.** Elle mélange pieds et pouces, et rien dans les données ne permet de les
-   distinguer. À signaler dans le rapport si on commente la figure 7.
-3. **Résidence principale.** Manquante pour 36 % des lignes (avant 2000) : le modèle doit l'utiliser avec
-   son indicatrice `primary_residence_missing`.
-4. **Sinistres de 2025 et après.** Dossiers possiblement encore ouverts : taux de paiement et montants
-   sous-estimés. Les exclure des analyses d'évolution, ou en tenir compte.
-5. **Payé supérieur à la couverture.** 1 334 sinistres (`paid_gt_cov`), et 211 marqués « payés » sans
-   montant. Probables erreurs de saisie : décider s'il faut les exclure du modèle du montant.
-6. **Validation.** Les plis (`fold`) ont la même taille mais pas le même contenu : chaque grand ouragan
-   domine un pli. Présenter les scores comme une moyenne et un écart-type sur les 5 plis. Le découpage
-   temporel (`split`) a un ensemble de test très différent (surtout Helene et Ian), donc il sert seulement
-   de vérification.
-7. **Plafond de couverture.** Le montant des sinistres au plafond est tronqué. Pour le modèle du montant,
-   garder la couverture en variable ou modéliser le ratio payé / couverture.
-8. **Variables pas encore ajoutées.** `elevationDifference`, `postFIRMConstructionIndicator`,
-   `crsClassCode`, latitude et longitude sont de bons candidats pour le modèle. `dsEDA.py` les ajoute
-   automatiquement si le fichier brut `Data_cleaning/NfipClaimsV3_SE.parquet` est présent.
-9. **Valeur du bâtiment.** Fixée par l'expert après le sinistre : risque de fuite d'information. Elle reste
-   hors du modèle tant que ce n'est pas testé.
+**C4. La zone d'inondation est le facteur de risque le plus net** (`eda_4`). Pour 1 000
+polices-années en entraînement : V 14,1, A 6,8, X 3,5. Classement V > A > X sur les deux périodes.
+La zone V ne représente que 1,4 % des polices.
+
+**C5. L'historique porte du signal, la couverture peu** (`eda_5`, années d'entraînement
+uniquement). Sinistres 1990-2008 pour 1 000 polices : ρ = 0,35 dans la même cellule, 0,33 pour le
+comté. Couverture moyenne : ρ = −0,18.
+
+**C6. La période de test ne ressemble pas à l'entraînement** (`eda_3`, `eda_6`). Le test concentre
+55 % des sinistres pour 30 % de l'exposition, et la fréquence passe de 5,6 à 15,9. Les lieux
+touchés changent : la persistance de la fréquence d'une cellule entre périodes n'est que de
+ρ = 0,11. La Floride passe de 2,8 à 20,0, la Caroline du Nord de 24,3 à 6,9. Tous les modèles
+devraient avoir des scores faibles et sous-estimer le niveau du test : il faut les comparer sur le
+classement et la calibration, pas seulement sur une erreur globale.
+
+**C7. Compter des sinistres sans les polices induit en erreur** (justification de la fusion). La
+zone V fait 3 % des sinistres mais c'est la plus risquée. La Floride a le plus de sinistres (35 %)
+mais la fréquence la plus basse sur 2010-2019 (8e sur 8 États).
+
+## Ce qui va dans le rapport
+
+### À inclure absolument
+
+| Section | Contenu |
+|---|---|
+| Data | Construction de `ds_clean` (deux comptages agrégés puis joints), unité, période, effectifs, pertes (0,45 % des sinistres), cible et offset |
+| Data | L'argument C7 pour justifier la fusion |
+| EDA, univarié | `eda_1` (C1), `eda_2` (C3), `eda_3` (C2) |
+| EDA, bivarié | `eda_4` (C4) |
+| EDA, corrélation | `eda_6` (C6) |
+| Key Findings | Conclusions numérotées, chacune avec sa figure et sa conséquence pour le modèle |
+| Limites | Niveau comté × zone en attendant les secteurs ; population assurée uniquement ; exposition seulement depuis 2009 |
+
+Chaque figure doit être interprétée (ce qu'on voit, pourquoi c'est important, conséquence pour le
+modèle), et les chiffres du texte doivent venir du code (`eda_key_numbers.json`).
+
+### Optionnel
+
+- `eda_5` (variables candidates) : une phrase dans le corps, la figure peut aller en annexe.
+- Le panneau (a) de `eda_6` (fréquence par État) : illustre C6, le panneau (b) porte le message.
+- Les tableaux `eda_by_year.csv` et `eda_by_state.csv`.
+- Un test formel de surdispersion (Cameron-Trivedi) ; la statistique de dispersion de Pearson
+  remplit déjà le rôle de test statistique.
+- L'ancienne analyse au niveau du sinistre (montants, paiement) : hors question de recherche.
+
+## Limites
+
+- Niveau comté × zone : moins fin que le secteur de recensement prévu, donc moins de zéros et une
+  zone moyennée à l'intérieur du comté pour les autres variables.
+- Population assurée uniquement (le NFIP n'est obligatoire qu'en zone à risque).
+- Exposition disponible seulement depuis 2009.
+- `mean_coverage` en dollars nominaux.
+- Avant 2018, la plupart des sinistres « non payés » viennent d'un montant vide recodé en 0 au
+  nettoyage ; la cible (montant payé > 0) n'en dépend pas, le compte `n_all` si.

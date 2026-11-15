@@ -11,6 +11,7 @@ We compare a gradient boosting model, LightGBM with a Poisson objective, to two 
 - **From the whole United States to FEMA Region 4.** The national files contain 2,725,989 claims and 74,739,461 policy records. At this size, the policy file was too heavy to process comfortably and to share between team members. Restricting the study to the eight states of Region 4 (787,274 claims and 31,463,858 policy records) keeps a large and varied sample, with coastal and inland states, while making the files practical to process and exchange.
 - **Training window.** The training period starts in 2010 instead of 2009, because policy records start in 2009 and the exposure of that year is understated.
 - **Claim definition.** The target counts claims with a positive paid amount, and counting all claims is kept as a sensitivity check.
+- **Analysis table of this update.** The tract-year table needs the raw files and is still being built. The exploratory analysis of this update uses the same kind of table at the county, flood zone and year level (`ds_clean`), built from the cleaned files already in the repository.
 
 ## Research Questions
 

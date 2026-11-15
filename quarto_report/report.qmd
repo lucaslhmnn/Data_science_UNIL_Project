@@ -52,7 +52,7 @@ format:
 
 jupyter: python3
 abstract: |
-  This project update asks whether LightGBM with a Poisson objective predicts flood insurance claim frequency better than a Poisson GLM and a negative binomial GLM. We use the OpenFEMA NFIP v3 claims and policies for FEMA Region 4, eight states of the southeastern United States, a restriction of the national files that keeps the data practical to process and share. Because claims and policies are redacted and cannot be linked individually, the unit of analysis is the census tract by calendar year, with exposure in policy-years as an offset. Models are trained on 2010 to 2019 and tested on 2020 to 2024. So far, the raw files have been downloaded and verified, claims have been cleaned, policy exposure has been computed, and a first exploratory analysis has been carried out. It shows that claim frequency is driven by a few hurricane years, that the test window contains the two highest-frequency years of the period, and that Florida dominates the volume of claims while its frequency relative to the other states reverses between the training and test periods. The methods and evaluation metrics (Poisson deviance, calibration by decile, Gini index and predicted versus observed totals per year) are fixed in advance. The next steps are the tract-year table, the model fits and their evaluation, overall and for Florida versus the other seven states.
+  This project update asks whether LightGBM with a Poisson objective predicts flood insurance claim frequency better than a Poisson GLM and a negative binomial GLM. We use the OpenFEMA NFIP v3 claims and policies for FEMA Region 4, eight states of the southeastern United States, a restriction of the national files that keeps the data practical to process and share. Because claims and policies are redacted and cannot be linked individually, the unit of analysis is the census tract by calendar year, with exposure in policy-years as an offset. Models are trained on 2010 to 2019 and tested on 2020 to 2024. So far, the raw files have been downloaded and verified, claims have been cleaned, policy exposure has been computed, and claims and exposure have been joined in an analysis table by county, flood zone and year. Its exploratory analysis shows that claim frequency is driven by a few hurricanes rather than by the insured portfolio, that counts have many zeros and are strongly overdispersed even within a year and a flood zone, that the flood zone and past claims are the clearest risk factors, and that the test window differs from the training years: it holds most of the claims for less than a third of the exposure, and the places hit, Florida in particular, are not those of the training years. The methods and evaluation metrics (Poisson deviance, calibration by decile, Gini index and predicted versus observed totals per year) are fixed in advance. The next steps are the tract-year table, the model fits and their evaluation, overall and for Florida versus the other seven states.
 execute: 
   warning: false
   # Note: echo setting is controlled per-format above (HTML, PDF, DOCX)
@@ -158,27 +158,32 @@ Generative AI was used in this project. Claude (Anthropic), through the Claude C
 
 ### Appendix A: Additional Exploratory Plots {#sec-appendix-plots}
 
-These figures come from the claim-level exploratory analysis (`EDA/EDA.py`) and describe paid amounts rather than claim frequency. They are kept here because they document the data, but they do not enter the frequency models.
+![Candidate features against the frequency, training years 2010 to 2019. County-zone cells with at least 100 policy-years are grouped in deciles of each feature: (left) mean building coverage per policy, (middle) paid claims of 1990 to 2008 per 1,000 policies in the same cell, (right) the same measure for the whole county. Log scale for the frequency.](../figures/eda_5_features.png){#fig-eda-features}
 
-![(a) Distribution of the paid amount on a log scale, (b) ratio of paid amount to coverage, (c) share of paid claims at the coverage cap by era.](../EDA/figures_v2/fig4_severity.png){#fig-eda-severity}
-
-![Paid amount (a) by flood zone group and (b) by elevation status.](../EDA/figures_v2/fig5_boxes.png){#fig-eda-boxes}
-
-![(a) Water depth against paid amount (hexbin density), (b) median paid amount by depth class. Water depth is known only after the loss and is not a model feature.](../EDA/figures_v2/fig7_depth.png){#fig-eda-depth}
-
-![Payment rate and median paid amount by (a) event-grouped fold, (b) time split and (c) major hurricane (Helene, Ian, Katrina) versus other claims. The folds and the time split belong to an earlier claim-level design, not to the 2010 to 2019 / 2020 to 2024 split used in this report.](../EDA/figures_v2/fig10_model_vars.png){#fig-eda-modelvars}
-
-The median paid amount is `{python} f"{eda_metrics['sev_median']:,.0f}"` USD and the mean `{python} f"{eda_metrics['sev_mean']:,.0f}"` USD (real dollars), and `{python} f"{eda_metrics['at_cap']:.1%}"` of paid claims reach the coverage limit (@fig-eda-severity). Amounts are strongly right-skewed and much larger in the major hurricanes (@fig-eda-modelvars). These patterns concern severity and are outside the scope of the frequency comparison.
+@fig-eda-features shows the relation between the candidate features and the frequency over the training years. Past claims, for the cell (rank correlation `{python} f"{kn['feature_spearman_train']['hist_per_1000']:.2f}"`) and for the county (`{python} f"{kn['feature_spearman_train']['county_hist_per_1000']:.2f}"`), are associated with a higher frequency, with a clear step for the most exposed deciles. Mean coverage is weakly and negatively related (`{python} f"{kn['feature_spearman_train']['mean_coverage']:.2f}"`), which may reflect that higher-value homes are located away from the most exposed areas. The curves are irregular, which suggests that the relations are not linear and supports comparing the GLMs with a tree-based model.
 
 ### Appendix B: Complete Code Listings {#sec-appendix-code}
 
 The code is in the project repository, <https://github.com/lucaslhmnn/Data_science_UNIL_Project>:
 
 - `Data_cleaning/clean/clean_data.py`: audit of the raw files, treatment of sentinel values, cleaning of the claims and computation of the policy exposure (`zone_year.parquet`);
-- `EDA/dsEDA.py` and `EDA/EDA.py`: claim-level dataset for the exploratory analysis, and the figures shown in @sec-eda and @sec-appendix-plots;
+- `EDA/build_ds_clean.py`: joins the paid claims and the exposure per county, flood zone and year into the analysis table `EDA/ds_clean.csv`, with the definition of each column in `EDA/ds_clean_roles.json`;
+- `EDA/eda.py`: exploratory analysis of `ds_clean`, which writes the figures of @sec-eda and @sec-appendix-plots and the key numbers (`figures/eda_key_numbers.json`) used in the text;
 - `quarto_report/`: this report, whose code cells compute all statistics from the cleaned files.
 
 ### Appendix C: Supplementary Tables {#sec-appendix-tables}
+
+```{python}
+#| label: tbl-freq-year
+#| tbl-cap: "Paid claims, all claims, policy-years and frequency per 1,000 policy-years by year, computed from ds_clean."
+
+freq_year = ds.groupby("year")[["n_claims", "n_all", "exposure_years"]].sum()
+freq_year["paid_per_1000"] = 1000 * freq_year["n_claims"] / freq_year["exposure_years"]
+freq_year["all_per_1000"] = 1000 * freq_year["n_all"] / freq_year["exposure_years"]
+freq_year["period"] = ["train" if y <= 2019 else "test" for y in freq_year.index]
+display(freq_year.round({"exposure_years": 0, "paid_per_1000": 2, "all_per_1000": 2})
+        .astype({"exposure_years": int}))
+```
 
 ```{python}
 #| label: tbl-anomalies

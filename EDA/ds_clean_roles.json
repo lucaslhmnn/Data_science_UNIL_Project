@@ -1,0 +1,110 @@
+{
+  "id": [
+    "county_id",
+    "zone",
+    "year",
+    "state"
+  ],
+  "target": [
+    "n_claims"
+  ],
+  "offset": [
+    "exposure_years"
+  ],
+  "features": [
+    "zone",
+    "mean_coverage",
+    "hist_claims_1990_2008",
+    "hist_per_1000",
+    "county_hist_per_1000"
+  ],
+  "controls": [
+    "period",
+    "n_all",
+    "n_major",
+    "major_event_share",
+    "freq_per_1000",
+    "low_exposure",
+    "partial_year",
+    "n_policy_rows"
+  ],
+  "description": {
+    "county_id": "county FIPS code, 5 characters (claims: countyCode; policies: first 5 characters of censusGeoid)",
+    "zone": "flood zone group from ratedFloodZone: V* (coastal, waves), A* (100-year floodplain), X (moderate or low risk). V* and A* form the SFHA",
+    "year": "calendar year (claims: yearOfLoss; policies: days covered in the year)",
+    "n_claims": "claims with a positive building paid amount (real USD > 0)",
+    "exposure_years": "policy-years in force: sum of policyCount x days covered / 365.25",
+    "mean_coverage": "building coverage-years / policy-years, nominal USD",
+    "hist_claims_1990_2008": "paid claims of this county and zone, loss years 1990-2008",
+    "hist_per_1000": "hist_claims_1990_2008 per 1,000 average policy-years of the county and zone over 2010-2019",
+    "county_hist_per_1000": "paid claims of the county (all zones), 1990-2008, per 1,000 average yearly policy-years of the county over 2010-2019",
+    "period": "train 2010-2019, test 2020-2024",
+    "n_all": "all claims, paid or not (sensitivity count)",
+    "n_major": "paid claims from the 10 largest named events of 2010-2024",
+    "major_event_share": "n_major / n_claims (0 when no claim)",
+    "freq_per_1000": "1000 * n_claims / exposure_years",
+    "low_exposure": "exposure_years < 100",
+    "partial_year": "exposure year flagged partial in zone_year (none in 2010-2024)",
+    "n_policy_rows": "number of policy records (not a policy count)"
+  },
+  "major_events": [
+    {
+      "name": "Hurricane Helene",
+      "year": 2024,
+      "paid_claims": 39600
+    },
+    {
+      "name": "Hurricane Ian",
+      "year": 2022,
+      "paid_claims": 28521
+    },
+    {
+      "name": "Hurricane Irma",
+      "year": 2017,
+      "paid_claims": 17670
+    },
+    {
+      "name": "Hurricane Florence",
+      "year": 2018,
+      "paid_claims": 12192
+    },
+    {
+      "name": "Hurricane Matthew",
+      "year": 2016,
+      "paid_claims": 12066
+    },
+    {
+      "name": "Hurricane Milton",
+      "year": 2024,
+      "paid_claims": 11743
+    },
+    {
+      "name": "Hurricane Irene",
+      "year": 2011,
+      "paid_claims": 6426
+    },
+    {
+      "name": "Hurricane Sally",
+      "year": 2020,
+      "paid_claims": 5134
+    },
+    {
+      "name": "Hurricane Idalia",
+      "year": 2023,
+      "paid_claims": 4072
+    },
+    {
+      "name": "Mid-spring storms",
+      "year": 2014,
+      "paid_claims": 3746
+    }
+  ],
+  "dropped": {
+    "claims_without_county_share": 0.0008406992732272638,
+    "claims_zone_D_or_unknown_share": 0.0036841029189733266,
+    "paid_claims_without_exposure_row_share": 5.063727004372964e-06,
+    "exposure_zone_D_or_unknown_share": 0.0008199031117876304
+  },
+  "rows": 22485,
+  "counties": 734
+}

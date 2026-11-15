@@ -5,16 +5,14 @@ Research question (see CLAUDE.md): does LightGBM (Poisson) beat a Poisson / nega
 binomial GLM for the number of paid claims per unit x year, with exposure in
 policy-years as offset? Training 2010-2019, test 2020-2024.
 
-Modelling unit
---------------
-The target table is data/processed/tract_year.parquet (census tract x year). If it
-exists, this script uses it. Until it is built, it reads the same table at the
-COUNTY x year level, data/processed/county_year.parquet, made by
-src/build_county_year.py (roles of each column in county_year_roles.json).
-Claim-level and zone-level files are still read for the event and flood zone figures:
-  - Data_cleaning/clean/claims_clean.parquet  (one row per claim, single-family homes)
-  - Data_cleaning/clean/zone_year.parquet     (policy exposure by zone x county x year)
-County results show the same patterns; tract-level counts will have far more zeros.
+Data
+----
+One input: EDA/ds_clean.csv, one row per county x flood zone x year (2010-2024),
+with the paid claim count (target), the exposure in policy-years (offset), candidate
+features and controls. Definitions and the list of largest events are in
+EDA/ds_clean_roles.json. Both files are made by EDA/build_ds_clean.py
+from the cleaned claims and policies, and are versioned, so this script runs on its own.
+A "unit" below is one county x zone cell.
 
 Story told by the figures (figures/eda_*.png and .pdf)
 ------------------------------------------------------
@@ -25,8 +23,8 @@ Story told by the figures (figures/eda_*.png and .pdf)
                          the test window contains Ian and Helene.
   eda_4_zone             Frequency by flood zone: V > A > X, in both periods.
   eda_5_features         Candidate features against frequency (training years only).
-  eda_6_geography        Frequency by state, and persistence of county frequency
-                         between training and test periods.
+  eda_6_geography        Frequency by state, and persistence of the frequency of each
+                         county x zone cell between training and test periods.
 
 Tables (figures/):
   eda_by_year.csv, eda_by_state.csv, eda_unit_year_summary.csv, eda_key_numbers.json
@@ -36,9 +34,7 @@ all claims are kept as a sensitivity count. Feature relationships use the traini
 years only, so no test information is used. Year is shown for description, never as
 a feature. No em dashes in labels (project rule).
 
-Run from the repository root:
-  python src/build_county_year.py   # once, or after a change of the cleaned data
-  python src/eda.py
+Run from the repository root:  python EDA/eda.py
 """
 
 import json
@@ -53,10 +49,8 @@ from matplotlib.ticker import FuncFormatter, MaxNLocator, NullFormatter
 # 0. PATHS, PERIODS, STYLE
 # -------------------------------------------------------------------------
 ROOT = Path(__file__).resolve().parents[1]
-TRACT = ROOT / "data" / "processed" / "tract_year.parquet"
-COUNTY = ROOT / "data" / "processed" / "county_year.parquet"     # src/build_county_year.py
-CLAIMS = ROOT / "Data_cleaning" / "clean" / "claims_clean.parquet"
-EXPO = ROOT / "Data_cleaning" / "clean" / "zone_year.parquet"
+DATA = ROOT / "EDA" / "ds_clean.csv"            # made by EDA/build_ds_clean.py
+ROLES = ROOT / "EDA" / "ds_clean_roles.json"
 OUT = ROOT / "figures"
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -128,53 +122,26 @@ def freq(n, e):
 
 
 # -------------------------------------------------------------------------
-# 1. DATA: unit x year table (tract if available, county otherwise)
+# 1. DATA
 # -------------------------------------------------------------------------
 pd.set_option("future.no_silent_downcasting", True)
-print("Loading...")
-claims = pd.read_parquet(CLAIMS)
-claims["year"] = num(claims["loss_year"]).astype(int)
-claims["paid"] = num(claims["paid_building_real"]) > 0
-claims["county"] = claims["county_fips"].astype("object")
-expo = pd.read_parquet(EXPO)
-expo["county"] = expo["county_fips"].astype("object")
-expo["zone"] = expo["flood_zone_group"].astype("object")
-expo["py"] = num(expo["policy_years"])
-expo["cov_years"] = num(expo["building_coverage_years"])
-
-# Exposure by year (all years, to show partial ones)
-expo_year = expo.groupby("year").agg(py=("py", "sum"), partial=("partial_year", "any"))
-
-if TRACT.exists():
-    LEVEL = "tract"
-    uy = pd.read_parquet(TRACT).rename(columns={"tract_id": "unit"})
-    uy["n_all"] = np.nan                        # sensitivity count not in the contract
-    print(f"  using {TRACT.relative_to(ROOT)}")
-elif COUNTY.exists():
-    LEVEL = "county"
-    uy = pd.read_parquet(COUNTY).rename(columns={"county_id": "unit"})
-    print(f"  using {COUNTY.relative_to(ROOT)} (tract table not built yet)")
-else:
-    raise SystemExit(f"{COUNTY.relative_to(ROOT)} not found. Build it first: "
-                     "python src/build_county_year.py")
-
+print(f"Loading {DATA.relative_to(ROOT)}...")
+uy = pd.read_csv(DATA, dtype={"county_id": str, "zone": str, "state": str})
+roles = json.loads(ROLES.read_text())
 uy = uy[uy["exposure_years"] > 0].copy()
-uy["year"] = uy["year"].astype(int)
-uy["unit"] = uy["unit"].astype(str)
+uy["unit"] = uy["county_id"] + " " + uy["zone"]
 uy["period"] = period(uy["year"])
-if "hist_per_1000" not in uy:
-    avg_pol = uy[uy["period"] == "train"].groupby("unit")["exposure_years"].mean()
-    uy["hist_per_1000"] = 1000 * uy["hist_claims_1990_2008"] / uy["unit"].map(avg_pol)
 tr, te = uy[uy["period"] == "train"], uy[uy["period"] == "test"]
-UNIT = "tract" if LEVEL == "tract" else "county"
-UNITS = "tracts" if LEVEL == "tract" else "counties"
+LEVEL, UNIT, UNITS = "county-zone", "county-zone", "county-zone cells"
 print(f"  {len(uy):,} {UNIT}-years ({uy['unit'].nunique():,} {UNITS}), "
       f"{int(uy['n_claims'].sum()):,} paid claims, {uy['exposure_years'].sum() / 1e6:,.1f}M "
       "policy-years")
 
-# Claims dropped because they cannot be placed in a unit
-c_period = claims[claims["year"].between(Y0, Y1)]
-no_unit = c_period["county"].isna().mean() if LEVEL == "county" else np.nan
+# Claims left out of the table (no county, zone D or unknown) and largest events
+no_unit = roles["dropped"]["claims_without_county_share"] \
+    + roles["dropped"]["claims_zone_D_or_unknown_share"]
+top_ev = pd.DataFrame(roles["major_events"]).set_index("name") \
+    .rename(columns={"paid_claims": "n"})
 
 # -------------------------------------------------------------------------
 # 2. TABLES
@@ -194,8 +161,8 @@ by_state_f["share_exposure"] = by_state["e"].sum(axis=1) / by_state["e"].sum().s
 by_state_f = by_state_f.sort_values("share_exposure", ascending=False)
 by_state_f.round(4).to_csv(OUT / "eda_by_state.csv")
 
-summary_cols = ["n_claims", "exposure_years", "share_sfha", "share_v", "mean_coverage",
-                "hist_per_1000"]
+summary_cols = ["n_claims", "exposure_years", "mean_coverage", "hist_per_1000",
+                "county_hist_per_1000"]
 uy[[c for c in summary_cols if c in uy]].describe(
     percentiles=[.1, .25, .5, .75, .9, .99]).T.round(3).to_csv(OUT / "eda_unit_year_summary.csv")
 
@@ -203,19 +170,13 @@ print("\nFigures:")
 # -------------------------------------------------------------------------
 # FIGURE 1: exposure, claims and frequency by year
 # -------------------------------------------------------------------------
-ev = claims[claims["year"].between(Y0, Y1) & claims["paid"]].dropna(subset=["floodEvent"])
-ev_name = ev["floodEvent"].astype(str)
-ev = ev[~ev_name.str.lower().isin(["flooding", "flood"])]
-top_ev = ev.groupby(ev["floodEvent"].astype(str)).agg(n=("id", "size"), year=("year", "median")) \
-           .sort_values("n", ascending=False)
 year_label = top_ev.head(6).groupby("year").apply(
     lambda g: ", ".join(i.replace("Hurricane ", "") for i in g.index), include_groups=False)
 
 fig, (a, b, c) = plt.subplots(1, 3, figsize=(15.5, 4.5), layout="constrained")
-ey = expo_year.loc[2009:2026]
-a.bar(ey.index, ey["py"], 0.8, color=np.where(ey["partial"], NEUTRAL, BLUE))
+a.bar(by_year.index, by_year["exposure"], 0.8, color=BLUE)
 a.yaxis.set_major_formatter(thousands)
-a.set_title("(a) Exposure in policy-years (grey: partial year, excluded)")
+a.set_title("(a) Exposure in policy-years")
 
 b.bar(by_year.index, by_year["n_claims"], 0.8, color=BLUE)
 b.yaxis.set_major_formatter(thousands)
@@ -231,8 +192,7 @@ c.plot(by_year.index, by_year["freq_all"], "--", color=INK2, lw=1.2, label="all 
 log_axis(c, "y")
 c.legend(loc="upper left")
 c.set_title("(c) Claims per 1,000 policy-years (log scale)")
-a.xaxis.set_major_locator(MaxNLocator(integer=True))
-for ax in (b, c):
+for ax in (a, b, c):
     ax.set_xlim(Y0 - 0.6, Y1 + 0.6)
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     shade_test(ax)
@@ -252,6 +212,12 @@ mu1 = (tr["exposure_years"] * rate_y).to_numpy(float)          # one rate per ye
 disp0 = np.sum((y - mu0) ** 2 / mu0) / (len(y) - 1)
 disp1 = np.sum((y - mu1) ** 2 / mu1) / (len(y) - tr["year"].nunique())
 alpha = np.sum((y - mu1) ** 2 - y) / np.sum(mu1 ** 2)          # NB2, method of moments
+g_yz = [tr["year"], tr["zone"]]                                # one rate per year x zone
+rate_yz = tr.groupby(g_yz)["n_claims"].transform("sum") / \
+    tr.groupby(g_yz)["exposure_years"].transform("sum")
+mu2 = (tr["exposure_years"] * rate_yz).to_numpy(float)
+ok = mu2 > 0
+disp2 = np.sum((y[ok] - mu2[ok]) ** 2 / mu2[ok]) / (ok.sum() - tr.groupby(g_yz).ngroups)
 zero_share = (uy["n_claims"] == 0).mean()
 
 fig, (a, b) = plt.subplots(1, 2, figsize=(13, 4.8), layout="constrained")
@@ -282,8 +248,8 @@ b.set_xlabel("Mean count in bin")
 b.set_ylabel("Variance in bin")
 b.grid(True, which="major", axis="both")
 b.legend(loc="upper left")
-b.set_title(f"(b) Dispersion {disp0:,.0f} overall, still {disp1:,.0f} within years "
-            "(Poisson = 1)")
+b.set_title(f"(b) Dispersion {disp0:,.0f} overall, {disp1:,.0f} within years, {disp2:,.0f} "
+            "within year and zone (Poisson = 1)")
 suptitle(fig, f"Counts are overdispersed: a plain Poisson model is too narrow "
               f"({UNIT} level; (b) training years)")
 export(fig, "eda_2_overdispersion")
@@ -334,17 +300,13 @@ suptitle(fig, f"Claims are concentrated: the test years hold {test_share:.0%} of
 export(fig, "eda_3_concentration")
 
 # -------------------------------------------------------------------------
-# FIGURE 4: frequency by flood zone (exposure from zone_year)
+# FIGURE 4: frequency by flood zone
 # -------------------------------------------------------------------------
 zones = ["V*", "A*", "X"]
-ze = expo[expo["year"].between(Y0, Y1) & expo["zone"].isin(zones)] \
-    .assign(period=lambda d: period(d["year"])).groupby(["zone", "period"])["py"].sum()
-zc = claims[claims["year"].between(Y0, Y1) & claims["paid"]
-            & claims["flood_zone_group"].isin(zones)]
-zc = zc.assign(zone=zc["flood_zone_group"].astype(str), period=period(zc["year"])) \
-       .groupby(["zone", "period"]).size()
-zf = freq(zc, ze).unstack().reindex(zones)[["train", "test"]]
-zshare = ze.groupby(level=0).sum().reindex(zones) / ze.sum()
+zsum = uy.groupby([uy["zone"].astype(str), "period"])[["n_claims", "exposure_years"]].sum()
+zf = freq(zsum["n_claims"], zsum["exposure_years"]).unstack().reindex(zones)[["train", "test"]]
+ze = zsum["exposure_years"].groupby(level=0).sum().reindex(zones)
+zshare = ze / ze.sum()
 
 fig, ax = plt.subplots(figsize=(8.5, 4.6), layout="constrained")
 x = np.arange(len(zones))
@@ -366,10 +328,11 @@ export(fig, "eda_4_zone")
 # -------------------------------------------------------------------------
 # FIGURE 5: candidate features against frequency (training years only)
 # -------------------------------------------------------------------------
-FEATURES = {"share_sfha": ("Share of policy-years in SFHA", pct, 100),
-            "mean_coverage": ("Mean building coverage per policy (nominal USD)",
+FEATURES = {"mean_coverage": ("Mean building coverage per policy (nominal USD)",
                               FuncFormatter(lambda v, _: f"${v / 1000:,.0f}k"), 1),
-            "hist_per_1000": ("Paid claims 1990-2008 per 1,000 policies", plain, 1)}
+            "hist_per_1000": ("Paid claims 1990-2008 per 1,000 policies, same cell", plain, 1),
+            "county_hist_per_1000": ("Paid claims 1990-2008 per 1,000 policies, county",
+                                     plain, 1)}
 FEATURES = {k: v for k, v in FEATURES.items() if k in tr and tr[k].notna().any()}
 rho = {}
 fig, axes = plt.subplots(1, len(FEATURES), figsize=(5 * len(FEATURES), 4.4),
@@ -394,8 +357,8 @@ for ax, (col, (lbl, fmt, scale)) in zip(axes[0], FEATURES.items()):
     ax.set_xlabel(f"{lbl} (decile median)")
     ax.set_title(f"Spearman rho = {rho[col]:.2f} ({len(d)} {UNITS})")
 axes[0, 0].set_ylabel("Paid claims per 1,000 policy-years (log)")
-suptitle(fig, f"Candidate features, training years {TRAIN[0]}-{TRAIN[1]}: only past claims show "
-              f"a clear link at {UNIT} level ({UNITS} with 100+ policy-years, in deciles)")
+suptitle(fig, f"Candidate features against frequency, training years {TRAIN[0]}-{TRAIN[1]} "
+              f"({UNITS} with 100+ policy-years, grouped in deciles)")
 export(fig, "eda_5_features")
 
 # -------------------------------------------------------------------------
@@ -456,6 +419,7 @@ key = {
     "zero_share_train": float((tr["n_claims"] == 0).mean()),
     "max_count": int(counts.max()),
     "dispersion_overall": float(disp0), "dispersion_within_year": float(disp1),
+    "dispersion_within_year_zone": float(disp2),
     "nb_alpha_moments": float(alpha),
     "top1pct_unit_years_share": float(top1), "top5pct_unit_years_share": float(top5),
     "top10_events": {k: int(v) for k, v in top10_ev["n"].items()},
@@ -475,6 +439,7 @@ print(f" Frequency /1000 PY    : overall {key['freq_overall']:.1f}, train {key['
       f" test {key['freq_test']:.1f}")
 print(f" Zero unit-years       : {zero_share:.1%}")
 print(f" Dispersion            : {disp0:,.0f} overall, {disp1:,.0f} within year, "
+      f"{disp2:,.0f} within year x zone, "
       f"NB alpha {alpha:.2f}")
 print(f" Concentration         : top 1% unit-years {top1:.0%}, top 10 events {ev_share:.0%}")
 print(f" Test period           : {test_share:.0%} of claims, {test_expo:.0%} of exposure")
