@@ -99,6 +99,24 @@ zones = pd.DataFrame({
 md_table(zones, align=["l", "l", "l", "r"])
 ```
 
+**What the codes inside each group mean.** The letter gives the hazard; what follows it mostly says how detailed the flood study was and which generation of map the zone comes from. A key notion is the *base flood elevation* (BFE): the height the water is expected to reach during the 100-year flood, computed by a detailed engineering study.
+
+- **V, VE and V1 to V30** all describe the same coastal hazard, where storm waves of 3 feet or more are expected.
+  - **V**: the hazard is mapped from an approximate study, without a base flood elevation.
+  - **VE**: the same zone on modern maps, with a base flood elevation from a detailed study.
+  - **V1 to V30**: the numbered codes of older maps, drawn before the mid-1980s. They mean the same as VE; the number was used to set premiums. When a county's map is redrawn, they become VE.
+- **A, AE, A1 to A30 and the other A codes** all lie in the 100-year floodplain.
+  - **A**: approximate study, no base flood elevation.
+  - **AE**: detailed study, with a base flood elevation. **A1 to A30** are its numbered equivalents on older maps.
+  - **AH**: shallow ponding, 1 to 3 feet deep, usually in flat areas.
+  - **AO**: shallow water flowing over sloping ground, 1 to 3 feet deep; the map gives a depth instead of an elevation.
+  - **AR**: an area that a levee used to protect, while the levee is being restored.
+  - **A99**: an area that will be protected by a flood control system still under construction.
+- **X, B and C** lie outside the 100-year floodplain. Modern maps distinguish a *shaded* X zone (moderate risk: the 500-year floodplain, or areas behind a levee) from an *unshaded* X zone (minimal risk). Older maps used **B** for the first and **C** for the second.
+- **D**: the risk has not been studied. These zones are left out (see above).
+
+Grouping the codes is therefore not a loss of risk information as much as a way to compare counties whose maps were drawn at different times: the same street can be coded A7 in a county with an old map and AE in a county with a new one. The detailed codes could still help, since they reveal the age of the map and the precision of the study (see [Future Work](#sec-future-work)).
+
 The data are anonymized: a claim cannot be linked to the policy that covered it. This shapes the whole project, since we can only bring claims and policies together by counting both in the same area and year (@sec-ds-clean).
 
 ## Loading Data
@@ -220,20 +238,28 @@ There are `{python} f"{n_cells:,}"` cells (county and flood zone), since not eve
 #| tbl-cap: "Main variables of ds_clean. The example is the A zone of Lee County, Florida, in 2022."
 #| echo: false
 
+STORAGE = {"object": "text", "int64": "integer", "float64": "decimal"}
+
+
+def vtype(col, kind):
+    """Statistical type of a column, followed by its storage type read from ds_clean."""
+    return f"{kind} ({STORAGE.get(str(ds[col].dtype), str(ds[col].dtype))})"
+
+
 variables = pd.DataFrame([
-    ("Identifies the row", "`county_id`, `state`", "County (5-digit code) and its state", f"{ex22['county_id']}, {ex22['state']}"),
-    ("Identifies the row", "`zone`", "Flood zone group: V, A or X (@tbl-zones)", ZONE_LABEL[ex.iloc[0]["zone"]]),
-    ("Identifies the row", "`year`", "Calendar year", "2022"),
-    ("What we predict", "`n_claims`", "Number of claims with a payment for building damage", f"{int(ex22['n_claims']):,}"),
-    ("Exposure", "`exposure_years`", "Policy-years: number of homes insured, counted over the year", f"{ex22['exposure_years']:,.0f}"),
-    ("Known in advance", "`zone`", "The flood zone is also the main risk factor", "A"),
-    ("Known in advance", "`coverage_real`", "Average insured amount per policy, in 2024 dollars", f"${ex22['coverage_real']:,.0f}"),
-    ("Known in advance", "`hist_per_1000`", "Paid claims of the same cell from 1990 to 2008, per 1,000 policy-years (yearly average of 2010 to 2019)", f"{ex22['hist_per_1000']:.1f}"),
-    ("Known in advance", "`county_hist_per_1000`", "The same measure for the whole county, all zones together", f"{ex22['county_hist_per_1000']:.1f}"),
-    ("Checks only", "`n_all`", "All claims, paid or not", f"{int(ex22['n_all']):,}"),
-    ("Checks only", "`n_major`", "Paid claims caused by one of the ten largest events", f"{int(ex22['n_major']):,}"),
-], columns=["Role", "Variable", "Meaning", "Example"])
-md_table(variables, align=["l", "l", "l", "r"])
+    ("Identifies the row", "`county_id`, `state`", vtype("county_id", "Categorical"), "County (5-digit code) and its state", f"{ex22['county_id']}, {ex22['state']}"),
+    ("Identifies the row", "`zone`", vtype("zone", f"Categorical, {ds['zone'].nunique()} levels"), "Flood zone group: V, A or X (@tbl-zones)", ZONE_LABEL[ex.iloc[0]["zone"]]),
+    ("Identifies the row", "`year`", vtype("year", "Discrete"), "Calendar year", "2022"),
+    ("What we predict", "`n_claims`", vtype("n_claims", "Count"), "Number of claims with a payment for building damage", f"{int(ex22['n_claims']):,}"),
+    ("Exposure", "`exposure_years`", vtype("exposure_years", "Continuous, positive"), "Policy-years: number of homes insured, counted over the year", f"{ex22['exposure_years']:,.0f}"),
+    ("Known in advance", "`zone`", vtype("zone", "Categorical"), "The flood zone is also the main risk factor", "A"),
+    ("Known in advance", "`coverage_real`", vtype("coverage_real", "Continuous, dollars"), "Average insured amount per policy, in 2024 dollars", f"${ex22['coverage_real']:,.0f}"),
+    ("Known in advance", "`hist_per_1000`", vtype("hist_per_1000", "Continuous, rate"), "Paid claims of the same cell from 1990 to 2008, per 1,000 policy-years (yearly average of 2010 to 2019)", f"{ex22['hist_per_1000']:.1f}"),
+    ("Known in advance", "`county_hist_per_1000`", vtype("county_hist_per_1000", "Continuous, rate"), "The same measure for the whole county, all zones together", f"{ex22['county_hist_per_1000']:.1f}"),
+    ("Checks only", "`n_all`", vtype("n_all", "Count"), "All claims, paid or not", f"{int(ex22['n_all']):,}"),
+    ("Checks only", "`n_major`", vtype("n_major", "Count"), "Paid claims caused by one of the ten largest events", f"{int(ex22['n_major']):,}"),
+], columns=["Role", "Variable", "Type", "Meaning", "Example"])
+md_table(variables, align=["l", "l", "l", "l", "r"])
 ```
 
 Three points help to read this table:
